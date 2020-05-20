@@ -11,7 +11,7 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
     chrome.pageAction.show(tabId);
 
     // handle watch page
-    let watchPageMatch = tab.url.match(/^https:\/\/www\.netflix\.com\/watch\/(\w+)/);
+    let watchPageMatch = tab.url.match(/^https:\/\/www\.netflix\.com\/watch\/([\w\-]+)/);
     if(watchPageMatch && watchPageMatch.length > 1) {
       // get video id
       let videoId = watchPageMatch[1];
@@ -27,7 +27,7 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
   else if(youtubeMatch && youtubeMatch.length > 0) {
     chrome.pageAction.show(tabId);
 
-    let watchPageMatch = tab.url.match(/^https:\/\/www\.youtube\.com\/watch\?v=(\w+)/);
+    let watchPageMatch = tab.url.match(/^https:\/\/www\.youtube\.com\/watch\?v=([\w\-]+)/);
     if(watchPageMatch && watchPageMatch.length > 1) {
       // get video id
       let videoId = watchPageMatch[1];

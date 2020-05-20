@@ -8,13 +8,10 @@ import copy from 'rollup-plugin-copy';
 const production = !process.env.ROLLUP_WATCH;
 
 export default {
-  input: {
-    content: 'src/content.js',
-    background: 'src/background.js'
-  },
+  input: 'src/content.js',
   output: {
     sourcemap: true,
-    // format: 'iife',
+    format: 'iife',
     name: 'app',
     dir: 'dist'
   },
@@ -25,15 +22,10 @@ export default {
       // we'll extract any component CSS out into
       // a separate file - better for performance
       css: css => {
-        css.write('public/build/bundle.css');
+        css.write('dist/bundle.css');
       }
     }),
 
-    // If you have external dependencies installed from
-    // npm, you'll most likely need these plugins. In
-    // some cases you'll need additional configuration -
-    // consult the documentation for details:
-    // https://github.com/rollup/plugins/tree/master/packages/commonjs
     resolve({
       browser: true,
       dedupe: ['svelte']
@@ -59,16 +51,12 @@ export default {
           src: 'src/manifest.json',
           dest: 'dist',
         },
+        {
+          src: 'src/background.js',
+          dest: 'dist',
+        },
       ]
     }),
-
-    // In dev mode, call `npm run start` once
-    // the bundle has been generated
-    !production && serve(),
-
-    // Watch the `public` directory and refresh the
-    // browser on changes when not in production
-    !production && livereload('public'),
 
     // If we're building for production (npm run build
     // instead of npm run dev), minify
@@ -79,19 +67,3 @@ export default {
   }
 };
 
-function serve() {
-  let started = false;
-
-  return {
-    writeBundle() {
-      if (!started) {
-        started = true;
-
-        require('child_process').spawn('npm', ['run', 'start', '--', '--dev'], {
-          stdio: ['ignore', 'inherit', 'inherit'],
-          shell: true
-        });
-      }
-    }
-  };
-}
