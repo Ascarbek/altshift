@@ -1,4 +1,12 @@
 <script>
+  import { tweened } from 'svelte/motion';
+  import { cubicOut } from 'svelte/easing';
+
+  const progress = tweened(0, {
+    duration: 300,
+    easing: cubicOut,
+  });
+
   export let videoId = '';
   let audioName = '';
 
@@ -29,41 +37,40 @@
     });
   }
 
-  let files;
-
   async function fileSelect(e) {
-    console.log(files);
-    // const files = e.target.files;
+    const files = e.target.files;
     if(!files || files.length === 0) return;
 
     let data = [];
 
-    data.push({"trackFile": files[0]});
+    data.push({ 'trackFile': files[0] });
 
-    data.push({ videoId });
-    data.push({ audioName });
-
-
-    const newPictures = await sendUploadForm(data/*, e => {
-      uploadProgress = ((e.loaded / e.total)*100).toFixed(0);
-    }*/);
-
-    // showUpload = true;
-
-    console.log('uploaded');
-
-    // pictures = [...pictures, ...newPictures];
-
+    await sendUploadForm(data, e => {
+      progress.set(e.loaded / e.total);
+    });
   }
 </script>
 
 <div class="upload-form">
-  <input type="file" bind:files={files}>
+  <div class="upload-handle">
+    <input type="file" on:change={fileSelect}>
+  </div>
+  <progress value={$progress}></progress>
+  <label>Name</label>
   <input type="text" bind:value={audioName}>
-  <button on:click={fileSelect}></button>
+  <button on:click={fileSelect}>Save</button>
 </div>
 
 <style>
+  .upload-form {
+    background: #555555;
+  }
+
+  progress {
+    display: block;
+    width: 100%;
+  }
+
   .upload-form {
     position: fixed;
     z-index: 10000;
