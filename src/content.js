@@ -40,11 +40,15 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
           target: el,
           props: {
             videoId,
+            videoType: request.action,
           }
         });
       }
       else {
-        AltShift.$set({ videoId });
+        component.$set({
+          videoId,
+          videoType: request.action,
+        });
       }
     } break;
   }

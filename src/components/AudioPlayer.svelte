@@ -3,7 +3,7 @@
 </script>
 
 <main>
-  <h1>{currentFile.audioName}</h1>
+  <h1>Current File</h1>
 </main>
 
 <style>

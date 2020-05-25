@@ -8,9 +8,13 @@
   });
 
   export let videoId = '';
+  export let videoType = '';
+
   let audioName = '';
+  let fileName = '';
 
   const uploadUrl = `https://localhost:5010/submit-form`;
+  const saveFieldsUrl = `https://localhost:5010/save-fields`;
 
   export function sendUploadForm(data, progressFn) {
     let formData = new FormData();
@@ -19,7 +23,7 @@
       const request = new XMLHttpRequest();
       request.open('post', uploadUrl);
       request.upload.addEventListener('progress', progressFn);
-      request.addEventListener('load', function(e) {
+      request.addEventListener('load', e => {
         if(request.status === 200) {
           resolve(JSON.parse(request.response));
         }
@@ -44,9 +48,28 @@
     let data = [];
 
     data.push({ 'trackFile': files[0] });
+    data.push({ videoType });
+    data.push({ videoId });
 
-    await sendUploadForm(data, e => {
+    const resp = await sendUploadForm(data, e => {
       progress.set(e.loaded / e.total);
+    });
+
+    fileName = resp.fileName;
+  }
+
+  async function onSaveClick() {
+    await window.fetch(saveFieldsUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        audioName,
+        videoId,
+        videoType,
+        fileName,
+      })
     });
   }
 </script>
@@ -58,7 +81,7 @@
   <progress value={$progress}></progress>
   <label>Name</label>
   <input type="text" bind:value={audioName}>
-  <button on:click={fileSelect}>Save</button>
+  <button on:click={onSaveClick}>Save</button>
 </div>
 
 <style>
@@ -76,10 +99,7 @@
     z-index: 10000;
     width: 500px;
     height: 250px;
-    margin: auto;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
+    top: 30px;
+    right: 30px;
   }
 </style>

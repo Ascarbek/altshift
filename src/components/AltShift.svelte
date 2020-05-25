@@ -4,6 +4,7 @@
   import UploadForm from "./UploadForm.svelte";
 
   export let videoId = '';
+  export let videoType = '';
 
   let audioFiles = [];
   let currentFile = '';
@@ -27,7 +28,7 @@
 
 </AudioPlayer>
 
-<UploadForm>
+<UploadForm videoId={videoId} videoType={videoType}>
 
 </UploadForm>
 

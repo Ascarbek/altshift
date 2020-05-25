@@ -2,53 +2,54 @@ const path = require('path');
 const randomString = require('randomstring');
 
 module.exports = app => {
-  app.post('/submit-form', function (req, res) {
+  app.post('/submit-form', async (req, res) => {
     if (!req.files || Object.keys(req.files).length === 0) {
       return res.status(400).send('No files were uploaded.');
     }
 
+    const db = app.locals.db;
+
     let trackFile = req.files.trackFile;
-    let videoId = req.body.videoId;
-    let audioName = req.body.audioName;
-    let lang = req.body.lang;
-    let fileName = randomString.generate() + path.extname(trackFile.name);
 
-    trackFile.mv(`./file/${fileName}`, async (err) => {
-      if (err)
-        return res.status(500).send(err);
+    const { videoId, videoType } = req.body;
 
-      console.log(`file ${videoId}${path.extname(trackFile.name)} received and saved as ${fileName}`);
+    const fileName = randomString.generate() + path.extname(trackFile.name);
 
-      const db = app.locals.db;
+    await new Promise(((resolve, reject) => trackFile.mv(`./file/${fileName}`, err => err ? reject(err) : resolve())));
 
-      const row = await db.collection('netflix-videos').findOne({ videoId });
+    console.log(`file ${videoId}${path.extname(trackFile.name)} received and saved as ${fileName}`);
 
-      if(!row) {
-        await db.collection('netflix-videos').insertOne({
-          videoId,
-          audioFiles: [{
-            audioName,
-            lang,
-            fileName,
-          }]
-        });
-      } else {
-        const newFile = {
-          audioName,
-          lang,
+    let collection;
+
+    if(videoType === 'NETFLIX_VIDEO_PAGE') {
+      collection = 'netflix-videos';
+    }
+
+    if(videoType === 'YOUTUBE_VIDEO_PAGE') {
+      collection = 'youtube-videos';
+    }
+
+    const row = await db.collection(collection).findOne({ videoId });
+
+    if (!row) {
+      await db.collection(collection).insertOne({
+        videoId,
+        audioFiles: [{
           fileName,
-        };
-        const audioFiles = [...row.audioFiles, {...newFile}];
-        await db.collection('netflix-videos').updateOne({
-          videoId
-        }, {
-          $set: {
-            audioFiles,
-          }
-        });
-      }
+        }]
+      });
+    }
+    else {
+      const audioFiles = [...row.audioFiles, { fileName }];
+      await db.collection(collection).updateOne({
+        videoId
+      }, {
+        $set: {
+          audioFiles,
+        }
+      });
+    }
 
-      res.send('File uploaded!');
-    });
+    res.status(200).json({ fileName });
   });
 };

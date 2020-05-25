@@ -39,8 +39,7 @@ const mongoSettings = require('./credentials/mongo.settings');
   /*
   * Routes
   * */
-  require('./api/routes/get-by-video-id')(app);
-  require('./api/routes/submit-form')(app);
+  fs.readdirSync('./api/routes').forEach( file => require(`./api/routes/${file}`)(app));
 
   /*
   * Database
