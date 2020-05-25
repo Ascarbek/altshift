@@ -1,6 +1,11 @@
 <script>
-  import { spring } from 'svelte/motion';
-  import { onMount } from 'svelte';
+  import { spring, tweened } from 'svelte/motion';
+  import { cubicOut } from 'svelte/easing';
+
+  const listOpacity = tweened(0, {
+    duration: 500,
+    easing: cubicOut
+  });
 
   export let audioFiles = [];
   export let currentFile = '';
@@ -24,6 +29,8 @@
       }, 500);
     }
     else {
+      if(showList) onOverlayClick();
+
       handle = setTimeout(() => {
         scale.set({ size: 0 });
         scale.damping = 0.4;
@@ -31,21 +38,33 @@
     }
   }
 
+  function onOverlayClick() {
+    if(showList) {
+      listOpacity.set(0);
+      showList = false;
+    }
+    else {
+      listOpacity.set(1);
+      showList = true;
+    }
+  }
+
   $: showOverlay ? setVisibility(true) : setVisibility(false);
 
 </script>
 
-{#if showList}
-  <ul>
+{#if $listOpacity > 0}
+  <ul style="opacity: {$listOpacity}">
     {#each audioFiles as file}
-      <li on:click={() => currentFile = file}>
-        {file.audioName}
+      <li on:click={() => currentFile = file} class:active={currentFile.fileName === file.fileName}>
+        <i class="audio-icon icon-volume2"></i>
+        <span class="audio-name">{file.audioName}</span>
       </li>
     {/each}
   </ul>
 {/if}
 
-<div class="app-overlay" style="transform: scale({$scale.size/100})">
+<div class="app-overlay" style="transform: scale({$scale.size/100})" on:click={onOverlayClick}>
   <i class="icon-headset"></i>
 </div>
 
@@ -54,7 +73,7 @@
     position: fixed;
     right: 30px;
     top: 70px;
-    z-index: 1;
+    z-index: 10000;
     color: #248dc1;
     font-size: 24px;
     width: 40px;
@@ -74,8 +93,43 @@
 
   ul {
     position: fixed;
-    top: 50px;
+    top: 90px;
+    right: 50px;
     z-index: 10000;
-    color: #ffffff;
+    color: #248dc1;
+    background: #ffffff;
+    border-radius: 10px;
+    margin: 0;
+    list-style-type: none;
+    padding: 14px;
+    width: 300px;
+    height: 150px;
+  }
+
+  li {
+    margin-bottom: 7px;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+  }
+
+  li:hover .audio-name{
+    text-decoration: underline;
+  }
+
+  li.active .audio-icon{
+    opacity: 1;
+  }
+
+  .audio-icon {
+    font-size: 24px;
+    color: #248dc1;
+    margin-right: 7px;
+    opacity: 0;
+  }
+
+  .audio-name {
+    color: #000000;
   }
 </style>
