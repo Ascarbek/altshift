@@ -5,6 +5,7 @@
 
   export let videoId = '';
   export let videoType = '';
+  export let showOverlay = false;
 
   let audioFiles = [];
   let currentFile = '';
@@ -20,10 +21,11 @@
   }
 </script>
 
-<TrackList audioFiles={audioFiles} bind:currentFile={currentFile}>
+<TrackList showOverlay={showOverlay} audioFiles={audioFiles} bind:currentFile={currentFile}>
 
 </TrackList>
 
+<!--
 <AudioPlayer currentFile={currentFile}>
 
 </AudioPlayer>
@@ -31,7 +33,7 @@
 <UploadForm videoId={videoId} videoType={videoType}>
 
 </UploadForm>
-
+-->
 <style>
 
 </style>

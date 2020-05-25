@@ -17,7 +17,11 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
   switch (request.action) {
     case 'NETFLIX_BROWSE_PAGE':
     case 'YOUTUBE_BROWSE_PAGE': {
-
+      if(component) {
+        component.$set({
+          showOverlay: false,
+        });
+      }
     } break;
 
     case 'NETFLIX_VIDEO_PAGE':
@@ -41,6 +45,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
           props: {
             videoId,
             videoType: request.action,
+            showOverlay: true,
           }
         });
       }
@@ -48,6 +53,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
         component.$set({
           videoId,
           videoType: request.action,
+          showOverlay: true,
         });
       }
     } break;
