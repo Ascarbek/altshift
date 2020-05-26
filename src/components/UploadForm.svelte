@@ -104,7 +104,7 @@
 
 <style>
   progress {
-    display: block;
+    display: none;
     width: 100%;
     -webkit-appearance: none;
     appearance: none;
@@ -192,5 +192,9 @@
 
   .upload-button.second .fields {
     display: flex;
+  }
+
+  .upload-button.second progress {
+    display: block;
   }
 </style>
