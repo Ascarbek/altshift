@@ -16,14 +16,29 @@
     audioFiles = parsed.audioFiles;
   }
 
+  function newAudio(e) {
+    const {
+      audioName,
+      fileName,
+    } = e.detail;
+
+    audioFiles = [...audioFiles, { audioName, fileName }];
+  }
+
   $: {
     getList(videoId);
   }
 </script>
 
-<TrackList showOverlay={showOverlay} audioFiles={audioFiles} bind:currentFile={currentFile}>
+<TrackList
+  showOverlay={showOverlay}
+  videoId={videoId}
+  videoType={videoType}
+  audioFiles={audioFiles}
+  bind:currentFile={currentFile}
+  on:audioSaved={newAudio}
+/>
 
-</TrackList>
 
 <!--
 <AudioPlayer currentFile={currentFile}>

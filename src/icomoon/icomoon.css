@@ -1,16 +1,16 @@
 @font-face {
   font-family: 'icomoon';
-  src:  url('/fonts/icomoon.eot?spfhps');
-  src:  url('/fonts/icomoon.eot?spfhps#iefix') format('embedded-opentype'),
-  url('/fonts/icomoon.ttf?spfhps') format('truetype'),
-  url('/fonts/icomoon.woff?spfhps') format('woff'),
-  url('/fonts/icomoon.svg?spfhps#icomoon') format('svg');
+  src:  url('/fonts/icomoon.eot?3kuaf0');
+  src:  url('/fonts/icomoon.eot?3kuaf0#iefix') format('embedded-opentype'),
+  url('/fonts/icomoon.ttf?3kuaf0') format('truetype'),
+  url('/fonts/icomoon.woff?3kuaf0') format('woff'),
+  url('/fonts/icomoon.svg?3kuaf0#icomoon') format('svg');
   font-weight: normal;
   font-style: normal;
   font-display: block;
 }
 
-[class^="icon-"], [class*=" icon-"] {
+[class^="icomoon-"], [class*=" icomoon-"] {
   /* use !important to prevent issues with browser extensions that change fonts */
   font-family: 'icomoon' !important;
   speak: none;
@@ -25,36 +25,36 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-.icon-cog:before {
+.icomoon-cog:before {
   content: "\e900";
 }
-.icon-down-vote:before {
+.icomoon-down-vote:before {
   content: "\e901";
 }
-.icon-headset:before {
+.icomoon-headset:before {
   content: "\e902";
 }
-.icon-left-arrow:before {
+.icomoon-left-arrow:before {
   content: "\e903";
 }
-.icon-microphone:before {
+.icomoon-microphone:before {
   content: "\e904";
 }
-.icon-mute-microphone:before {
+.icomoon-mute-microphone:before {
   content: "\e905";
 }
-.icon-upload:before {
+.icomoon-upload:before {
   content: "\e906";
 }
-.icon-upload-audio:before {
+.icomoon-upload-audio:before {
   content: "\e907";
 }
-.icon-up-vote:before {
+.icomoon-up-vote:before {
   content: "\e908";
 }
-.icon-volume0:before {
+.icomoon-volume0:before {
   content: "\e909";
 }
-.icon-volume2:before {
+.icomoon-volume2:before {
   content: "\e90a";
 }

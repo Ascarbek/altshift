@@ -1,6 +1,7 @@
 <script>
-  import { spring, tweened } from 'svelte/motion';
-  import { cubicOut } from 'svelte/easing';
+  import {spring, tweened} from 'svelte/motion';
+  import {cubicOut} from 'svelte/easing';
+  import UploadForm from "./UploadForm.svelte";
 
   const listOpacity = tweened(0, {
     duration: 500,
@@ -10,10 +11,12 @@
   export let audioFiles = [];
   export let currentFile = '';
   export let showOverlay = false;
+  export let videoId = '';
+  export let videoType = '';
 
   let showList = false;
 
-  let scale = spring({ size: 0 }, {
+  let scale = spring({size: 0}, {
     stiffness: 0.1,
     damping: 0.4
   });
@@ -22,28 +25,26 @@
 
   function setVisibility(v) {
     clearTimeout(handle);
-    if(v) {
+    if (v) {
       handle = setTimeout(() => {
-        scale.set({ size: 100 });
+        scale.set({size: 100});
         scale.damping = 0.25;
       }, 500);
-    }
-    else {
-      if(showList) onOverlayClick();
+    } else {
+      if (showList) onOverlayClick();
 
       handle = setTimeout(() => {
-        scale.set({ size: 0 });
+        scale.set({size: 0});
         scale.damping = 0.4;
       }, 500);
     }
   }
 
   function onOverlayClick() {
-    if(showList) {
+    if (showList) {
       listOpacity.set(0);
       showList = false;
-    }
-    else {
+    } else {
       listOpacity.set(1);
       showList = true;
     }
@@ -54,18 +55,26 @@
 </script>
 
 {#if $listOpacity > 0}
-  <ul style="opacity: {$listOpacity}">
-    {#each audioFiles as file}
-      <li on:click={() => currentFile = file} class:active={currentFile.fileName === file.fileName}>
-        <i class="audio-icon icon-volume2"></i>
-        <span class="audio-name">{file.audioName}</span>
-      </li>
-    {/each}
-  </ul>
+  <div class="track-list" style="opacity: {$listOpacity}">
+    <ul>
+      {#each audioFiles as file}
+        <li on:click={() => currentFile = file} class:active={currentFile.fileName === file.fileName}>
+          <i class="audio-icon icomoon-volume2"></i>
+          <span class="audio-name">{file.audioName}</span>
+        </li>
+      {/each}
+      {#if !audioFiles || !audioFiles.length}
+        <li class="not-found">
+          no audios found, you can upload or record your own
+        </li>
+      {/if}
+    </ul>
+    <UploadForm videoId={videoId} videoType={videoType} on:audioSaved/>
+  </div>
 {/if}
 
 <div class="app-overlay" style="transform: scale({$scale.size/100})" on:click={onOverlayClick}>
-  <i class="icon-headset"></i>
+  <i class="icomoon-headset"></i>
 </div>
 
 <style>
@@ -91,27 +100,41 @@
     display: block;
   }
 
-  ul {
+  .track-list {
+    width: 300px;
     position: fixed;
     top: 90px;
     right: 50px;
     z-index: 10000;
-    color: #248dc1;
     background: #ffffff;
     border-radius: 10px;
+  }
+
+  ul {
     margin: 0;
     list-style-type: none;
-    padding: 14px;
-    width: 300px;
-    height: 150px;
+    padding: 14px 0;
+    width: 100%;
+    border-bottom: #dddddd 1px solid;
   }
 
   li {
+    padding: 0 14px;
+    color: #248dc1;
     margin-bottom: 7px;
     font-size: 16px;
     display: flex;
     align-items: center;
     cursor: pointer;
+  }
+
+  li.not-found {
+    color: #888888;
+    font-size: 11px;
+  }
+
+  li:last-child {
+    margin-bottom: 0;
   }
 
   li:hover .audio-name{
@@ -132,4 +155,6 @@
   .audio-name {
     color: #000000;
   }
+
+
 </style>
