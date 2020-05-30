@@ -119,9 +119,8 @@
   }
 
   li {
-    padding: 0 14px;
+    padding: 4px 14px;
     color: #248dc1;
-    margin-bottom: 7px;
     font-size: 16px;
     display: flex;
     align-items: center;
@@ -133,16 +132,16 @@
     font-size: 11px;
   }
 
-  li:last-child {
-    margin-bottom: 0;
+  li:hover {
+    background: #efefef;
   }
 
-  li:hover .audio-name{
-    text-decoration: underline;
-  }
-
-  li.active .audio-icon{
+  li.active .audio-icon {
     opacity: 1;
+  }
+
+  li.active .audio-name {
+    color: #248dc1;
   }
 
   .audio-icon {

@@ -11,7 +11,12 @@
   let currentFile = '';
 
   async function getList(id) {
-    const resp = await window.fetch('https://localhost:5010/get-by-video-id?videoId=' + id)
+    const url = new URL('https://localhost:5010/get-by-video-id');
+
+    url.searchParams.append('videoId', id);
+    url.searchParams.append('videoType', videoType);
+
+    const resp = await window.fetch(url.toString())
     const parsed = await resp.json();
     audioFiles = parsed.audioFiles;
   }
