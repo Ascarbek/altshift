@@ -17,11 +17,9 @@
 
   function bouncing() {
     return {
+      delay: 500,
       duration: 1000,
-      css: t => {
-        const eased = elasticOut(t);
-        return `transform: scale(${eased});`
-      }
+      css: t => `transform: scale(${elasticOut(t)});`,
     };
   }
 
