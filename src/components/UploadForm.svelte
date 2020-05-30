@@ -2,6 +2,7 @@
   import { tweened } from 'svelte/motion';
   import { cubicOut } from 'svelte/easing';
   import { createEventDispatcher } from 'svelte';
+  import SuggestBox from 'svelte-suggestbox';
 
   const dispatch = createEventDispatcher();
 
@@ -98,6 +99,9 @@
 
   <div class="fields">
     <input class="audio-name" type="text" bind:value={audioName} placeholder="enter a title...">
+    <SuggestBox items={['Казахский', 'Русский']}>
+      <i slot="trigger-button" class="icomoon-chevron-down"></i>
+    </SuggestBox>
     <button class="save-button" on:click={onSaveClick} >Save</button>
   </div>
 </div>
@@ -110,7 +114,7 @@
     appearance: none;
     position: absolute;
     height: 7px;
-    bottom: 10px;
+    top: 0;
   }
 
   progress::-webkit-progress-bar {
@@ -140,7 +144,7 @@
   }
 
   .upload-button:hover {
-    color: #248dc1;
+    /*color: #248dc1;*/
   }
 
   .upload-button > i {
@@ -174,6 +178,7 @@
     align-items: center;
     left: 28px;
     top: 22px;
+    flex-direction: column;
   }
 
   .audio-name {
