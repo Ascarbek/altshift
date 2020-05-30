@@ -1,12 +1,7 @@
 <script>
-  import {spring, tweened} from 'svelte/motion';
-  import {cubicOut} from 'svelte/easing';
+  import { elasticOut } from 'svelte/easing';
+  import { fade } from 'svelte/transition';
   import UploadForm from "./UploadForm.svelte";
-
-  const listOpacity = tweened(0, {
-    duration: 500,
-    easing: cubicOut
-  });
 
   export let audioFiles = [];
   export let currentFile = '';
@@ -16,46 +11,24 @@
 
   let showList = false;
 
-  let scale = spring({size: 0}, {
-    stiffness: 0.1,
-    damping: 0.4
-  });
-
-  let handle;
-
-  function setVisibility(v) {
-    clearTimeout(handle);
-    if (v) {
-      handle = setTimeout(() => {
-        scale.set({size: 100});
-        scale.damping = 0.25;
-      }, 500);
-    } else {
-      if (showList) onOverlayClick();
-
-      handle = setTimeout(() => {
-        scale.set({size: 0});
-        scale.damping = 0.4;
-      }, 500);
-    }
-  }
-
   function onOverlayClick() {
-    if (showList) {
-      listOpacity.set(0);
-      showList = false;
-    } else {
-      listOpacity.set(1);
-      showList = true;
-    }
+    showList = !showList;
   }
 
-  $: showOverlay ? setVisibility(true) : setVisibility(false);
+  function bouncing() {
+    return {
+      duration: 1000,
+      css: t => {
+        const eased = elasticOut(t);
+        return `transform: scale(${eased});`
+      }
+    };
+  }
 
 </script>
 
-{#if $listOpacity > 0}
-  <div class="track-list" style="opacity: {$listOpacity}">
+{#if showList}
+  <div class="track-list" transition:fade={{duration: 250}}>
     <ul>
       {#each audioFiles as file}
         <li on:click={() => currentFile = file} class:active={currentFile.fileName === file.fileName}>
@@ -73,9 +46,11 @@
   </div>
 {/if}
 
-<div class="app-overlay" style="transform: scale({$scale.size/100})" on:click={onOverlayClick}>
-  <i class="icomoon-headset"></i>
-</div>
+{#if showOverlay}
+  <div class="app-overlay" transition:bouncing={{}} on:click={onOverlayClick}>
+    <i class="icomoon-headset"></i>
+  </div>
+{/if}
 
 <style>
   .app-overlay {
