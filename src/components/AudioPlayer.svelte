@@ -4,6 +4,7 @@
 
 <main>
   <h1>Current File</h1>
+  {currentFile}
 </main>
 
 <style>

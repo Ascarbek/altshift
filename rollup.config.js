@@ -8,7 +8,7 @@ import copy from 'rollup-plugin-copy';
 const production = !process.env.ROLLUP_WATCH;
 
 export default {
-  input: 'src/content.js',
+  input: production ? 'src/content.js' : 'src/wrapper/index.js',
   output: {
     sourcemap: true,
     format: 'iife',
@@ -55,15 +55,43 @@ export default {
           src: 'src/background.js',
           dest: 'dist',
         },
+        {
+          src: 'src/wrapper/index.html',
+          dest: 'dist',
+        }
       ]
     }),
+    // In dev mode, call `npm run start` once
+    // the bundle has been generated
+    !production && serve(),
+
+    // Watch the `public` directory and refresh the
+    // browser on changes when not in production
+    !production && livereload('dist'),
 
     // If we're building for production (npm run build
     // instead of npm run dev), minify
-    // production && terser()
+    production && terser()
   ],
   watch: {
     clearScreen: false
   }
 };
+
+function serve() {
+  let started = false;
+
+  return {
+    writeBundle() {
+      if (!started) {
+        started = true;
+
+        require('child_process').spawn('npm', ['run', 'start', '--', '--dev'], {
+          stdio: ['ignore', 'inherit', 'inherit'],
+          shell: true
+        });
+      }
+    }
+  };
+}
 

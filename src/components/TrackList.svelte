@@ -15,17 +15,17 @@
     showList = !showList;
   }
 
-  function bouncing() {
+  function bouncing(node, {delay = 500, duration = 1000}) {
     return {
-      delay: 500,
-      duration: 1000,
+      delay,
+      duration,
       css: t => `transform: scale(${elasticOut(t)});`,
     };
   }
 
 </script>
 
-{#if showList}
+{#if showList && showOverlay}
   <div class="track-list" transition:fade={{duration: 250}}>
     <ul>
       {#each audioFiles as file}
@@ -45,7 +45,7 @@
 {/if}
 
 {#if showOverlay}
-  <div class="app-overlay" transition:bouncing={{}} on:click={onOverlayClick}>
+  <div class="app-overlay" in:bouncing={{delay: 500}} out:bouncing={{delay: 0}} on:click={onOverlayClick}>
     <i class="icomoon-headset"></i>
   </div>
 {/if}

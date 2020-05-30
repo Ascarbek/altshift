@@ -143,8 +143,9 @@
     height: 63px;
   }
 
-  .upload-button:hover {
-    /*color: #248dc1;*/
+  .upload-button:hover i,
+  .upload-button:hover span {
+    color: #248dc1;
   }
 
   .upload-button > i {
