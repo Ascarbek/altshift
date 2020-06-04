@@ -14,58 +14,17 @@
   export let videoId = '';
   export let videoType = '';
 
-  let audioName = '';
+  export let audioName = '';
   let fileName = '';
 
-  const uploadUrl = `https://localhost:5010/submit-form`;
+
   const saveFieldsUrl = `https://localhost:5010/save-fields`;
 
   let secondStep = false;
 
-  export function sendUploadForm(data, progressFn) {
-    let formData = new FormData();
 
-    return new Promise((resolve, reject) => {
-      const request = new XMLHttpRequest();
-      request.open('post', uploadUrl);
-      request.upload.addEventListener('progress', progressFn);
-      request.addEventListener('load', e => {
-        if(request.status === 200) {
-          resolve(JSON.parse(request.response));
-        }
-        else {
-          reject(request.response);
-        }
-      });
 
-      for(let d=0; d<data.length; d++) {
-        const key = Object.keys(data[d])[0];
-        formData.append(key, data[d][key]);
-      }
 
-      request.send(formData);
-    });
-  }
-
-  async function fileSelect(e) {
-    const files = e.target.files;
-    if(!files || files.length === 0) return;
-
-    secondStep = true;
-    audioName = files[0].name;
-
-    let data = [];
-
-    data.push({ 'trackFile': files[0] });
-    data.push({ videoType });
-    data.push({ videoId });
-
-    const resp = await sendUploadForm(data, e => {
-      progress.set(e.loaded / e.total);
-    });
-
-    fileName = resp.fileName;
-  }
 
   async function onSaveClick() {
     await window.fetch(saveFieldsUrl, {
@@ -89,12 +48,21 @@
     secondStep = false;
     progress.set(0);
   }
+
+  function onFileSelect(e) {
+    const files = e.target.files;
+    if(!files || files.length === 0) return;
+
+    dispatch('startFileUpload', {
+      file: files[0]
+    });
+  }
 </script>
 
 <div class="upload-button" class:second={secondStep}>
   <i class="icomoon-upload-audio"></i>
   <span>click to upload audio file</span>
-  <input class="file-upload" type="file" on:change={fileSelect}>
+  <input class="file-upload" type="file" on:change={onFileSelect}>
   <progress value={$progress}></progress>
 
   <div class="fields">

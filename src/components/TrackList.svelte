@@ -1,5 +1,5 @@
 <script>
-  import { elasticOut } from 'svelte/easing';
+
   import { fade } from 'svelte/transition';
   import UploadForm from "./UploadForm.svelte";
 
@@ -15,15 +15,11 @@
     showList = !showList;
   }
 
-  function bouncing(node, {delay = 500, duration = 1000}) {
-    return {
-      delay,
-      duration,
-      css: t => `transform: scale(${elasticOut(t)});`,
-    };
-  }
+
 
 </script>
+
+
 
 {#if showList && showOverlay}
   <div class="track-list" transition:fade={{duration: 250}}>
@@ -44,40 +40,14 @@
   </div>
 {/if}
 
-{#if showOverlay}
-  <div class="app-overlay" in:bouncing={{delay: 500}} out:bouncing={{delay: 0}} on:click={onOverlayClick}>
-    <i class="icomoon-headset"></i>
-  </div>
-{/if}
-
 <style>
-  .app-overlay {
-    position: fixed;
-    right: 30px;
-    top: 70px;
-    z-index: 10000;
-    color: #248dc1;
-    font-size: 24px;
-    width: 40px;
-    height: 40px;
-    background: #ffffff;
-    border-radius: 50%;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 0 5px 0 #000000;
-  }
 
-  i {
-    display: block;
-  }
 
   .track-list {
     width: 300px;
     position: fixed;
-    top: 90px;
-    right: 50px;
+    top: 70px;
+    right: 70px;
     z-index: 10000;
     background: #ffffff;
     border-radius: 10px;
