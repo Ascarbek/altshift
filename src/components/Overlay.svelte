@@ -13,7 +13,9 @@
 </script>
 
 <div class="app-overlay" class:available={available} in:bouncing={{delay: 500}} out:bouncing={{delay: 0}} on:click>
-  <i class="icomoon-headset"></i>
+  <div class="icons">
+    <i class="icomoon-headset"></i>
+  </div>
 </div>
 
 <style>
@@ -23,7 +25,6 @@
     top: 70px;
     z-index: 10000;
     color: #333333;
-    font-size: 24px;
     width: 40px;
     height: 40px;
     background: #ffffff;
@@ -35,8 +36,26 @@
     box-shadow: 0 0 5px 0 #000000;
   }
 
-  .available {
-    color: #248dc1;
+  .app-overlay.available {
+    background: #248dc1;
+  }
+
+  .icons {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .icomoon-headset {
+    font-size: 24px;
+  }
+
+  .available .icomoon-headset {
+    color: #ffffff;
+    position: absolute;
   }
 
   i {

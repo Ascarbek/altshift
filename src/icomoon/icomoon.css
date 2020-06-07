@@ -1,10 +1,9 @@
 @font-face {
   font-family: 'icomoon';
-  src:  url('/fonts/icomoon.eot?5e7gcy');
-  src:  url('/fonts/icomoon.eot?5e7gcy#iefix') format('embedded-opentype'),
-  url('/fonts/icomoon.ttf?5e7gcy') format('truetype'),
-  url('/fonts/icomoon.woff?5e7gcy') format('woff'),
-  url('/fonts/icomoon.svg?5e7gcy#icomoon') format('svg');
+  src:  url('/fonts/icomoon.eot?r1fz1b');
+  src:  url('/fonts/icomoon.eot?r1fz1b#iefix') format('embedded-opentype'),
+  url('/fonts/icomoon.woff?r1fz1b') format('woff'),
+  url('/fonts/icomoon.svg?r1fz1b#icomoon') format('svg');
   font-weight: normal;
   font-style: normal;
   font-display: block;
@@ -25,6 +24,24 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.icomoon-emoticon-weird:before {
+  content: "\e90d";
+}
+.icomoon-left-3:before {
+  content: "\e90e";
+}
+.icomoon-right-3:before {
+  content: "\e90f";
+}
+.icomoon-double-chevron-down:before {
+  content: "\e910";
+}
+.icomoon-double-chevron-up:before {
+  content: "\e911";
+}
+.icomoon-sound-wave:before {
+  content: "\e912";
+}
 .icomoon-arrow-down:before {
   content: "\e90b";
 }

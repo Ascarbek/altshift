@@ -10,38 +10,40 @@
 
   export let videoId = '';
   export let videoType = '';
+
+  let overlayAvailable = false;
+
   export let showOverlay = false;
+  let showNewAudioModal = false;
+  let showUploadForm = true;
 
   let audioFiles = [];
   let currentFile = '';
 
   let uploadingAudioName = '';
 
+  let tags = [{
+    label: 'censored',
+  }, {
+    label: 'uncensored',
+  }, {
+    label: 'parody',
+  }]
+
   async function getList(id) {
-    audioFiles = await getAudioFilesByVideoId(id, videoType);
-  }
-
-  function newAudio(e) {
-    const {
-      audioName,
-      fileName,
-    } = e.detail;
-
-    audioFiles = [...audioFiles, {audioName, fileName}];
+    try {
+      audioFiles = await getAudioFilesByVideoId(id, videoType);
+      if (audioFiles.length) {
+        overlayAvailable = true;
+      }
+    } catch (e) {
+      console.error('getList error:');
+      console.error(e);
+    }
   }
 
   $: {
     getList(videoId);
-  }
-
-  let overlayAvailable = false;
-
-  function onOverlayClick() {
-    showOverlay = false;
-    setTimeout(() => {
-      showOverlay = true;
-      overlayAvailable = true;
-    }, 1000);
   }
 
   async function startFileUpload(event) {
@@ -64,17 +66,27 @@
     fileName = resp.fileName;
   }
 
-  let showNewAudioModal = false;
-  let showUploadForm = true;
+  function newAudio(e) {
+    const {
+      audioName,
+      fileName,
+    } = e.detail;
 
+    audioFiles = [...audioFiles, {audioName, fileName}];
+  }
+
+  /**
+   * TEST
+   * */
+  function onOverlayClick() {
+    showOverlay = false;
+    setTimeout(() => {
+      showOverlay = true;
+      overlayAvailable = true;
+    }, 1000);
+  }
 </script>
 
-<!--
-<UploadForm
-  on:startFileUpload={startFileUpload}
-  bind:audioName={uploadingAudioName}
-/>
--->
 {#if showOverlay}
   <Overlay
     on:click={onOverlayClick}
@@ -89,6 +101,9 @@
 
 {#if showUploadForm}
   <UploadForm
+    on:startFileUpload={startFileUpload}
+    bind:audioName={uploadingAudioName}
+    tags={tags}
   />
 {/if}
 

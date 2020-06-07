@@ -36,7 +36,7 @@ export default {
     copy({
       targets: [
         {
-          src: 'src/icomoon/fonts/*',
+          src: 'src/icomoon/fonts/!*',
           dest: 'dist/fonts',
         },
         {
@@ -44,7 +44,7 @@ export default {
           dest: 'dist/fonts',
         },
         {
-          src: 'src/img/*',
+          src: 'src/img/!*',
           dest: 'dist/img',
         },
         {
@@ -61,6 +61,7 @@ export default {
         }
       ]
     }),
+
     // In dev mode, call `npm run start` once
     // the bundle has been generated
     !production && serve(),
