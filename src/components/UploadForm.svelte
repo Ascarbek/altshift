@@ -1,6 +1,7 @@
 <script>
   import { tweened } from 'svelte/motion';
   import { cubicOut } from 'svelte/easing';
+  import { fade } from 'svelte/transition';
   import { createEventDispatcher } from 'svelte';
   import SuggestBox from 'svelte-suggestbox';
 
@@ -59,8 +60,12 @@
   }
 </script>
 
-<div class="upload-button" class:second={secondStep}>
-  <i class="icomoon-upload-audio"></i>
+<div class="upload-form" transition:fade>
+  <div class="field">
+    <label>Select a file</label>
+    <progress value="0.5"></progress>
+  </div>
+  <!--<i class="icomoon-upload-audio"></i>
   <span>click to upload audio file</span>
   <input class="file-upload" type="file" on:change={onFileSelect}>
   <progress value={$progress}></progress>
@@ -71,7 +76,7 @@
       <i slot="trigger-button" class="icomoon-chevron-down"></i>
     </SuggestBox>
     <button class="save-button" on:click={onSaveClick} >Save</button>
-  </div>
+  </div>-->
 </div>
 
 <style>
@@ -97,7 +102,7 @@
     display: block;
   }
 
-  .upload-button {
+  .upload-form {
     display: flex;
     align-items: center;
     flex-direction: column;
@@ -107,8 +112,14 @@
     border-bottom-left-radius: 10px;
     border-bottom-right-radius: 10px;
     cursor: pointer;
-    position: relative;
-    height: 63px;
+    position: fixed;
+    margin: auto;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 400px;
+    height: 300px;
   }
 
   .upload-button:hover i,

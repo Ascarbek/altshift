@@ -64,8 +64,8 @@
     fileName = resp.fileName;
   }
 
-  let showNewAudioModal = true;
-
+  let showNewAudioModal = false;
+  let showUploadForm = true;
 
 </script>
 
@@ -83,7 +83,13 @@
 {/if}
 
 {#if showNewAudioModal}
-  <NewAudioModal/>
+  <NewAudioModal
+  />
+{/if}
+
+{#if showUploadForm}
+  <UploadForm
+  />
 {/if}
 
         <!--
