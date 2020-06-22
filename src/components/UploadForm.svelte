@@ -7,50 +7,20 @@
 
   const dispatch = createEventDispatcher();
 
-  const progress = tweened(0, {
-    duration: 300,
-    easing: cubicOut,
-  });
+  /*  const progress = tweened(0, {
+      duration: 300,
+      easing: cubicOut,
+    });*/
 
   export let videoId = '';
   export let videoType = '';
 
   export let audioName = '';
+  export let initialFileName = '';
   let fileName = '';
+  export let uploadProgress = 0;
 
   export let tags = [];
-
-
-  const saveFieldsUrl = `https://localhost:5010/save-fields`;
-
-  let secondStep = false;
-
-
-
-
-
-  async function onSaveClick() {
-    await window.fetch(saveFieldsUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        audioName,
-        videoId,
-        videoType,
-        fileName,
-      })
-    });
-
-    dispatch('audioSaved', {
-      audioName,
-      fileName,
-    });
-
-    secondStep = false;
-    progress.set(0);
-  }
 
   function onFileSelect(e) {
     const files = e.target.files;
@@ -68,17 +38,28 @@
   </div>
 
   <div class="content">
-    <div class="field">
-      <label>Select a file</label>
-      <progress value="0.5"></progress>
+    <div class="field upload-field">
+      <input class="file-upload {uploadProgress > 0 ? 'hidden' : ''}" type="file" on:change={onFileSelect}>
 
+      {#if uploadProgress > 0}
+        <label>Uploading</label>
+        <div class="filename-color">{(uploadProgress*100).toFixed(1)}%</div>
+        <div class="progress" style="width: calc({uploadProgress*100}% - 40px)">
+          <div class="filename-white">{(uploadProgress*100).toFixed(1)}%</div>
+        </div>
+      {/if}
+
+      {#if uploadProgress === 0}
+        <label>Select a file</label>
+        <div class="upload-button"><i class="icomoon-upload"></i></div>
+      {/if}
     </div>
 
     <div class="flex-row">
       <div class="flex-col">
         <div class="field">
           <label>Title / Name</label>
-          <input type="text">
+          <input type="text" bind:value={audioName}>
         </div>
 
         <div class="field">
@@ -101,8 +82,9 @@
       </div>
     </div>
 
-
-
+    <div class="save-row">
+      <button class="save-button">Save</button>
+    </div>
 
   </div>
 
@@ -134,7 +116,7 @@
     left: 0;
     right: 0;
     width: 700px;
-    height: 350px;
+    height: 400px;
   }
 
   .header {
@@ -197,14 +179,39 @@
     box-sizing: border-box;
   }
 
+  .filename-color, .filename-white {
+    position: absolute;
+    bottom: 5px;
+    width: 660px;
+    text-align: center;
+    font-size: 14px;
+  }
+
+  .filename-color {
+    left: 20px;
+    color: #3f9ad0;
+  }
+
+  .filename-white {
+    left: 0;
+    color: #ffffff;
+  }
+
+  .progress {
+    background: #3f9ad0;
+    position: absolute;
+    height: 30px;
+    bottom: 0;
+    overflow: hidden;
+  }
+
   progress {
-    display: none;
-    width: 100%;
+    width: calc(100% - 40px);
     -webkit-appearance: none;
     appearance: none;
     position: absolute;
-    height: 7px;
-    top: 0;
+    height: 30px;
+    bottom: 0;
   }
 
   progress::-webkit-progress-bar {
@@ -219,6 +226,13 @@
     display: block;
   }
 
+  .upload-field {
+    position: relative;
+    color: #86939e;
+    cursor: pointer;
+    height: 77px;
+  }
+
   .file-upload {
     width: 100%;
     height: 100%;
@@ -226,28 +240,39 @@
     left: 0;
     top: 0;
     opacity: 0;
+    cursor: pointer;
   }
 
-  .fields {
-    position: absolute;
-    display: none;
+  .upload-button {
+    display: flex;
     align-items: center;
-    left: 28px;
-    top: 22px;
-    flex-direction: column;
+    justify-content: center;
+    height: 48px;
+    width: 100%;
+    font-size: 48px;
   }
 
-  .audio-name {
-    border: none;
-    border-bottom: #aaaaaa 1px solid;
-    padding: 3px;
-    font-size: 12px;
-    color: #000000;
-    outline: 0;
-    width: 200px;
+  .upload-field:hover {
+    color: #3e99d1;
+  }
+
+  .save-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .save-button {
-    color: #000000;
+    background: #7dc855;
+    color: #ffffff;
+    border-radius: 6px;
+    padding: 7px 0;
+    width: 130px;
+    outline: 0;
+    border: none;
+  }
+
+  .hidden {
+    display: none !important;
   }
 </style>

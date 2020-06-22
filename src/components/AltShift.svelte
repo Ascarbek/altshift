@@ -21,6 +21,7 @@
   let currentFile = '';
 
   let uploadingAudioName = '';
+  let initialFileName = '';
 
   let tags = [{
     label: 'censored',
@@ -29,6 +30,8 @@
   }, {
     label: 'parody',
   }]
+
+  let uploadProgress = 0;
 
   async function getList(id) {
     try {
@@ -51,6 +54,7 @@
 
     if (!uploadingAudioName || uploadingAudioName === '') {
       uploadingAudioName = file.name;
+      initialFileName = file.name;
     }
 
     let data = [];
@@ -60,10 +64,30 @@
     data.push({videoId});
 
     const resp = await sendUploadForm(data, e => {
-      progress.set(e.loaded / e.total);
+      uploadProgress = e.loaded / e.total;
     });
 
-    fileName = resp.fileName;
+    // fileName = resp.fileName;
+  }
+
+  async function onSaveClick() {
+    await window.fetch(saveFieldsUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        audioName,
+        videoId,
+        videoType,
+        fileName,
+      })
+    });
+
+    dispatch('audioSaved', {
+      audioName,
+      fileName,
+    });
   }
 
   function newAudio(e) {
@@ -103,7 +127,9 @@
   <UploadForm
     on:startFileUpload={startFileUpload}
     bind:audioName={uploadingAudioName}
+    bind:initialFileName={initialFileName}
     tags={tags}
+    uploadProgress={uploadProgress}
   />
 {/if}
 

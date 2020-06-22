@@ -2,6 +2,7 @@ const host = `https://localhost:5010`;
 
 const getByVideoIdUrl = `${host}/get-by-video-id`;
 const uploadUrl = `${host}/submit-form`;
+const saveFieldsUrl = `${host}/save-fields`;
 
 export async function getAudioFilesByVideoId(videoId, videoType) {
   const url = new URL(getByVideoIdUrl);
