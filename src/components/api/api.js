@@ -2,7 +2,9 @@ const host = `https://localhost:5010`;
 
 const getByVideoIdUrl = `${host}/get-by-video-id`;
 const uploadUrl = `${host}/submit-form`;
-const saveFieldsUrl = `${host}/save-fields`;
+
+const saveAudioFileUrl = `${host}/save-audio-file`;
+
 const getTagsUrl = `${host}/get-tags`;
 const addNewTagUrl = `${host}/add-new-tag`;
 const toggleTagUrl = `${host}/toggle-tag`;
@@ -41,6 +43,16 @@ export function sendUploadForm(data, progressFn) {
     }
 
     request.send(formData);
+  });
+}
+
+export async function saveAudioFile(data) {
+  await window.fetch(saveAudioFileUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(data)
   });
 }
 

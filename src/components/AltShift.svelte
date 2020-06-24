@@ -3,6 +3,8 @@
     getAudioFilesByVideoId,
     sendUploadForm,
 
+    saveAudioFile,
+
     getTags,
     addNewTag,
     toggleTag,
@@ -32,6 +34,17 @@
   let initialFileName = '';
 
   let tags = [];
+  let languages = [{
+    code: 'ru',
+    displayName: 'Русский'
+  }, {
+    code: 'en',
+    displayName: 'English'
+  }, {
+    code: 'kz',
+    displayName: 'Казахский'
+  }];
+  let selectedLanguageCode = '';
 
   let uploadProgress = 0;
 
@@ -60,29 +73,15 @@
   }
 
   async function onNewTag(e) {
-    await addNewTag({
-      videoId,
-      videoType,
-      audioFileName: uploadedFileName,
-      label: e.detail.label,
-    });
-    tags = [...tags, {label: e.detail.label, active: true}]
+    tags = [...tags, {label: e.detail.label, active: true, isNew: true}];
   }
 
   async function onToggleTag(e) {
-    await toggleTag({
-      videoId,
-      videoType,
-      audioFileName: uploadedFileName,
-      label: e.detail.label,
-    });
-
     tags = tags.map(t => { return {
       ...t,
       active: t.label === e.detail.label ? !t.active : t.active
     }});
   }
-
 
   async function startFileUpload(event) {
     const {file} = event.detail;
@@ -103,29 +102,20 @@
     });
 
     uploadedFileName = resp.fileName;
-
     uploadComplete = true;
-
   }
 
   async function onSaveClick() {
-    await window.fetch(saveFieldsUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        audioName,
-        videoId,
-        videoType,
-        fileName,
-      })
+    await saveAudioFile({
+      videoId,
+      videoType,
+      audioFileName: uploadedFileName,
+      audioName: uploadingAudioName,
+      lang: selectedLanguageCode,
+      tags: tags.filter(t => t.active)
     });
 
-    dispatch('audioSaved', {
-      audioName,
-      fileName,
-    });
+    await loadAllTags();
   }
 
   function newAudio(e) {
@@ -164,13 +154,18 @@
 {#if showUploadForm}
   <UploadForm
     on:startFileUpload={startFileUpload}
+    uploadProgress={uploadProgress}
+    uploadComplete={uploadComplete}
+
     bind:audioName={uploadingAudioName}
-    bind:uploadComplete={uploadComplete}
+    languages={languages}
+    bind:selectedLanguageCode={selectedLanguageCode}
+    tags={tags}
 
     on:newTag={onNewTag}
     on:toggleTag={onToggleTag}
-    tags={tags}
-    uploadProgress={uploadProgress}
+
+    on:save={onSaveClick}
   />
 {/if}
 

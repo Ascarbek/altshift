@@ -14,14 +14,17 @@
 
   const dispatch = createEventDispatcher();
 
-  export let audioName = '';
-  let fileName = '';
-  let audioNameInput;
   export let uploadProgress = 0;
   export let uploadComplete = false;
 
-  export let tags = [];
+  export let audioName = '';
+  let audioNameInput;
 
+  export let languages = [];
+  let selectedLanguage = [];
+  export let selectedLanguageCode = '';
+
+  export let tags = [];
   let tagName = '';
 
   async function onFileSelect(e) {
@@ -53,6 +56,11 @@
       } break;
     }
   }
+
+  const setSelectedLanguage = item => selectedLanguage = [item];
+  $: selectedLanguageCode = selectedLanguage && selectedLanguage.length ? selectedLanguage[0].code : null;
+
+  const saveClick = e => dispatch('save');
 </script>
 
 <div class="upload-form" transition:fade>
@@ -93,7 +101,7 @@
         <div class="field">
           <label>Language</label>
 
-          <SuggestBox items={['Казахский', 'Русский']} cls="dropdown" multiSelect={false}>
+          <SuggestBox items={languages} getSearchValue={item => item.displayName} cls="dropdown" multiSelect={false} onItemSelect={item => setSelectedLanguage(item)} bind:selectedItems={selectedLanguage}>
             <i slot="trigger-button" class="icomoon-arrow-down"></i>
           </SuggestBox>
         </div>
@@ -117,7 +125,7 @@
     </div>
 
     <div class="save-row">
-      <button class="save-button">Save</button>
+      <button class="save-button" on:click={e => saveClick()}>Save</button>
     </div>
 
   </div>
