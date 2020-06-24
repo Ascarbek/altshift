@@ -2,33 +2,56 @@
   import { tweened } from 'svelte/motion';
   import { cubicOut } from 'svelte/easing';
   import { fade } from 'svelte/transition';
+  import {
+    getTags,
+    addNewTag,
+    toggleTag,
+  } from './api/api';
+
+  import { tick } from 'svelte';
   import { createEventDispatcher } from 'svelte';
-  import SuggestBox from 'svelte-suggestbox';
+  import SuggestBox from './SuggestBox.svelte';
 
   const dispatch = createEventDispatcher();
 
-  /*  const progress = tweened(0, {
-      duration: 300,
-      easing: cubicOut,
-    });*/
-
-  export let videoId = '';
-  export let videoType = '';
-
   export let audioName = '';
-  export let initialFileName = '';
   let fileName = '';
+  let audioNameInput;
   export let uploadProgress = 0;
+  export let uploadComplete = false;
 
   export let tags = [];
 
-  function onFileSelect(e) {
+  let tagName = '';
+
+  async function onFileSelect(e) {
     const files = e.target.files;
     if(!files || files.length === 0) return;
 
     dispatch('startFileUpload', {
       file: files[0]
     });
+
+    await tick();
+    document.getElementById('upload-file-name-input').focus();
+    audioNameInput.selectionStart = 0;
+    audioNameInput.selectionEnd = audioName.length;
+  }
+
+  function toggleTagClick(tag) {
+    dispatch('toggleTag', {
+      label: tag.label
+    });
+  }
+
+  function tagInputKeyDown(e) {
+    switch (e.key) {
+      case 'Enter': {
+       dispatch('newTag', {
+         label: tagName
+       });
+      } break;
+    }
   }
 </script>
 
@@ -42,10 +65,15 @@
       <input class="file-upload {uploadProgress > 0 ? 'hidden' : ''}" type="file" on:change={onFileSelect}>
 
       {#if uploadProgress > 0}
-        <label>Uploading</label>
-        <div class="filename-color">{(uploadProgress*100).toFixed(1)}%</div>
+        {#if uploadComplete}
+          <label>Upload complete.</label>
+        {:else}
+          <label>Uploading...</label>
+        {/if}
+
+        <div class="filename-color">{(uploadProgress*100).toFixed(0)}%</div>
         <div class="progress" style="width: calc({uploadProgress*100}% - 40px)">
-          <div class="filename-white">{(uploadProgress*100).toFixed(1)}%</div>
+          <div class="filename-white">{(uploadProgress*100).toFixed(0)}%</div>
         </div>
       {/if}
 
@@ -59,24 +87,30 @@
       <div class="flex-col">
         <div class="field">
           <label>Title / Name</label>
-          <input type="text" bind:value={audioName}>
+          <input id="upload-file-name-input" type="text" bind:value={audioName} bind:this={audioNameInput}>
         </div>
 
         <div class="field">
           <label>Language</label>
-          <input type="text">
+
+          <SuggestBox items={['Казахский', 'Русский']} cls="dropdown" multiSelect={false}>
+            <i slot="trigger-button" class="icomoon-arrow-down"></i>
+          </SuggestBox>
         </div>
       </div>
 
       <div class="flex-col">
-        <div class="field">
+        <div class="field" style="margin-bottom: 0">
           <label>Tags / Features</label>
-          <input type="text">
+          <input type="text" bind:value={tagName} on:keydown={tagInputKeyDown}>
         </div>
 
         <div class="tag-cloud">
-          {#each tags as tag}
-            <span class="tag-item">{tag.label}</span>
+          {#each tags.filter(t => t.active) as tag}
+            <span class="tag-item active" on:click={e => toggleTagClick(tag)}>{tag.label}</span>
+          {/each}
+          {#each tags.filter(t => !t.active) as tag}
+            <span class="tag-item" on:click={e => toggleTagClick(tag)}>{tag.label}</span>
           {/each}
         </div>
       </div>
@@ -87,25 +121,12 @@
     </div>
 
   </div>
-
-  <!--<i class="icomoon-upload-audio"></i>
-  <span>click to upload audio file</span>
-  <input class="file-upload" type="file" on:change={onFileSelect}>
-  <progress value={$progress}></progress>
-
-  <div class="fields">
-    <input class="audio-name" type="text" bind:value={audioName} placeholder="enter a title...">
-    <SuggestBox items={['Казахский', 'Русский']}>
-      <i slot="trigger-button" class="icomoon-chevron-down"></i>
-    </SuggestBox>
-    <button class="save-button" on:click={onSaveClick} >Save</button>
-  </div>-->
 </div>
 
 <style>
   .upload-form {
     position: fixed;
-    border-radius: 10px;
+    border-radius: 4px;
 
     background: #ffffff;
     box-shadow: 0 0 5px 0 #000000;
@@ -124,8 +145,8 @@
     color: #ffffff;
     padding: 15px 40px 15px;
     font-size: 22px;
-    border-top-left-radius: 10px;
-    border-top-right-radius: 10px;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
   }
 
   .content {
@@ -161,6 +182,15 @@
     margin-right: 10px;
   }
 
+  .tag-item:hover {
+    color: #248dc1;
+  }
+
+  .tag-item.active {
+    background: #248dc1;
+    color: #ffffff;
+  }
+
   label {
     color: #86939e;
     display: block;
@@ -168,7 +198,7 @@
     margin-bottom: 10px;
   }
 
-  .field input {
+  .field input, .dropdown input {
     border: #e1e8ee 2px solid;
     border-radius: 4px;
     display: block;
@@ -203,23 +233,6 @@
     height: 30px;
     bottom: 0;
     overflow: hidden;
-  }
-
-  progress {
-    width: calc(100% - 40px);
-    -webkit-appearance: none;
-    appearance: none;
-    position: absolute;
-    height: 30px;
-    bottom: 0;
-  }
-
-  progress::-webkit-progress-bar {
-    background: #ffffff;
-  }
-
-  progress::-webkit-progress-value {
-    background: #3f9ad0;
   }
 
   i {
@@ -270,6 +283,7 @@
     width: 130px;
     outline: 0;
     border: none;
+    cursor: pointer;
   }
 
   .hidden {

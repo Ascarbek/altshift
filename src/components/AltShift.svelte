@@ -2,7 +2,13 @@
   import {
     getAudioFilesByVideoId,
     sendUploadForm,
+
+    getTags,
+    addNewTag,
+    toggleTag,
   } from './api/api';
+
+  import { onMount } from 'svelte';
 
   import UploadForm from "./UploadForm.svelte";
   import NewAudioModal from "./NewAudioModal.svelte";
@@ -21,17 +27,17 @@
   let currentFile = '';
 
   let uploadingAudioName = '';
+  let uploadedFileName = '';
+  let uploadComplete = false;
   let initialFileName = '';
 
-  let tags = [{
-    label: 'censored',
-  }, {
-    label: 'uncensored',
-  }, {
-    label: 'parody',
-  }]
+  let tags = [];
 
   let uploadProgress = 0;
+
+  onMount(() => {
+    loadAllTags()
+  });
 
   async function getList(id) {
     try {
@@ -48,6 +54,35 @@
   $: {
     getList(videoId);
   }
+
+  async function loadAllTags() {
+    tags = await getTags();
+  }
+
+  async function onNewTag(e) {
+    await addNewTag({
+      videoId,
+      videoType,
+      audioFileName: uploadedFileName,
+      label: e.detail.label,
+    });
+    tags = [...tags, {label: e.detail.label, active: true}]
+  }
+
+  async function onToggleTag(e) {
+    await toggleTag({
+      videoId,
+      videoType,
+      audioFileName: uploadedFileName,
+      label: e.detail.label,
+    });
+
+    tags = tags.map(t => { return {
+      ...t,
+      active: t.label === e.detail.label ? !t.active : t.active
+    }});
+  }
+
 
   async function startFileUpload(event) {
     const {file} = event.detail;
@@ -67,7 +102,10 @@
       uploadProgress = e.loaded / e.total;
     });
 
-    // fileName = resp.fileName;
+    uploadedFileName = resp.fileName;
+
+    uploadComplete = true;
+
   }
 
   async function onSaveClick() {
@@ -127,7 +165,10 @@
   <UploadForm
     on:startFileUpload={startFileUpload}
     bind:audioName={uploadingAudioName}
-    bind:initialFileName={initialFileName}
+    bind:uploadComplete={uploadComplete}
+
+    on:newTag={onNewTag}
+    on:toggleTag={onToggleTag}
     tags={tags}
     uploadProgress={uploadProgress}
   />

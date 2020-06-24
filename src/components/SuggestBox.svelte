@@ -8,7 +8,7 @@
   export let getSearchValue = item => item;
   export let getValueIndex = (item, value) => getSearchValue(item).toLowerCase().indexOf(value.toLowerCase());
   export let sortComparator = (a, b) => getSearchValue(a) > getSearchValue(b) ? 1 : getSearchValue(a) < getSearchValue(b) ? -1 : 0;
-  export let onItemSelect = item => multiSelect ? selectedItems = [...selectedItems, item] : selectedItem = item;
+  export let onItemSelect = item => multiSelect ? selectedItems = [...selectedItems, item] : selectedItems = [item];
   export let onNewItem = item => console.log('new item:', item);
   export let callDelay = 0;
 
@@ -233,18 +233,20 @@
   .input {
     display: flex;
     align-items: stretch;
-    width: 100%;
-    border: 1px solid #ccc;
-    padding-left: 6px;
-    box-sizing: border-box;
+    border: #e1e8ee 2px solid;
+    border-radius: 4px;
     outline: 0;
+    padding: 6px;
+    font-size: 14px;
+    width: 100%;
+    box-sizing: border-box;
   }
 
   .input input {
     flex: 1;
     margin: 0;
     outline: 0;
-    padding: 6px 0;
+    padding: 0;
     border: none;
   }
 

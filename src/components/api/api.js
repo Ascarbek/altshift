@@ -3,6 +3,9 @@ const host = `https://localhost:5010`;
 const getByVideoIdUrl = `${host}/get-by-video-id`;
 const uploadUrl = `${host}/submit-form`;
 const saveFieldsUrl = `${host}/save-fields`;
+const getTagsUrl = `${host}/get-tags`;
+const addNewTagUrl = `${host}/add-new-tag`;
+const toggleTagUrl = `${host}/toggle-tag`;
 
 export async function getAudioFilesByVideoId(videoId, videoType) {
   const url = new URL(getByVideoIdUrl);
@@ -38,5 +41,34 @@ export function sendUploadForm(data, progressFn) {
     }
 
     request.send(formData);
+  });
+}
+
+export async function getTags() {
+  const url = new URL(getTagsUrl);
+
+  const resp = await window.fetch(url.toString())
+  const parsed = await resp.json();
+
+  return parsed.tags;
+}
+
+export async function addNewTag(data) {
+  const resp = await window.fetch(addNewTagUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(data)
+  });
+}
+
+export async function toggleTag(data) {
+  const resp = await window.fetch(toggleTagUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(data)
   });
 }

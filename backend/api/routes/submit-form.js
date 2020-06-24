@@ -36,6 +36,7 @@ module.exports = app => {
         videoId,
         audioFiles: [{
           fileName,
+          tags: [],
         }]
       });
     }
