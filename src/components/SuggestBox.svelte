@@ -233,8 +233,8 @@
   .input {
     display: flex;
     align-items: stretch;
-    border: #e1e8ee 2px solid;
-    border-radius: 4px;
+    border: #86939e 1px solid;
+    border-radius: 2px;
     outline: 0;
     padding: 6px;
     font-size: 14px;
@@ -248,6 +248,7 @@
     outline: 0;
     padding: 0;
     border: none;
+    height: 19px;
   }
 
   .input button {

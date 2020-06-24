@@ -1,15 +1,16 @@
 <script>
   import { fade } from 'svelte/transition';
 
-  export let visible = false;
+  export let onUploadClick = () => {};
+  export let onRecordClick = () => {};
 </script>
 
 <div class="form" transition:fade>
-  <button class="upload-button">
-  <i class="icomoon-upload"></i>
+  <button class="upload-button" on:click={e => onUploadClick()}>
+    <i class="icomoon-upload"></i>
   </button>
   <div class="delimeter"></div>
-  <button class="record-button">
+  <button class="record-button" on:click={e => onRecordClick()}>
     <i class="icomoon-microphone"></i>
   </button>
 </div>

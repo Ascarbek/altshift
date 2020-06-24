@@ -149,7 +149,7 @@
   }
 
   .header {
-    background: #838cc7;
+    background: #248dc1;
     color: #ffffff;
     padding: 15px 40px 15px;
     font-size: 22px;
@@ -182,7 +182,7 @@
 
   .tag-item {
     cursor: pointer;
-    background: #bdc6cf;
+    background: #86939e;
     padding: 5px 8px;
     font-size: 10px;
     color: #ffffff;
@@ -191,7 +191,7 @@
   }
 
   .tag-item:hover {
-    color: #248dc1;
+    /*color: #248dc1;*/
   }
 
   .tag-item.active {
@@ -207,14 +207,18 @@
   }
 
   .field input, .dropdown input {
-    border: #e1e8ee 2px solid;
-    border-radius: 4px;
+    border: #86939e 1px solid;
+    border-radius: 2px;
     display: block;
     outline: 0;
     padding: 6px;
     font-size: 14px;
     width: 100%;
     box-sizing: border-box;
+  }
+
+  .icomoon-arrow-down {
+    color: #86939e;
   }
 
   .filename-color, .filename-white {
@@ -227,7 +231,7 @@
 
   .filename-color {
     left: 20px;
-    color: #3f9ad0;
+    color: #248dc1;
   }
 
   .filename-white {
@@ -236,7 +240,7 @@
   }
 
   .progress {
-    background: #3f9ad0;
+    background: #248dc1;
     position: absolute;
     height: 30px;
     bottom: 0;
@@ -274,7 +278,7 @@
   }
 
   .upload-field:hover {
-    color: #3e99d1;
+    color: #248dc1;
   }
 
   .save-row {
@@ -284,14 +288,20 @@
   }
 
   .save-button {
-    background: #7dc855;
-    color: #ffffff;
+    border: #248dc1 1px solid;
+    background: #ffffff;
+    color: #248dc1;
     border-radius: 6px;
     padding: 7px 0;
     width: 130px;
     outline: 0;
-    border: none;
+    /*border: none;*/
     cursor: pointer;
+  }
+
+  .save-button:hover {
+    background: #248dc1;
+    color: #ffffff;
   }
 
   .hidden {

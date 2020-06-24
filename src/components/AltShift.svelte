@@ -22,8 +22,8 @@
   let overlayAvailable = false;
 
   export let showOverlay = false;
-  let showNewAudioModal = false;
-  let showUploadForm = true;
+  let showNewAudioModal = true;
+  let showUploadForm = false;
 
   let audioFiles = [];
   let currentFile = '';
@@ -115,7 +115,7 @@
       tags: tags.filter(t => t.active)
     });
 
-    await loadAllTags();
+    showUploadForm = false;
   }
 
   function newAudio(e) {
@@ -126,6 +126,17 @@
 
     audioFiles = [...audioFiles, {audioName, fileName}];
   }
+
+  const onUploadClick = () => {
+    showUploadForm = true;
+    showNewAudioModal = false;
+  }
+
+  const onRecordClick = () => {
+    showUploadForm = false;
+    showNewAudioModal = false;
+  }
+
 
   /**
    * TEST
@@ -148,6 +159,8 @@
 
 {#if showNewAudioModal}
   <NewAudioModal
+          onUploadClick={onUploadClick}
+          onRecordClick={onRecordClick}
   />
 {/if}
 
@@ -168,18 +181,6 @@
     on:save={onSaveClick}
   />
 {/if}
-
-        <!--
-<TrackList
-  showOverlay={showOverlay}
-  videoId={videoId}
-  videoType={videoType}
-  audioFiles={audioFiles}
-  bind:currentFile={currentFile}
-  on:audioSaved={newAudio}
-/>
--->
-
 
 <!--
 <AudioPlayer currentFile={currentFile}>
