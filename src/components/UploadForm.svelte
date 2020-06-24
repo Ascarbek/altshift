@@ -102,7 +102,7 @@
           <label>Language</label>
 
           <SuggestBox items={languages} getSearchValue={item => item.displayName} cls="dropdown" multiSelect={false} onItemSelect={item => setSelectedLanguage(item)} bind:selectedItems={selectedLanguage}>
-            <i slot="trigger-button" class="icomoon-arrow-down"></i>
+            <i slot="trigger-button" class="icomoon-double-chevron-down"></i>
           </SuggestBox>
         </div>
       </div>
