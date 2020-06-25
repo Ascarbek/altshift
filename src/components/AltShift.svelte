@@ -23,9 +23,9 @@
   let overlayAvailable = false;
 
   export let showOverlay = false;
-  let showNewAudioModal = true;
+  let showNewAudioModal = false;
   let showUploadForm = false;
-  let showPlayer = false;
+  let showPlayer = true;
 
   let audioFiles = [];
   let currentFile = '';
