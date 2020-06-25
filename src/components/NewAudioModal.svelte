@@ -7,11 +7,11 @@
 
 <div class="form" transition:fade>
   <button class="upload-button" on:click={e => onUploadClick()}>
-    <i class="icomoon-upload"></i>
+    <i class="fas fa-cloud-upload-alt"></i>
   </button>
   <div class="delimeter"></div>
   <button class="record-button" on:click={e => onRecordClick()}>
-    <i class="icomoon-microphone"></i>
+    <i class="fas fa-microphone-alt"></i>
   </button>
 </div>
 
@@ -40,6 +40,7 @@
     flex: 1;
     font-size: 60px;
     cursor: pointer;
+    color: #9e9e9e;
   }
 
   button:hover {
@@ -48,7 +49,7 @@
 
   .delimeter {
     width: 1px;
-    background: #aaaaaa;
+    background: #9e9e9e;
     height: 100%;
   }
 

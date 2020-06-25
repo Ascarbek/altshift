@@ -233,8 +233,8 @@
   .input {
     display: flex;
     align-items: stretch;
-    border: #86939e 1px solid;
-    border-radius: 2px;
+    border: #9e9e9e 1px solid;
+    border-radius: 4px;
     outline: 0;
     padding: 6px;
     font-size: 14px;

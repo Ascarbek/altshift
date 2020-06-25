@@ -15,6 +15,7 @@
   import UploadForm from "./UploadForm.svelte";
   import NewAudioModal from "./NewAudioModal.svelte";
   import Overlay from "./Overlay.svelte";
+  import Player from "./Player.svelte";
 
   export let videoId = '';
   export let videoType = '';
@@ -24,6 +25,7 @@
   export let showOverlay = false;
   let showNewAudioModal = true;
   let showUploadForm = false;
+  let showPlayer = false;
 
   let audioFiles = [];
   let currentFile = '';
@@ -182,15 +184,8 @@
   />
 {/if}
 
-<!--
-<AudioPlayer currentFile={currentFile}>
 
-</AudioPlayer>
-
-<UploadForm videoId={videoId} videoType={videoType}>
-
-</UploadForm>
--->
-<style>
-
-</style>
+{#if showPlayer}
+  <Player
+  />
+{/if}

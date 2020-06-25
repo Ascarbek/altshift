@@ -28,6 +28,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
     case 'YOUTUBE_VIDEO_PAGE': {
       if(!cssLoaded) {
         loadCSS(getUrl('fonts/icomoon.css'));
+        loadCSS("https://kit.fontawesome.com/db24c30af8.js");
         loadCSS(getUrl('bundle.css'));
         cssLoaded = true;
       }

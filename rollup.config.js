@@ -36,18 +36,6 @@ export default {
     copy({
       targets: [
         {
-          src: 'src/icomoon/fonts/!*',
-          dest: 'dist/fonts',
-        },
-        {
-          src: 'src/icomoon/icomoon.css',
-          dest: 'dist/fonts',
-        },
-        {
-          src: 'src/img/!*',
-          dest: 'dist/img',
-        },
-        {
           src: 'src/manifest.json',
           dest: 'dist',
         },

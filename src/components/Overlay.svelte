@@ -14,7 +14,7 @@
 
 <div class="app-overlay" class:available={available} in:bouncing={{delay: 500}} out:bouncing={{delay: 0}} on:click>
   <div class="icons">
-    <i class="icomoon-headset"></i>
+    <i class="fas fa-headphones-alt"></i>
   </div>
 </div>
 
@@ -49,11 +49,12 @@
     justify-content: center;
   }
 
-  .icomoon-headset {
+  .fa-headphones-alt {
+    color: #9e9e9e;
     font-size: 24px;
   }
 
-  .available .icomoon-headset {
+  .available .fa-headphones-alt {
     color: #ffffff;
     position: absolute;
   }

@@ -87,7 +87,7 @@
 
       {#if uploadProgress === 0}
         <label>Select a file</label>
-        <div class="upload-button"><i class="icomoon-upload"></i></div>
+        <div class="upload-button"><i class="fas fa-cloud-upload-alt"></i></div>
       {/if}
     </div>
 
@@ -182,11 +182,11 @@
 
   .tag-item {
     cursor: pointer;
-    background: #86939e;
+    background: #9e9e9e;
     padding: 5px 8px;
     font-size: 10px;
     color: #ffffff;
-    border-radius: 10px;
+    border-radius: 20px;
     margin-right: 10px;
   }
 
@@ -200,15 +200,15 @@
   }
 
   label {
-    color: #86939e;
+    color: #9e9e9e;
     display: block;
     font-size: 14px;
     margin-bottom: 10px;
   }
 
   .field input, .dropdown input {
-    border: #86939e 1px solid;
-    border-radius: 2px;
+    border: #9e9e9e 1px solid;
+    border-radius: 4px;
     display: block;
     outline: 0;
     padding: 6px;
@@ -218,7 +218,7 @@
   }
 
   .icomoon-arrow-down {
-    color: #86939e;
+    color: #9e9e9e;
   }
 
   .filename-color, .filename-white {
@@ -253,7 +253,7 @@
 
   .upload-field {
     position: relative;
-    color: #86939e;
+    color: #9e9e9e;
     cursor: pointer;
     height: 77px;
   }
@@ -291,7 +291,7 @@
     border: #248dc1 1px solid;
     background: #ffffff;
     color: #248dc1;
-    border-radius: 6px;
+    border-radius: 4px;
     padding: 7px 0;
     width: 130px;
     outline: 0;
