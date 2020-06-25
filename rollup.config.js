@@ -36,6 +36,10 @@ export default {
     copy({
       targets: [
         {
+          src: 'src/img/*',
+          dest: 'dist/img',
+        },
+        {
           src: 'src/manifest.json',
           dest: 'dist',
         },

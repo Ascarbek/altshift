@@ -35,6 +35,7 @@
 <style>
   .fas, .far {
     color: #9e9e9e;
+    font-size: 16px;
   }
 
   .player {
@@ -77,7 +78,7 @@
     background: #beceb2;
     border-radius: 4px;
     color: #464c4b;
-    font-family: monospace;
+    font-family: 'Roboto Mono', monospace;
     display: flex;
     align-items: center;
     font-size: 12px;
@@ -89,25 +90,31 @@
   .up-down-buttons {
     position: absolute;
     right: 49px;
-    top: 7px;
+    top: 14px;
     display: flex;
     flex-direction: column;
     align-items: center;
+    line-height: 14px;
   }
 
   .rate-buttons {
     position: absolute;
     left: 13px;
-    top: 17px;
+    top: 18px;
+    line-height: 14px;
+    padding: 4px;
   }
 
   .power-button {
     position: absolute;
     right: 13px;
-    top: 17px;
+    top: 19px;
+    line-height: 14px;
+    padding: 4px;
   }
 
   .power-button  i {
     color: #248dc1;
+    line-height: 14px;
   }
 </style>
