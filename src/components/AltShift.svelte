@@ -58,7 +58,12 @@
     try {
       audioFiles = await getAudioFilesByVideoId(id, videoType);
       if (audioFiles.length) {
-        overlayAvailable = true;
+        // overlayAvailable = true;
+        showPlayer = true;
+        currentFile = audioFiles[0].fileName;
+      }
+      else {
+        showPlayer = false;
       }
     } catch (e) {
       console.error('getList error:');
@@ -191,7 +196,7 @@
 
 {#if showPlayer}
   <Player
-    videoId={videoId}
+    fileName={currentFile}
     on:downClick={onDownClick}
   />
 {/if}

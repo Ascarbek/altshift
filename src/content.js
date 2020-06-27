@@ -53,7 +53,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
           props: {
             videoId,
             videoType: request.action,
-            showOverlay: true,
+            // showOverlay: false,
           }
         });
       }
@@ -61,7 +61,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
         component.$set({
           videoId,
           videoType: request.action,
-          showOverlay: true,
+          // showOverlay: false,
         });
       }
     } break;

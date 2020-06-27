@@ -3,12 +3,49 @@
 
   const dispatch = createEventDispatcher();
 
-  export let videoId = '';
+  const backendUrl = 'https://localhost:5010/static/';
+  let currentTime = 0;
+  let paused = false;
+  let audioRefreshNeeded = true;
 
-  function getVideo(v) {
+  export let fileName = ''
+
+
+  const onCanPlay = e => {
+    let handler = setInterval(() => {
+
+      if(document.querySelector('video')) {
+        clearInterval(handler);
+
+        document.querySelector('video').muted = true;
+
+        document.querySelector('video').addEventListener('pause', pauseHandler);
+        document.querySelector('video').addEventListener('play', playHandler);
+        document.querySelector('video').addEventListener('timeupdate', timeHandler);
+
+      }
+    }, 100);
+
   }
 
-  $: getVideo(videoId);
+  const pauseHandler = e => {
+    paused = true;
+    audioRefreshNeeded = true;
+  }
+
+  const playHandler = e => {
+    paused = false;
+  }
+
+  const timeHandler = e => {
+    if(!audioRefreshNeeded) return;
+
+    const video = document.querySelector('video');
+    currentTime = e.target.currentTime;
+    paused = video.paused;
+
+    audioRefreshNeeded = false;
+  }
 </script>
 
 <div class="player">
@@ -54,9 +91,15 @@
     </div>
   </div>
 
+  <audio src={backendUrl + fileName} bind:paused={paused} bind:currentTime={currentTime} on:canplay|once={onCanPlay}>
+  </audio>
+
 </div>
 
 <style>
+  audio {
+    display: none;
+  }
   .fas, .far {
     color: #9e9e9e;
     font-size: 16px;
