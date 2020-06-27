@@ -1,5 +1,14 @@
 <script>
+  import { createEventDispatcher } from 'svelte';
 
+  const dispatch = createEventDispatcher();
+
+  export let videoId = '';
+
+  function getVideo(v) {
+  }
+
+  $: getVideo(videoId);
 </script>
 
 <div class="player">
@@ -10,19 +19,34 @@
       </div>
     </div>
 
-    <div class="up-down-buttons">
-      <div class="up">
+    <div class="arrow-buttons">
+      <div class="arrow-left">
+        <i class="fas fa-angle-left"></i>
+      </div>
+
+      <div class="arrow-up" on:click={e => dispatch('downClick')}>
         <i class="fas fa-angle-up"></i>
       </div>
-      <div class="down">
+
+      <div class="arrow-right">
+        <i class="fas fa-angle-right"></i>
+      </div>
+
+      <div class="arrow-down" on:click={e => dispatch('downClick')}>
         <i class="fas fa-angle-down"></i>
+      </div>
+
+      <div class="ok-button">
+        <span>OK</span>
       </div>
     </div>
 
-    <div class="rate-buttons">
-      <div class="up-vote">
-        <i class="far fa-thumbs-up"></i>
-      </div>
+    <div class="settings-button">
+      <span>menu</span>
+    </div>
+
+    <div class="back-button">
+      <span>back</span>
     </div>
 
     <div class="power-button">
@@ -42,15 +66,15 @@
     position: fixed;
     z-index: 10000;
 
-    right: 80px;
+    left: 20px;
     top: 80px;
 
     background: #ffffff;
-    width: 270px;
-    height: 58px;
+    width: 350px;
+    height: 64px;
 
     border-radius: 4px;
-    box-shadow: 0 0 5px 0 #000000;
+    box-shadow: 0 0 3px 0 #000000;
   }
 
   .content {
@@ -61,8 +85,8 @@
   .display-outer {
     position: absolute;
     top: 10px;
-    left: 40px;
-    right: 70px;
+    left: 45px;
+    right: 90px;
     height: calc(100% - 20px);
     background: #f0f0f0;
     border: #e0e0e0 1px solid;
@@ -87,34 +111,78 @@
     text-overflow: clip;
   }
 
-  .up-down-buttons {
+  .arrow-buttons {
     position: absolute;
-    right: 49px;
-    top: 14px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    right: 28px;
+    top: 8px;
     line-height: 14px;
+    height: calc(100% - 14px);
+    width: 44px;
   }
 
-  .rate-buttons {
+  .arrow-left, .arrow-right, .arrow-up, .arrow-down, .ok-button {
     position: absolute;
-    left: 13px;
-    top: 18px;
-    line-height: 14px;
-    padding: 4px;
+  }
+
+  .arrow-left {
+    left: 0;
+    top: calc(50% - 8px);
+  }
+
+  .arrow-right {
+    right: 0;
+    top: calc(50% - 8px);
+  }
+
+  .arrow-down {
+    bottom: 0;
+    left: calc(50% - 5px);
+  }
+
+  .arrow-up {
+    top: 0;
+    left: calc(50% - 5px);
+  }
+
+  .ok-button {
+    top: calc(50% - 6px);
+    left: calc(50% - 6px);
+    color: #9e9e9e;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 10px;
+  }
+
+  .settings-button {
+    position: absolute;
+    right: 8px;
+    bottom: 2px;
+    color: #9e9e9e;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 10px;
+  }
+
+  .back-button {
+    position: absolute;
+    right: 8px;
+    top: 2px;
+    color: #9e9e9e;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 10px;
   }
 
   .power-button {
     position: absolute;
-    right: 13px;
-    top: 19px;
+    left: 10px;
+    top: 22px;
     line-height: 14px;
     padding: 4px;
   }
 
-  .power-button  i {
+  .power-button.active i {
     color: #248dc1;
-    line-height: 14px;
+  }
+
+  .settings-button, .back-button, .arrow-buttons, .power-button {
+    cursor: pointer;
   }
 </style>

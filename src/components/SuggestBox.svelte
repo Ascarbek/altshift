@@ -16,7 +16,6 @@
   export let typeAhead = true;
   export let multiSelect = true;
   export let closeOnSelect = true;
-  export let selectedItem = {};
   export let selectedItems = [];
   export let cls = '';
 

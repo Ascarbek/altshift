@@ -140,6 +140,10 @@
   }
 
 
+  const onDownClick = e => {
+    const video = document.getElementsByTagName('video');
+  }
+
   /**
    * TEST
    * */
@@ -187,5 +191,7 @@
 
 {#if showPlayer}
   <Player
+    videoId={videoId}
+    on:downClick={onDownClick}
   />
 {/if}
