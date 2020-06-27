@@ -1,5 +1,6 @@
 <script>
-  import { createEventDispatcher } from 'svelte';
+  import { createEventDispatcher, tick, onDestroy } from 'svelte';
+  import { fade } from 'svelte/transition';
 
   const dispatch = createEventDispatcher();
 
@@ -7,10 +8,15 @@
   let currentTime = 0;
   let paused = false;
   let audioHtml;
+  let playerHtml;
 
-  export let fileName = ''
+  let left = 0;
+  let top = 0;
 
-  const onCanPlay = e => {
+  export let fileName = '';
+  export let audioName = '';
+
+  const init = f => {
     let handler = setInterval(() => {
       if(document.querySelector('video')) {
         clearInterval(handler);
@@ -26,6 +32,8 @@
     }, 100);
   }
 
+  $: fileName && fileName.length > 0 ? init(fileName) : '';
+
   const pauseHandler = e => {
     paused = true;
   }
@@ -34,20 +42,46 @@
     paused = false;
   }
 
-  const timeHandler = e => {
+  let busy = false;
+
+  let intervalHandler = setInterval(() => {
+    busy = false;
+  }, 1000);
+
+  onDestroy(() => {
+    clearInterval(intervalHandler);
+  });
+
+  const timeHandler = async e => {
+    if(busy) return
     if(Math.abs(currentTime - e.target.currentTime) < 0.1) return;
     const video = document.querySelector('video');
+    if(!video) return;
     currentTime = e.target.currentTime;
     paused = video.paused;
     console.log('time updated');
+    busy = true;
+  }
+
+  const onMouseDown = e => {
+    playerHtml.addEventListener('mousemove', onMouseMove);
+  }
+
+  const onMouseUp = e => {
+    playerHtml.removeEventListener('mousemove', onMouseMove);
+  }
+
+  const onMouseMove = e => {
+    left += e.movementX;
+    top += e.movementY;
   }
 </script>
 
-<div class="player">
+<div class="player" transition:fade style="left: {left}px; top: {top}px" on:mousedown={onMouseDown} on:mouseup={onMouseUp} bind:this={playerHtml}>
   <div class="content">
     <div class="display-outer">
       <div class="display">
-        Кураж бамбей, первый выпуск
+        {audioName}
       </div>
     </div>
 
@@ -86,8 +120,13 @@
     </div>
   </div>
 
-  <audio src={backendUrl + fileName} bind:paused={paused} bind:currentTime={currentTime} on:canplay|once={onCanPlay} bind:this={audioHtml}>
-  </audio>
+  {#if fileName && fileName.length}
+    <audio src={backendUrl + fileName}
+       bind:paused={paused}
+       bind:currentTime={currentTime}
+       bind:this={audioHtml}>
+    </audio>
+  {/if}
 
 </div>
 

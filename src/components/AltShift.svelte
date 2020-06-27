@@ -25,10 +25,11 @@
   export let showOverlay = false;
   let showNewAudioModal = false;
   let showUploadForm = false;
-  let showPlayer = true;
+  export let showPlayer = true;
 
   let audioFiles = [];
   let currentFile;
+  let currentAudioName;
 
   let uploadingAudioName = '';
   let uploadedFileName = '';
@@ -61,8 +62,12 @@
         // overlayAvailable = true;
         showPlayer = true;
         currentFile = audioFiles[0].fileName;
+        currentAudioName = audioFiles[0].audioName;
       }
       else {
+        // showOverlay = true;
+        currentFile = '';
+        currentAudioName = 'no audio found...'
         showPlayer = false;
       }
     } catch (e) {
@@ -196,6 +201,7 @@
 
 {#if showPlayer}
   <Player
+    audioName={currentAudioName}
     fileName={currentFile}
     on:downClick={onDownClick}
   />
