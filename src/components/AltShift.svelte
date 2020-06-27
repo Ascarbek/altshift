@@ -28,7 +28,7 @@
   let showPlayer = true;
 
   let audioFiles = [];
-  let currentFile = '';
+  let currentFile;
 
   let uploadingAudioName = '';
   let uploadedFileName = '';

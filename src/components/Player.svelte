@@ -6,31 +6,28 @@
   const backendUrl = 'https://localhost:5010/static/';
   let currentTime = 0;
   let paused = false;
-  let audioRefreshNeeded = true;
+  let audioHtml;
 
   export let fileName = ''
 
-
   const onCanPlay = e => {
     let handler = setInterval(() => {
-
       if(document.querySelector('video')) {
         clearInterval(handler);
 
-        document.querySelector('video').muted = true;
+        const video = document.querySelector('video');
 
-        document.querySelector('video').addEventListener('pause', pauseHandler);
-        document.querySelector('video').addEventListener('play', playHandler);
-        document.querySelector('video').addEventListener('timeupdate', timeHandler);
+        video.addEventListener('pause', pauseHandler);
+        video.addEventListener('play', playHandler);
+        video.addEventListener('timeupdate', timeHandler);
 
+        audioHtml.play();
       }
     }, 100);
-
   }
 
   const pauseHandler = e => {
     paused = true;
-    audioRefreshNeeded = true;
   }
 
   const playHandler = e => {
@@ -38,13 +35,11 @@
   }
 
   const timeHandler = e => {
-    if(!audioRefreshNeeded) return;
-
+    if(Math.abs(currentTime - e.target.currentTime) < 0.1) return;
     const video = document.querySelector('video');
     currentTime = e.target.currentTime;
     paused = video.paused;
-
-    audioRefreshNeeded = false;
+    console.log('time updated');
   }
 </script>
 
@@ -91,7 +86,7 @@
     </div>
   </div>
 
-  <audio src={backendUrl + fileName} bind:paused={paused} bind:currentTime={currentTime} on:canplay|once={onCanPlay}>
+  <audio src={backendUrl + fileName} bind:paused={paused} bind:currentTime={currentTime} on:canplay|once={onCanPlay} bind:this={audioHtml}>
   </audio>
 
 </div>
