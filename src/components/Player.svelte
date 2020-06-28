@@ -134,10 +134,6 @@
   audio {
     display: none;
   }
-  .fas, .far {
-    color: #9e9e9e;
-    font-size: 16px;
-  }
 
   .player {
     position: fixed;
@@ -190,69 +186,76 @@
 
   .arrow-buttons {
     position: absolute;
-    right: 28px;
+    right: 35px;
     top: 8px;
     line-height: 14px;
     height: calc(100% - 14px);
-    width: 44px;
+    width: 50px;
   }
 
   .arrow-left, .arrow-right, .arrow-up, .arrow-down, .ok-button {
     position: absolute;
+    color: #9e9e9e;
+    font-size: 16px;
+    padding: 3px;
+  }
+
+  .arrow-left:hover, .arrow-right:hover, .arrow-up:hover, .arrow-down:hover, .ok-button:hover {
+    color: #000000;
   }
 
   .arrow-left {
     left: 0;
-    top: calc(50% - 8px);
+    top: calc(50% - 11px);
   }
 
   .arrow-right {
     right: 0;
-    top: calc(50% - 8px);
+    top: calc(50% - 11px);
   }
 
   .arrow-down {
-    bottom: 0;
-    left: calc(50% - 5px);
+    bottom: -3px;
+    left: calc(50% - 8px);
   }
 
   .arrow-up {
-    top: 0;
-    left: calc(50% - 5px);
+    top: -3px;
+    left: calc(50% - 8px);
+  }
+
+  .ok-button, .settings-button, .back-button, .power-button {
+    position: absolute;
+    color: #9e9e9e;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 11px;
+  }
+
+  .ok-button:hover, .settings-button:hover, .back-button:hover {
+    color: #000000;
   }
 
   .ok-button {
-    top: calc(50% - 6px);
-    left: calc(50% - 6px);
-    color: #9e9e9e;
-    font-family: 'Roboto Mono', monospace;
-    font-size: 10px;
+    top: calc(50% - 10px);
+    left: calc(50% - 9px);
   }
 
   .settings-button {
-    position: absolute;
     right: 8px;
     bottom: 2px;
-    color: #9e9e9e;
-    font-family: 'Roboto Mono', monospace;
-    font-size: 10px;
   }
 
   .back-button {
-    position: absolute;
     right: 8px;
     top: 2px;
-    color: #9e9e9e;
-    font-family: 'Roboto Mono', monospace;
-    font-size: 10px;
   }
 
   .power-button {
-    position: absolute;
     left: 10px;
     top: 22px;
     line-height: 14px;
     padding: 4px;
+    font-size: 16px;
   }
 
   .power-button.active i {
