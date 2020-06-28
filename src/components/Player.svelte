@@ -1,6 +1,8 @@
 <script>
-  import { createEventDispatcher, tick, onMount, onDestroy } from 'svelte';
-  import { fade } from 'svelte/transition';
+  import {createEventDispatcher, tick, onMount, onDestroy} from 'svelte';
+  import {fade} from 'svelte/transition';
+  import Display from "./Display.svelte";
+  import states from './displayStates';
 
   const dispatch = createEventDispatcher();
 
@@ -18,7 +20,7 @@
   let initTimeoutHandler;
 
   const attachEvents = e => {
-    if(document.querySelector('video')) {
+    if (document.querySelector('video')) {
       const video = document.querySelector('video');
 
       video.addEventListener('pause', pauseHandler);
@@ -26,8 +28,7 @@
       video.addEventListener('timeupdate', timeHandler);
 
       audioHtml.play();
-    }
-    else {
+    } else {
       initTimeoutHandler = setTimeout(attachEvents, 10);
     }
   }
@@ -58,8 +59,7 @@
       const obj = JSON.parse(stored);
       left = obj.left;
       top = obj.top;
-    }
-    catch (e) {
+    } catch (e) {
 
     }
   });
@@ -70,12 +70,12 @@
   });
 
   const timeHandler = async e => {
-    if(busy) return
-    if(Math.abs(currentTime - e.target.currentTime) < 0.1) return;
+    if (busy) return
+    if (Math.abs(currentTime - e.target.currentTime) < 0.1) return;
     const video = document.querySelector('video');
-    if(!video) return;
+    if (!video) return;
     currentTime = e.target.currentTime;
-    if(!video.paused) {
+    if (!video.paused) {
       audioHtml.play()
     }
     busy = true;
@@ -100,11 +100,8 @@
      style="left: {left}px; top: {top}px"
      on:mousedown={onMouseDown} on:mouseup={onMouseUp} on:mouseleave={onMouseUp}>
   <div class="content">
-    <div class="display-outer">
-      <div class="display">
-        {audioName}
-      </div>
-    </div>
+    <Display
+    />
 
     <div class="arrow-buttons">
       <div class="arrow-left">
@@ -173,35 +170,6 @@
   .content {
     position: relative;
     height: 100%;
-  }
-
-  .display-outer {
-    position: absolute;
-    top: 10px;
-    left: 45px;
-    right: 90px;
-    height: calc(100% - 20px);
-    background: #f0f0f0;
-    border: #e0e0e0 1px solid;
-    border-radius: 4px;
-  }
-
-  .display {
-    position: absolute;
-    top: 3px;
-    left: 3px;
-    right: 3px;
-    height: calc(100% - 6px);
-    background: #beceb2;
-    border-radius: 4px;
-    color: #464c4b;
-    font-family: 'Roboto Mono', monospace;
-    display: flex;
-    align-items: center;
-    font-size: 12px;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: clip;
   }
 
   .arrow-buttons {
