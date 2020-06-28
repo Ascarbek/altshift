@@ -198,11 +198,9 @@
   />
 {/if}
 
-
 {#if showPlayer}
   <Player
     audioName={currentAudioName}
     fileName={currentFile}
-    on:downClick={onDownClick}
   />
 {/if}
