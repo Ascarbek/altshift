@@ -2,6 +2,7 @@
   import states from './displayStates';
 
   export let state = '';
+  export let data = {};
 
 </script>
 
@@ -16,11 +17,28 @@
 
 <div class="display-outer">
   <div class="display">
+    {#if false}
+    {:else if state === states.LOGO}
+    {:else if state === states.HOME && data.tags && data.tags.length}
+      <div class="lang">{data.lang}</div>
+      <div class="tags">
+        {#each data.tags as tag}
+          <div class="tag-item">{tag}</div>
+        {/each}
+      </div>
+      <div class="audio-name">{data.audioName}</div>
+    {:else if state === states.MENU}
+    {:else if state === states.NOT_FOUND}
 
+    {/if}
   </div>
 </div>
 
 <style>
+  .lang {
+
+  }
+
   .display-outer {
     position: absolute;
     top: 10px;

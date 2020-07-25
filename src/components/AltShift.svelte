@@ -28,8 +28,9 @@
   export let showPlayer = true;
 
   let audioFiles = [];
-  let currentFile;
-  let currentAudioName;
+  // let currentFile;
+  // let currentAudioName;
+  let playerData = {};
 
   let uploadingAudioName = '';
   let uploadedFileName = '';
@@ -61,13 +62,16 @@
       if (audioFiles.length) {
         // overlayAvailable = true;
         showPlayer = true;
-        currentFile = audioFiles[0].fileName;
-        currentAudioName = audioFiles[0].audioName;
+        // currentFile = audioFiles[0].fileName;
+        // currentAudioName = audioFiles[0].audioName;
+        playerData = audioFiles[0];
+        console.log(playerData);
       }
       else {
         // showOverlay = true;
-        currentFile = '';
-        currentAudioName = 'no audio found...'
+        // currentFile = '';
+        // currentAudioName = 'no audio found...'
+        playerData = {};
         showPlayer = false;
       }
     } catch (e) {
@@ -200,7 +204,7 @@
 
 {#if showPlayer}
   <Player
-    audioName={currentAudioName}
-    fileName={currentFile}
+    playerData={playerData}
+    languages={languages}
   />
 {/if}

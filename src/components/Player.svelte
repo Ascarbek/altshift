@@ -14,8 +14,10 @@
   let left = 0;
   let top = 0;
 
-  export let fileName = '';
-  export let audioName = '';
+  // export let fileName = '';
+  // export let audioName = '';
+  export let playerData = {};
+  export let languages = [];
 
   let initTimeoutHandler;
 
@@ -27,7 +29,9 @@
       video.addEventListener('play', playHandler);
       video.addEventListener('timeupdate', timeHandler);
 
-      audioHtml.play();
+      if (!video.paused) {
+        audioHtml.play()
+      }
     } else {
       initTimeoutHandler = setTimeout(attachEvents, 10);
     }
@@ -37,7 +41,8 @@
     initTimeoutHandler = setTimeout(attachEvents, 10);
   }
 
-  $: fileName && fileName.length > 0 ? init(fileName) : '';
+  // $: fileName && fileName.length > 0 ? init(fileName) : '';
+  $: init(playerData);
 
   const pauseHandler = e => {
     audioHtml.pause();
@@ -97,10 +102,13 @@
 </script>
 
 <div class="player" bind:this={playerHtml} transition:fade
-     style="left: {left}px; top: {top}px"
+     style={`left: ${left}px; top: ${top}px`}
      on:mousedown={onMouseDown} on:mouseup={onMouseUp} on:mouseleave={onMouseUp}>
+
   <div class="content">
     <Display
+      state={states.HOME}
+      data={playerData}
     />
 
     <div class="arrow-buttons">
@@ -138,8 +146,8 @@
     </div>
   </div>
 
-  {#if fileName && fileName.length}
-    <audio src={backendUrl + fileName}
+  {#if playerData.fileName && playerData.fileName.length}
+    <audio src={backendUrl + playerData.fileName}
        bind:currentTime={currentTime}
        bind:this={audioHtml}>
     </audio>

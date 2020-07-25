@@ -10,7 +10,7 @@
 
   import { tick } from 'svelte';
   import { createEventDispatcher } from 'svelte';
-  import SuggestBox from './SuggestBox.svelte';
+  import SuggestBox from 'svelte-suggestbox';
 
   const dispatch = createEventDispatcher();
 
@@ -80,7 +80,7 @@
         {/if}
 
         <div class="filename-color">{(uploadProgress*100).toFixed(0)}%</div>
-        <div class="progress" style="width: calc({uploadProgress*100}% - 40px)">
+        <div class="progress" style={`width: calc(${uploadProgress*100}% - 40px)`}>
           <div class="filename-white">{(uploadProgress*100).toFixed(0)}%</div>
         </div>
       {/if}
