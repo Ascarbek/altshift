@@ -5,6 +5,8 @@
   export let state = '';
   export let data: PlayerData = null;
 
+  $: console.log(data);
+
 </script>
 
 <!--
@@ -22,7 +24,7 @@
     <span></span>
     {:else if state === states.LOGO}
     <span></span>
-    {:else if state === states.HOME && data && data.tags && data.tags.length}
+    {:else if state === states.HOME && data}
       <div class="lang">{data.lang}</div>
       <div class="tags">
         {#each data.tags as tag}

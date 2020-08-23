@@ -16,11 +16,7 @@
   let left = 0;
   let top = 0;
 
-  // export let fileName = '';
-  // export let audioName = '';
   export let playerData: PlayerData = null;
-
-  export let languages = [];
 
   let initTimeoutHandler;
 
@@ -44,7 +40,6 @@
     initTimeoutHandler = setTimeout(attachEvents, 10);
   }
 
-  // $: fileName && fileName.length > 0 ? init(fileName) : '';
   $: init(playerData);
 
   const pauseHandler = e => {
@@ -84,7 +79,7 @@
     if (Math.abs(currentTime - e.target.currentTime) < 0.1) return;
     const video = document.querySelector('video');
     if (!video) return;
-    currentTime = e.target.currentTime;
+    audioHtml.currentTime = e.target.currentTime;
     if (!video.paused) {
       audioHtml.play()
     }

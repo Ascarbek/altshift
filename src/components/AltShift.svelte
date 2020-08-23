@@ -66,7 +66,6 @@
         // currentFile = audioFiles[0].fileName;
         // currentAudioName = audioFiles[0].audioName;
         playerData = audioFiles[0];
-        console.log(playerData);
       }
       else {
         // showOverlay = true;
@@ -180,8 +179,8 @@
 
 {#if showNewAudioModal}
   <NewAudioModal
-          onUploadClick={onUploadClick}
-          onRecordClick={onRecordClick}
+    onUploadClick={onUploadClick}
+    onRecordClick={onRecordClick}
   />
 {/if}
 
@@ -204,8 +203,5 @@
 {/if}
 
 {#if showPlayer}
-  <Player
-    playerData={playerData}
-    languages={languages}
-  />
+  <Player playerData={playerData}/>
 {/if}
