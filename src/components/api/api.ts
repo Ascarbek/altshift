@@ -1,4 +1,4 @@
-import './firestore.js';
+import './firebase-app.js';
 
 const host = `https://localhost:5010`;
 

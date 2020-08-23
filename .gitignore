@@ -19,3 +19,4 @@ yarn.lock
 # sensitive
 /backend/credentials
 /backend/file
+/firebase.config.js

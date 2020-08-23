@@ -1,21 +1,11 @@
 <script lang="ts">
   import states from './displayStates';
-  import type { PlayerData } from './types';
+  import type { AudioFile } from './api/types';
 
   export let state = '';
-  export let data: PlayerData = null;
-
-  $: console.log(data);
+  export let data: AudioFile = null;
 
 </script>
-
-<!--
-
-
-
-        <i class="fas fa-cloud-upload-alt"></i>
-        <i class="fas fa-microphone-alt"></i>
--->
 
 <div class="display-outer">
   <div class="display">
@@ -30,10 +20,10 @@
           <div class="tag-item">{tag}</div>
         {/each}
       </div>
-      <div class="audio-name">{data.audioName}</div>
+      <div class="audio-name">{data.name}</div>
     {:else if state === states.MENU}
       <div class="menu">
-        <button class="menu-item active"><i class="fas fa-cloud-upload-alt"></i></button>
+        <button class="menu-item"><i class="fas fa-cloud-upload-alt"></i></button>
         <button class="menu-item"><i class="fas fa-microphone-alt"></i></button>
       </div>
     {:else if state === states.NOT_FOUND}
@@ -62,9 +52,10 @@
     background: none;
     outline: 0;
     padding: 0;
+    cursor: pointer;
   }
 
-  .menu-item.active {
+  .menu-item:hover {
     color: #777777;
   }
 

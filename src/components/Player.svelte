@@ -4,17 +4,14 @@
   import { cubicInOut } from 'svelte/easing';
   import Display from "./Display.svelte";
   import states from './displayStates';
-  import type { AudioFile } from './types';
-
-  const backendUrl = 'https://localhost:5010/static/';
+  import type { AudioFile } from './api/types';
+  import { AudioFiles } from './api/svelte-stores';
 
   let audioHtml: HTMLAudioElement;
   let playerHtml: HTMLElement;
 
   let left: number = 0;
   let top: number = 0;
-
-  export const currentFile: AudioFile = null;
 
   let initTimeoutHandler: number;
 
@@ -103,8 +100,8 @@
 
   <div class="content">
     <Display
-      state={states.MENU}
-      data={currentFile}
+      state={states.HOME}
+      data={$AudioFiles[0]}
     />
 
     <div class="arrow-buttons">
@@ -142,8 +139,8 @@
     </div>
   </div>
 
-  {#if currentFile && currentFile.path && currentFile.path.length}
-    <audio src={currentFile.path} bind:this={audioHtml}></audio>
+  {#if $AudioFiles.length}
+    <audio src={$AudioFiles[0].path} bind:this={audioHtml}></audio>
   {/if}
 
 </div>
@@ -247,9 +244,11 @@
     font-size: 16px;
   }
 
+  /*
   .power-button.active i {
     color: #248dc1;
   }
+  */
 
   .settings-button, .back-button, .arrow-buttons, .power-button {
     cursor: pointer;
