@@ -29,16 +29,6 @@
           "<node_internals>/**"
         ],
         "type": "pwa-node",
-      },
-      {
-        "type": "node",
-        "request": "launch",
-        "name": "Backend",
-        "skipFiles": [
-            "<node_internals>/**"
-        ],
-        "cwd": "${workspaceFolder}/backend",
-        "program": "${workspaceFolder}/backend/backend.js"
       }
     ]
 }

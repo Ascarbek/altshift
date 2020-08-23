@@ -4,14 +4,18 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const path = require('path');
 const webpack = require('webpack');
 
-const mode = process.env.NODE_ENV || 'development';
-const prod = mode === 'production';
+const build = process.env.NODE_ENV === 'build';
+const dev = process.env.NODE_ENV === 'dev';
 
 module.exports = {
 	entry: {
-		background: './src/background.js',
-    content: './src/content.js',
-    wrapper: './src/wrapper/index.js',
+    ...build ? {
+      background: './src/background.js',
+      content: './src/content.js',
+    } : {},
+    ...dev ? {
+      wrapper: './src/wrapper/index.js',
+    } : {},
 	},
 	resolve: {
 		alias: {
