@@ -9,8 +9,8 @@ const prod = mode === 'production';
 
 module.exports = {
 	entry: {
-		// background: './src/background.js',
-    // content: './src/content.js',
+		background: './src/background.js',
+    content: './src/content.js',
     wrapper: './src/wrapper/index.js',
 	},
 	resolve: {
@@ -33,7 +33,7 @@ module.exports = {
 					loader: 'svelte-loader',
 					options: {
 						emitCss: true,
-						hotReload: true,
+						hotReload: false,
             preprocess: require('svelte-preprocess')({})
 					}
 				}
@@ -46,17 +46,37 @@ module.exports = {
 			{
 				test: /\.css$/,
 				use: [
-					/**
-					 * MiniCssExtractPlugin doesn't support HMR.
-					 * For developing, use 'style-loader' instead.
-					 * */
-					prod ? MiniCssExtractPlugin.loader : 'style-loader',
+					'style-loader',
 					'css-loader'
 				]
-			}
+			},
+      {
+        test: /\.(png|svg|jpg|gif)$/,
+        use: [
+          {
+            loader: 'file-loader',
+            options: {
+              outputPath: 'img',
+              name: '[name].[ext]'
+            }
+          }
+        ]
+      },
+      {
+        type: 'javascript/auto',
+        test: /manifest\.json$/,
+        use: [
+          {
+            loader: 'file-loader',
+            options: {
+              name: '[name].[ext]'
+            }
+          }
+        ]
+      },
 		]
 	},
-	mode,
+	mode: "development",
 	plugins: [
     new CleanWebpackPlugin(),
     new HtmlWebpackPlugin({
@@ -69,5 +89,6 @@ module.exports = {
       filename: '[name].[chunkhash:8].js.map'
     }),
 	],
-	devtool: prod ? false: 'source-map'
+	// devtool: prod ? false: 'source-map'
+	devtool: false
 };

@@ -1,4 +1,7 @@
 import AltShift from './components/AltShift.svelte';
+import './manifest.json';
+import './img/logo1.png';
+
 
 function loadCSS(filename){
   let file = document.createElement("link");
