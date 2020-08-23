@@ -1,3 +1,5 @@
+import './firestore.js';
+
 const host = `https://localhost:5010`;
 
 const getByVideoIdUrl = `${host}/get-by-video-id`;
@@ -5,11 +7,17 @@ const uploadUrl = `${host}/submit-form`;
 
 const saveAudioFileUrl = `${host}/save-audio-file`;
 
+
 const getTagsUrl = `${host}/get-tags`;
 const addNewTagUrl = `${host}/add-new-tag`;
 const toggleTagUrl = `${host}/toggle-tag`;
 
-export async function getAudioFilesByVideoId(videoId, videoType) {
+
+
+
+export const getAudioFilesByVideoId = async (videoId, videoType) => {
+  return;
+  /*
   const url = new URL(getByVideoIdUrl);
 
   url.searchParams.append('videoId', videoId);
@@ -17,15 +25,18 @@ export async function getAudioFilesByVideoId(videoId, videoType) {
 
   const resp = await window.fetch(url.toString())
   const parsed = await resp.json();
+  */
 
-  return Promise.resolve(parsed.audioFiles);
+
+
+  return Promise.resolve([]);
 }
 
 interface UploadResponse {
   fileName: string;
 };
 
-export function sendUploadForm(data, progressFn): Promise<UploadResponse> {
+export const sendUploadForm = (data, progressFn): Promise<UploadResponse> => {
   let formData = new FormData();
 
   return new Promise((resolve, reject) => {
@@ -50,7 +61,7 @@ export function sendUploadForm(data, progressFn): Promise<UploadResponse> {
   });
 }
 
-export async function saveAudioFile(data) {
+export const saveAudioFile = async (data) => {
   await window.fetch(saveAudioFileUrl, {
     method: 'POST',
     headers: {
@@ -60,7 +71,7 @@ export async function saveAudioFile(data) {
   });
 }
 
-export async function getTags() {
+export const getTags = async () => {
   const url = new URL(getTagsUrl);
 
   const resp = await window.fetch(url.toString())
@@ -69,7 +80,8 @@ export async function getTags() {
   return parsed.tags;
 }
 
-export async function addNewTag(data) {
+
+export const addNewTag = async (data) => {
   const resp = await window.fetch(addNewTagUrl, {
     method: 'POST',
     headers: {
@@ -79,7 +91,7 @@ export async function addNewTag(data) {
   });
 }
 
-export async function toggleTag(data) {
+export const toggleTag = async (data) => {
   const resp = await window.fetch(toggleTagUrl, {
     method: 'POST',
     headers: {
@@ -88,3 +100,6 @@ export async function toggleTag(data) {
     body: JSON.stringify(data)
   });
 }
+
+
+

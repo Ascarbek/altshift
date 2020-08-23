@@ -13,25 +13,23 @@
   import { onMount } from 'svelte';
 
   import UploadForm from "./UploadForm.svelte";
-  import NewAudioModal from "./NewAudioModal.svelte";
+
   import Overlay from "./Overlay.svelte";
   import Player from "./Player.svelte";
-  import type { PlayerData } from './types';
+  import type { AudioFile } from './types';
 
   export let videoId = '';
   export let videoType = '';
 
   let overlayAvailable = false;
 
-  export let showOverlay = false;
+  let showOverlay = false;
   let showNewAudioModal = false;
   let showUploadForm = false;
   export let showPlayer = true;
 
   let audioFiles = [];
-  // let currentFile;
-  // let currentAudioName;
-  let playerData: PlayerData = null;
+  let playerData: AudioFile = null;
 
   let uploadingAudioName = '';
   let uploadedFileName = '';
@@ -57,7 +55,7 @@
     loadAllTags()
   });
 
-  async function getList(id) {
+  async function getList(id: string) {
     try {
       audioFiles = await getAudioFilesByVideoId(id, videoType);
       if (audioFiles.length) {
@@ -158,31 +156,7 @@
     const video = document.getElementsByTagName('video');
   }
 
-  /**
-   * TEST
-   * */
-  function onOverlayClick() {
-    showOverlay = false;
-    setTimeout(() => {
-      showOverlay = true;
-      overlayAvailable = true;
-    }, 1000);
-  }
 </script>
-
-{#if showOverlay}
-  <Overlay
-    on:click={onOverlayClick}
-    available={overlayAvailable}
-  />
-{/if}
-
-{#if showNewAudioModal}
-  <NewAudioModal
-    onUploadClick={onUploadClick}
-    onRecordClick={onRecordClick}
-  />
-{/if}
 
 {#if showUploadForm}
   <UploadForm

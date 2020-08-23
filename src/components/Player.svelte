@@ -1,29 +1,27 @@
 <script lang="ts">
-  import {createEventDispatcher, tick, onMount, onDestroy} from 'svelte';
+  import {onMount, onDestroy} from 'svelte';
   import { fade } from 'svelte/transition';
   import { cubicInOut } from 'svelte/easing';
   import Display from "./Display.svelte";
   import states from './displayStates';
-  import type { PlayerData } from './types';
-
-  const dispatch = createEventDispatcher();
+  import type { AudioFile } from './types';
 
   const backendUrl = 'https://localhost:5010/static/';
-  let currentTime: number = 0;
+
   let audioHtml: HTMLAudioElement;
   let playerHtml: HTMLElement;
 
-  let left = 0;
-  let top = 0;
+  let left: number = 0;
+  let top: number = 0;
 
-  export let playerData: PlayerData = null;
+  export const currentFile: AudioFile = null;
 
-  let initTimeoutHandler;
+  let initTimeoutHandler: number;
 
-  const attachEvents = e => {
-    if (document.querySelector('video')) {
-      const video = document.querySelector('video');
+  const attachEvents = () => {
+    const video = document.querySelector('video');
 
+    if (video) {
       video.addEventListener('pause', pauseHandler);
       video.addEventListener('play', playHandler);
       video.addEventListener('timeupdate', timeHandler);
@@ -36,17 +34,11 @@
     }
   }
 
-  const init = f => {
-    initTimeoutHandler = setTimeout(attachEvents, 10);
-  }
-
-  $: init(playerData);
-
-  const pauseHandler = e => {
+  const pauseHandler = () => {
     audioHtml.pause();
   }
 
-  const playHandler = e => {
+  const playHandler = () => {
     audioHtml.play();
   }
 
@@ -62,6 +54,8 @@
       const obj = JSON.parse(stored);
       left = obj.left;
       top = obj.top;
+
+      setTimeout(attachEvents, 10);
     } catch (e) {
 
     }
@@ -74,9 +68,9 @@
     window.removeEventListener('mouseup', onMouseUp);
   });
 
-  const timeHandler = async e => {
+  const timeHandler = async (e: any) => {
     if (busy) return
-    if (Math.abs(currentTime - e.target.currentTime) < 0.1) return;
+    if (Math.abs(audioHtml.currentTime - e.target.currentTime) < 0.1) return;
     const video = document.querySelector('video');
     if (!video) return;
     audioHtml.currentTime = e.target.currentTime;
@@ -86,18 +80,18 @@
     busy = true;
   }
 
-  const onMouseDown = e => {
+  const onMouseDown = () => {
     window.addEventListener('mousemove', onMouseMove);
     window.addEventListener('mouseup', onMouseUp);
   }
 
-  const onMouseUp = e => {
+  const onMouseUp = () => {
     window.removeEventListener('mousemove', onMouseMove);
     window.removeEventListener('mouseup', onMouseUp);
     localStorage.setItem('AltShiftPlayerLocation', JSON.stringify({left, top}));
   }
 
-  const onMouseMove = e => {
+  const onMouseMove = (e: MouseEvent) => {
     left += e.movementX;
     top += e.movementY;
   }
@@ -109,8 +103,8 @@
 
   <div class="content">
     <Display
-      state={states.HOME}
-      data={playerData}
+      state={states.MENU}
+      data={currentFile}
     />
 
     <div class="arrow-buttons">
@@ -148,11 +142,8 @@
     </div>
   </div>
 
-  {#if playerData && playerData.fileName && playerData.fileName.length}
-    <audio src={backendUrl + playerData.fileName}
-
-       bind:this={audioHtml}>
-    </audio>
+  {#if currentFile && currentFile.path && currentFile.path.length}
+    <audio src={currentFile.path} bind:this={audioHtml}></audio>
   {/if}
 
 </div>

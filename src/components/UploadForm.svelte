@@ -6,7 +6,7 @@
     getTags,
     addNewTag,
     toggleTag,
-  } from './api/api';
+  } from './api/api.ts';
 
   import { tick } from 'svelte';
   import { createEventDispatcher } from 'svelte';

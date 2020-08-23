@@ -1,6 +1,6 @@
-export interface PlayerData {
-  fileName: string;
+export interface AudioFile {
+  name: string;
+  path: string;
   tags: string[];
   lang: string;
-  audioName: string;
 };

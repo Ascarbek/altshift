@@ -11,8 +11,7 @@
 
 <!--
 
-        font-size: 26px;
-        color: #9e9e9e;
+
 
         <i class="fas fa-cloud-upload-alt"></i>
         <i class="fas fa-microphone-alt"></i>
@@ -33,7 +32,10 @@
       </div>
       <div class="audio-name">{data.audioName}</div>
     {:else if state === states.MENU}
-    <span></span>
+      <div class="menu">
+        <button class="menu-item active"><i class="fas fa-cloud-upload-alt"></i></button>
+        <button class="menu-item"><i class="fas fa-microphone-alt"></i></button>
+      </div>
     {:else if state === states.NOT_FOUND}
     <span></span>
     {/if}
@@ -43,6 +45,27 @@
 <style>
   .lang {
 
+  }
+
+  .menu {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .menu-item {
+    margin: 0 10px;
+    font-size: 26px;
+    color: #9e9e9e;
+    border: none;
+    background: none;
+    outline: 0;
+    padding: 0;
+  }
+
+  .menu-item.active {
+    color: #777777;
   }
 
   .display-outer {
