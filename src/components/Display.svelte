@@ -1,8 +1,9 @@
-<script>
+<script lang="ts">
   import states from './displayStates';
+  import type { PlayerData } from './types';
 
   export let state = '';
-  export let data = {};
+  export let data: PlayerData = null;
 
 </script>
 
@@ -18,8 +19,10 @@
 <div class="display-outer">
   <div class="display">
     {#if false}
+    <span></span>
     {:else if state === states.LOGO}
-    {:else if state === states.HOME && data.tags && data.tags.length}
+    <span></span>
+    {:else if state === states.HOME && data && data.tags && data.tags.length}
       <div class="lang">{data.lang}</div>
       <div class="tags">
         {#each data.tags as tag}
@@ -28,8 +31,9 @@
       </div>
       <div class="audio-name">{data.audioName}</div>
     {:else if state === states.MENU}
+    <span></span>
     {:else if state === states.NOT_FOUND}
-
+    <span></span>
     {/if}
   </div>
 </div>

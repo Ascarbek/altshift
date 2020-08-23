@@ -2,8 +2,8 @@
   import AltShift from './../components/AltShift.svelte';
 
   let showOverlay = true;
-  let videoId = '70295829';
-  let videoType = 'NETFLIX_VIDEO_PAGE';
+  let videoId = 'uYGj04Iti3E';
+  let videoType = 'YOUTUBE_VIDEO_PAGE';
 </script>
 
 <input type="checkbox" bind:checked={showOverlay}>

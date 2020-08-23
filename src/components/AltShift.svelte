@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import {
     getAudioFilesByVideoId,
     sendUploadForm,
@@ -16,6 +16,7 @@
   import NewAudioModal from "./NewAudioModal.svelte";
   import Overlay from "./Overlay.svelte";
   import Player from "./Player.svelte";
+  import type { PlayerData } from './types';
 
   export let videoId = '';
   export let videoType = '';
@@ -30,7 +31,7 @@
   let audioFiles = [];
   // let currentFile;
   // let currentAudioName;
-  let playerData = {};
+  let playerData: PlayerData = null;
 
   let uploadingAudioName = '';
   let uploadedFileName = '';
@@ -71,7 +72,7 @@
         // showOverlay = true;
         // currentFile = '';
         // currentAudioName = 'no audio found...'
-        playerData = {};
+        playerData = null;
         showPlayer = false;
       }
     } catch (e) {

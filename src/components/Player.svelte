@@ -1,22 +1,25 @@
-<script>
+<script lang="ts">
   import {createEventDispatcher, tick, onMount, onDestroy} from 'svelte';
-  import {fade} from 'svelte/transition';
+  import { fade } from 'svelte/transition';
+  import { cubicInOut } from 'svelte/easing';
   import Display from "./Display.svelte";
   import states from './displayStates';
+  import type { PlayerData } from './types';
 
   const dispatch = createEventDispatcher();
 
   const backendUrl = 'https://localhost:5010/static/';
-  let currentTime = 0;
-  let audioHtml;
-  let playerHtml;
+  let currentTime: number = 0;
+  let audioHtml: HTMLAudioElement;
+  let playerHtml: HTMLElement;
 
   let left = 0;
   let top = 0;
 
   // export let fileName = '';
   // export let audioName = '';
-  export let playerData = {};
+  export let playerData: PlayerData = null;
+
   export let languages = [];
 
   let initTimeoutHandler;
@@ -72,6 +75,8 @@
   onDestroy(() => {
     clearInterval(intervalHandler);
     clearTimeout(initTimeoutHandler);
+    window.removeEventListener('mousemove', onMouseMove);
+    window.removeEventListener('mouseup', onMouseUp);
   });
 
   const timeHandler = async e => {
@@ -87,11 +92,13 @@
   }
 
   const onMouseDown = e => {
-    playerHtml.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
   }
 
   const onMouseUp = e => {
-    playerHtml.removeEventListener('mousemove', onMouseMove);
+    window.removeEventListener('mousemove', onMouseMove);
+    window.removeEventListener('mouseup', onMouseUp);
     localStorage.setItem('AltShiftPlayerLocation', JSON.stringify({left, top}));
   }
 
@@ -101,9 +108,9 @@
   }
 </script>
 
-<div class="player" bind:this={playerHtml} transition:fade
+<div class="player" bind:this={playerHtml} transition:fade={{delay: 0, duration: 200, easing: cubicInOut}}
      style={`left: ${left}px; top: ${top}px`}
-     on:mousedown={onMouseDown} on:mouseup={onMouseUp} on:mouseleave={onMouseUp}>
+     on:mousedown={onMouseDown}>
 
   <div class="content">
     <Display
@@ -146,9 +153,9 @@
     </div>
   </div>
 
-  {#if playerData.fileName && playerData.fileName.length}
+  {#if playerData && playerData.fileName && playerData.fileName.length}
     <audio src={backendUrl + playerData.fileName}
-       bind:currentTime={currentTime}
+
        bind:this={audioHtml}>
     </audio>
   {/if}

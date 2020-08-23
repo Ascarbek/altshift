@@ -5,6 +5,9 @@ import livereload from 'rollup-plugin-livereload';
 import { terser } from 'rollup-plugin-terser';
 import copy from 'rollup-plugin-copy';
 
+import autoPreprocess from 'svelte-preprocess';
+import typescript from '@rollup/plugin-typescript';
+
 const production = !process.env.ROLLUP_WATCH;
 
 export default {
@@ -17,6 +20,7 @@ export default {
   },
   plugins: [
     svelte({
+      preprocess: autoPreprocess(),
       // enable run-time checks when not in production
       dev: !production,
       // we'll extract any component CSS out into
@@ -25,6 +29,8 @@ export default {
         css.write('dist/bundle.css');
       }
     }),
+
+    typescript({ sourceMap: !production }),
 
     resolve({
       browser: true,

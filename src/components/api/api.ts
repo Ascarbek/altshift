@@ -21,7 +21,11 @@ export async function getAudioFilesByVideoId(videoId, videoType) {
   return Promise.resolve(parsed.audioFiles);
 }
 
-export function sendUploadForm(data, progressFn) {
+interface UploadResponse {
+  fileName: string;
+};
+
+export function sendUploadForm(data, progressFn): Promise<UploadResponse> {
   let formData = new FormData();
 
   return new Promise((resolve, reject) => {
