@@ -4,5 +4,6 @@ export default {
   MENU: 'menu',
   LOGO: 'logo',
   AUDIO_DELAY: 'audio delay',
-  VOLUME: 'volume'
+  VOLUME: 'volume',
+  UPLOAD_PROGRESS: 'upload_progress',
 }

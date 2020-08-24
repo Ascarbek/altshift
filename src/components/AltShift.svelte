@@ -11,8 +11,10 @@
   $: {
     updateList(videoType, videoId);
   }
+
+
 </script>
 
 {#if showPlayer}
-  <Player/>
+  <Player videoType={videoType} videoId={videoId}/>
 {/if}

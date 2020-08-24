@@ -1,11 +1,13 @@
 <script lang="ts">
-  import {onMount, onDestroy} from 'svelte';
+  import { onMount, onDestroy, createEventDispatcher } from 'svelte';
   import { fade } from 'svelte/transition';
   import { cubicInOut } from 'svelte/easing';
+  import { updateList } from './api/firebase-app';
   import Display from "./Display.svelte";
   import states from './displayStates';
   import type { AudioFile } from './api/types';
   import { AudioFiles } from './api/svelte-stores';
+  import { uploadFile } from './api/firebase-app';
 
   let audioHtml: HTMLAudioElement;
   let playerHtml: HTMLElement;
@@ -13,6 +15,17 @@
   let left: number = 0;
   let top: number = 0;
 
+  let uploadProgress: number = 0;
+
+  const dispatch = createEventDispatcher();
+
+  export let videoType: string;
+  export let videoId: string;
+
+  /**
+   * playback events
+   *
+  */
   let initTimeoutHandler: number;
 
   const attachEvents = () => {
@@ -45,6 +58,22 @@
     busy = false;
   }, 1000);
 
+  const timeHandler = async (e: any) => {
+    if (busy) return
+    if (Math.abs(audioHtml.currentTime - e.target.currentTime) < 0.1) return;
+    const video = document.querySelector('video');
+    if (!video) return;
+    audioHtml.currentTime = e.target.currentTime;
+    if (!video.paused) {
+      audioHtml.play()
+    }
+    busy = true;
+  }
+
+  /**
+   * Player movement events
+   *
+  */
   onMount(() => {
     try {
       const stored = localStorage.getItem('AltShiftPlayerLocation');
@@ -65,18 +94,6 @@
     window.removeEventListener('mouseup', onMouseUp);
   });
 
-  const timeHandler = async (e: any) => {
-    if (busy) return
-    if (Math.abs(audioHtml.currentTime - e.target.currentTime) < 0.1) return;
-    const video = document.querySelector('video');
-    if (!video) return;
-    audioHtml.currentTime = e.target.currentTime;
-    if (!video.paused) {
-      audioHtml.play()
-    }
-    busy = true;
-  }
-
   const onMouseDown = () => {
     window.addEventListener('mousemove', onMouseMove);
     window.addEventListener('mouseup', onMouseUp);
@@ -93,8 +110,88 @@
     top += e.movementY;
   }
 
+  /**
+   * Menu events
+   *
+  */
+
+  let currentFile: AudioFile;
+  let currentMenuIndex: number;
+  let currentState: string;
+
+  const onUpClick = () => {
+    if($AudioFiles.length === 0) return;
+    if(currentState === states.MENU) {
+      currentState = states.HOME;
+      return;
+    }
+    else if(currentState !== states.HOME) {
+      return;
+    }
+    currentMenuIndex--;
+    if(currentMenuIndex < 0) {
+      currentMenuIndex = $AudioFiles.length - 1;
+      currentState = states.MENU;
+    }
+    currentFile = $AudioFiles[currentMenuIndex];
+  };
+
+  const onDownClick = () => {
+    if($AudioFiles.length === 0) return;
+    if(currentState === states.MENU) {
+      currentState = states.HOME;
+      return;
+    }
+    else if(currentState !== states.HOME) {
+      return;
+    }
+    currentMenuIndex++;
+    if(currentMenuIndex > $AudioFiles.length - 1) {
+      currentMenuIndex = 0;
+      currentState = states.MENU;
+    }
+    currentFile = $AudioFiles[currentMenuIndex];
+  };
+
+  const onOkClick = () => {
+    if(currentState === states.MENU) {
+      uploadClick();
+    }
+  }
+
+
+  const setDisplayState = (files: AudioFile[]) => {
+    if(files.length === 0) {
+      currentState = states.MENU;
+    }
+    else {
+      currentState = states.HOME;
+      currentMenuIndex = 0;
+      currentFile = files[currentMenuIndex];
+    }
+  }
+
+  $: setDisplayState($AudioFiles);
+
   const uploadClick = () => {
     document.getElementById('upload-input').dispatchEvent(new MouseEvent('click'));
+    document.getElementById('upload-input').addEventListener('change', onFileSelect);
+  }
+
+  const onFileSelect = async (e) => {
+    currentState = states.UPLOAD_PROGRESS;
+    document.getElementById('upload-input').removeEventListener('change', onFileSelect);
+    uploadProgress = 0;
+
+    const files = e.target.files;
+    const file = files[0];
+
+    uploadFile(videoType, `${videoId}/${file.name}`, file, (p) => {
+      uploadProgress = p;
+    }, (path) => {
+      currentState = states.HOME;
+      updateList(videoType, videoId);
+    });
   }
 </script>
 
@@ -104,9 +201,10 @@
 
   <div class="content">
     <Display
-      state={states.MENU}
-      data={$AudioFiles[0]}
+      state={currentState}
+      data={currentFile}
       on:uploadClick={uploadClick}
+      bind:progress={uploadProgress}
     />
 
     <div class="arrow-buttons">
@@ -114,7 +212,7 @@
         <i class="fas fa-angle-left"></i>
       </div>
 
-      <div class="arrow-up">
+      <div class="arrow-up" on:click={onUpClick}>
         <i class="fas fa-angle-up"></i>
       </div>
 
@@ -122,11 +220,11 @@
         <i class="fas fa-angle-right"></i>
       </div>
 
-      <div class="arrow-down">
+      <div class="arrow-down" on:click={onDownClick}>
         <i class="fas fa-angle-down"></i>
       </div>
 
-      <div class="ok-button" on:click={uploadClick}>
+      <div class="ok-button" on:click={onOkClick}>
         <span>OK</span>
       </div>
     </div>
@@ -144,8 +242,8 @@
     </div>
   </div>
 
-  {#if $AudioFiles.length}
-    <audio src={$AudioFiles[0].path} bind:this={audioHtml}></audio>
+  {#if currentFile}
+    <audio src={currentFile.path} bind:this={audioHtml}></audio>
   {/if}
 
 </div>

@@ -12,15 +12,16 @@
   const uploadClick = (e) => {
     dispatch('uploadClick');
   }
+  export let progress = 0;
 </script>
 
 <div class="display-outer">
   <input id='upload-input' type="file" style="display: none">
   <div class="display">
     {#if false}
-    <span></span>
+      <span></span>
     {:else if state === states.LOGO}
-    <span></span>
+      <span></span>
     {:else if state === states.HOME && data}
       <div class="lang">{data.lang}</div>
       <div class="tags">
@@ -32,10 +33,16 @@
     {:else if state === states.MENU}
       <div class="menu">
         <button class="menu-item" on:click={uploadClick}><i class="fas fa-cloud-upload-alt"></i></button>
-        <button class="menu-item"><i class="fas fa-microphone-alt"></i></button>
+        <!-- <button class="menu-item"><i class="fas fa-microphone-alt"></i></button> -->
       </div>
+    {:else if state === states.UPLOAD_PROGRESS}
+      {#each [0,1,2,3,4,5,6,7,8,9] as p}
+        <div class="upload-progress" class:fill={progress > p*10+5} style={`left: ${30 + p*15}px`}>
+
+        </div>
+      {/each}
     {:else if state === states.NOT_FOUND}
-    <span></span>
+      <span></span>
     {/if}
   </div>
 </div>
@@ -50,6 +57,18 @@
     align-items: center;
     justify-content: center;
     width: 100%;
+  }
+
+  .upload-progress {
+    background: #9e9e9e;
+    width: 13px;
+    height: 2px;
+    bottom: 9px;
+    position: absolute;
+  }
+
+  .upload-progress.fill {
+    height: 20px;
   }
 
   .menu-item {
@@ -94,5 +113,9 @@
     overflow: hidden;
     white-space: nowrap;
     text-overflow: clip;
+  }
+
+  .audio-name {
+    padding: 0 8px;
   }
 </style>
