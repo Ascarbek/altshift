@@ -92,6 +92,10 @@
     left += e.movementX;
     top += e.movementY;
   }
+
+  const uploadClick = () => {
+    document.getElementById('upload-input').dispatchEvent(new MouseEvent('click'));
+  }
 </script>
 
 <div class="player" bind:this={playerHtml} transition:fade={{delay: 0, duration: 200, easing: cubicInOut}}
@@ -100,8 +104,9 @@
 
   <div class="content">
     <Display
-      state={states.HOME}
+      state={states.MENU}
       data={$AudioFiles[0]}
+      on:uploadClick={uploadClick}
     />
 
     <div class="arrow-buttons">
@@ -121,7 +126,7 @@
         <i class="fas fa-angle-down"></i>
       </div>
 
-      <div class="ok-button">
+      <div class="ok-button" on:click={uploadClick}>
         <span>OK</span>
       </div>
     </div>

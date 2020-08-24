@@ -2,7 +2,7 @@
   import AltShift from './../components/AltShift.svelte';
 
   let showPlayer = true;
-  let videoId = 'uYGj04Iti3E';
+  let videoId = 'uYGj04Iti3E_';
   let videoType = 'YOUTUBE_VIDEO_PAGE';
 </script>
 

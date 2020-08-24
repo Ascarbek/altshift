@@ -1,13 +1,21 @@
 <script lang="ts">
+  import { createEventDispatcher } from 'svelte';
+
+  const dispatch = createEventDispatcher();
+
   import states from './displayStates';
   import type { AudioFile } from './api/types';
 
   export let state = '';
   export let data: AudioFile = null;
 
+  const uploadClick = (e) => {
+    dispatch('uploadClick');
+  }
 </script>
 
 <div class="display-outer">
+  <input id='upload-input' type="file" style="display: none">
   <div class="display">
     {#if false}
     <span></span>
@@ -23,7 +31,7 @@
       <div class="audio-name">{data.name}</div>
     {:else if state === states.MENU}
       <div class="menu">
-        <button class="menu-item"><i class="fas fa-cloud-upload-alt"></i></button>
+        <button class="menu-item" on:click={uploadClick}><i class="fas fa-cloud-upload-alt"></i></button>
         <button class="menu-item"><i class="fas fa-microphone-alt"></i></button>
       </div>
     {:else if state === states.NOT_FOUND}
