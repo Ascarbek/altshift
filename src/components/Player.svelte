@@ -31,7 +31,7 @@
   const attachEvents = () => {
     const video = document.querySelector('video');
 
-    if (video) {
+    if (video && audioHtml) {
       video.addEventListener('pause', pauseHandler);
       video.addEventListener('play', playHandler);
       video.addEventListener('timeupdate', timeHandler);
