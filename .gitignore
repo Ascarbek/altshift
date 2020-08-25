@@ -12,6 +12,7 @@ yarn.lock
 # misc
 .idea
 /temp
+.DS_STORE
 
 # build
 /dist
