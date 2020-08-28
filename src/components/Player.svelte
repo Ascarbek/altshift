@@ -185,10 +185,10 @@
 
   const onOkClick = async () => {
     if(currentState === states.MENU) {
-      if(menuItemIndex === 0) {
+      if(menuItemIndex === 1) {
         uploadClick();
       }
-      if(menuItemIndex === 1) {
+      if(menuItemIndex === 0) {
         currentState = states.RECORDER;
         stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       }
