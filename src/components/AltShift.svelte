@@ -11,8 +11,6 @@
   $: {
     updateList(videoType, videoId);
   }
-
-
 </script>
 
 {#if showPlayer}

@@ -8,6 +8,9 @@
   import type { AudioFile } from './api/types';
   import { AudioFiles } from './api/svelte-stores';
   import { uploadFile } from './api/firebase-app';
+  import Recorder from './Recorder.svelte';
+
+  let stream = null;
 
   let audioHtml: HTMLAudioElement;
   let playerHtml: HTMLElement;
@@ -81,6 +84,14 @@
       left = obj.left;
       top = obj.top;
 
+      if(left + 350 > screen.width) {
+        left = screen.width - 350 - 20;
+      }
+
+      if(top + 64 > screen.height) {
+        top = screen.height - 64 - 20;
+      }
+
       setTimeout(attachEvents, 10);
     } catch (e) {
 
@@ -116,7 +127,8 @@
   */
 
   let currentFile: AudioFile;
-  let currentMenuIndex: number;
+  let homeItemIndex: number;
+  let menuItemIndex: number;
   let currentState: string;
 
   const onUpClick = () => {
@@ -128,12 +140,12 @@
     else if(currentState !== states.HOME) {
       return;
     }
-    currentMenuIndex--;
-    if(currentMenuIndex < 0) {
-      currentMenuIndex = $AudioFiles.length - 1;
+    homeItemIndex--;
+    if(homeItemIndex < 0) {
+      homeItemIndex = $AudioFiles.length - 1;
       currentState = states.MENU;
     }
-    currentFile = $AudioFiles[currentMenuIndex];
+    currentFile = $AudioFiles[homeItemIndex];
   };
 
   const onDownClick = () => {
@@ -145,20 +157,49 @@
     else if(currentState !== states.HOME) {
       return;
     }
-    currentMenuIndex++;
-    if(currentMenuIndex > $AudioFiles.length - 1) {
-      currentMenuIndex = 0;
+    homeItemIndex++;
+    if(homeItemIndex > $AudioFiles.length - 1) {
+      homeItemIndex = 0;
       currentState = states.MENU;
     }
-    currentFile = $AudioFiles[currentMenuIndex];
+    currentFile = $AudioFiles[homeItemIndex];
   };
 
-  const onOkClick = () => {
+  const onLeftClick = () => {
     if(currentState === states.MENU) {
-      uploadClick();
+      menuItemIndex--;
+      if(menuItemIndex < 0) {
+        menuItemIndex = 1;
+      }
     }
   }
 
+  const onRightClick = () => {
+    if(currentState === states.MENU) {
+      menuItemIndex++;
+      if(menuItemIndex > 1) {
+        menuItemIndex = 0;
+      }
+    }
+  }
+
+  const onOkClick = async () => {
+    if(currentState === states.MENU) {
+      if(menuItemIndex === 0) {
+        uploadClick();
+      }
+      if(menuItemIndex === 1) {
+        currentState = states.RECORDER;
+        setTimeout(async () => {
+          stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        }, 1000);
+
+      }
+    }
+    /* if(currentState === states.RECORDER) {
+      stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    } */
+  }
 
   const setDisplayState = (files: AudioFile[]) => {
     if(files.length === 0) {
@@ -166,13 +207,17 @@
     }
     else {
       currentState = states.HOME;
-      currentMenuIndex = 0;
-      currentFile = files[currentMenuIndex];
+      homeItemIndex = 0;
+      currentFile = files[homeItemIndex];
     }
   }
 
   $: setDisplayState($AudioFiles);
 
+  /**
+   * Upload Audio file events
+   *
+  */
   const uploadClick = () => {
     document.getElementById('upload-input').dispatchEvent(new MouseEvent('click'));
     document.getElementById('upload-input').addEventListener('change', onFileSelect);
@@ -205,10 +250,17 @@
       data={currentFile}
       on:uploadClick={uploadClick}
       bind:progress={uploadProgress}
-    />
+      bind:menuItemIndex={menuItemIndex}
+    >
+      <div slot="recorder">
+        <Recorder bind:stream={stream}>
+
+        </Recorder>
+      </div>
+    </Display>
 
     <div class="arrow-buttons">
-      <div class="arrow-left">
+      <div class="arrow-left" on:click={onLeftClick}>
         <i class="fas fa-angle-left"></i>
       </div>
 
@@ -216,7 +268,7 @@
         <i class="fas fa-angle-up"></i>
       </div>
 
-      <div class="arrow-right">
+      <div class="arrow-right" on:click={onRightClick}>
         <i class="fas fa-angle-right"></i>
       </div>
 
@@ -254,6 +306,8 @@
   }
 
   .player {
+    user-select: none;
+
     position: fixed;
     z-index: 10000;
 

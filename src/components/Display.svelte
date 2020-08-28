@@ -1,18 +1,13 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte';
-
-  const dispatch = createEventDispatcher();
-
   import states from './displayStates';
   import type { AudioFile } from './api/types';
 
   export let state = '';
   export let data: AudioFile = null;
 
-  const uploadClick = (e) => {
-    dispatch('uploadClick');
-  }
   export let progress = 0;
+
+  export let menuItemIndex: number = 0;
 </script>
 
 <div class="display-outer">
@@ -32,15 +27,16 @@
       <div class="audio-name">{data.name}</div>
     {:else if state === states.MENU}
       <div class="menu">
-        <button class="menu-item" on:click={uploadClick}><i class="fas fa-cloud-upload-alt"></i></button>
-        <!-- <button class="menu-item"><i class="fas fa-microphone-alt"></i></button> -->
+        <button class="menu-item" class:active={menuItemIndex === 0}><i class="fas fa-cloud-upload-alt"></i></button>
+        <button class="menu-item" class:active={menuItemIndex === 1}><i class="fas fa-microphone-alt"></i></button>
       </div>
     {:else if state === states.UPLOAD_PROGRESS}
       {#each [0,1,2,3,4,5,6,7,8,9] as p}
         <div class="upload-progress" class:fill={progress > p*10+5} style={`left: ${30 + p*15}px`}>
-
         </div>
       {/each}
+    {:else if state === states.RECORDER}
+      <slot name='recorder'></slot>
     {:else if state === states.NOT_FOUND}
       <span></span>
     {/if}
@@ -48,10 +44,6 @@
 </div>
 
 <style>
-  .lang {
-
-  }
-
   .menu {
     display: flex;
     align-items: center;
@@ -82,7 +74,7 @@
     cursor: pointer;
   }
 
-  .menu-item:hover {
+  .menu-item.active {
     color: #777777;
   }
 
