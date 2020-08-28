@@ -190,15 +190,9 @@
       }
       if(menuItemIndex === 1) {
         currentState = states.RECORDER;
-        setTimeout(async () => {
-          stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        }, 1000);
-
+        stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       }
     }
-    /* if(currentState === states.RECORDER) {
-      stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    } */
   }
 
   const setDisplayState = (files: AudioFile[]) => {

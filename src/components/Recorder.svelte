@@ -1,12 +1,48 @@
 <script lang="ts">
-  import { onMount, tick } from "svelte";
+  import { onDestroy, onMount, tick } from "svelte";
 
   let canvasElement: HTMLCanvasElement;
 
-
   export let stream;
 
-  let WIDTH = 0, HEIGHT = 0;
+  enum state {
+    FIRST_MESSAGE,
+    ACTIVE_RECORDING,
+    SAVE_MENU,
+  }
+
+  let currentState: state = state.FIRST_MESSAGE;
+
+  onMount(() => {
+    window.addEventListener('keydown', keyDown);
+    window.addEventListener('keyup', keyUp);
+  });
+
+  const keyDown = (e) => {
+    if(e.ctrlKey) {
+      currentState = state.ACTIVE_RECORDING;
+
+      if(document.querySelector('video')) {
+        const video = document.querySelector('video');
+        video.play();
+      }
+    }
+  };
+
+  const keyUp = (e) => {
+    currentState = state.SAVE_MENU;
+
+    if(document.querySelector('video')) {
+      const video = document.querySelector('video');
+      video.pause();
+    }
+  };
+
+  onDestroy(() => {
+    window.removeEventListener('keydown', keyDown);
+    window.removeEventListener('keyup', keyUp);
+  });
+
 
   $: visualize(stream);
 
@@ -22,31 +58,25 @@
     var dataArray = new Uint8Array(bufferLength);
 
     source.connect(analyser);
-    //analyser.connect(audioCtx.destination);
 
-    WIDTH = canvasElement.width
-    HEIGHT = canvasElement.height;
+    let WIDTH = canvasElement.width
+    let HEIGHT = canvasElement.height;
 
     draw()
 
     function draw() {
-      // console.log(dataArray);
-      // console.log('drawing');
       requestAnimationFrame(draw);
 
       analyser.getByteTimeDomainData(dataArray);
 
       canvasCtx.fillStyle = 'rgb(200, 200, 200)';
       canvasCtx.fillRect(0, 0, WIDTH, HEIGHT);
-
       canvasCtx.lineWidth = 2;
       canvasCtx.strokeStyle = 'rgb(0, 0, 0)';
-
       canvasCtx.beginPath();
 
       var sliceWidth = WIDTH * 1.0 / bufferLength;
       var x = 0;
-
 
       for(var i = 0; i < bufferLength; i++) {
 
@@ -64,16 +94,40 @@
 
       canvasCtx.lineTo(canvasElement.width, canvasElement.height/2);
       canvasCtx.stroke();
-
     }
   }
 </script>
 
 <div class="recorder">
-  <canvas bind:this={canvasElement} class="visualizer"></canvas>
+  <canvas bind:this={canvasElement} class="visualizer" class:hidden={currentState !== state.ACTIVE_RECORDING}></canvas>
+
+  <div class="msg" class:hidden={currentState !== state.FIRST_MESSAGE}>
+    hold <b>ctrl</b> key to start.<br>
+    release to pause.
+  </div>
+
+  <div class="msg" class:hidden={currentState !== state.SAVE_MENU}>
+    press <b>Ok</b> to save.<br>
+    or <b>ctrl</b> to continue.
+  </div>
 </div>
 
+
+
 <style>
+  .hidden {
+    display: none;
+  }
+
+  .msg {
+    padding: 3px 5px;
+    text-align: center;
+  }
+
+  .visualizer {
+
+  }
+
  .recorder {
     position: absolute;
     top: 0;
