@@ -65,4 +65,20 @@ export const uploadFile = async(videoType: string, videoId: string, file, progre
         completeFn(downloadURL);
       });
     });
-}
+};
+
+export const uploadBlob = async(videoType: string, videoId: string, blob, progressFn, completeFn) => {
+  const ref = firebase.storage().ref();
+
+  const uploadTask = ref.child(videoId).put(blob);
+    uploadTask.on('state_changed', function(snapshot){
+      let progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+      progressFn(progress);
+    }, function(error) {
+      console.error(error);
+    }, function() {
+      uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {
+        completeFn(downloadURL);
+      });
+    });
+};

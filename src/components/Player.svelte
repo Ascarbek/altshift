@@ -2,7 +2,7 @@
   import { onMount, onDestroy, createEventDispatcher } from 'svelte';
   import { fade } from 'svelte/transition';
   import { cubicInOut } from 'svelte/easing';
-  import { updateList } from './api/firebase-app';
+  import { updateList, uploadBlob } from './api/firebase-app';
   import Display from "./Display.svelte";
   import states from './displayStates';
   import type { AudioFile } from './api/types';
@@ -232,6 +232,14 @@
       updateList(videoType, videoId);
     });
   }
+
+  const onDataAvailable = async(e) => {
+    uploadBlob(videoType, `${videoId}/newRecording.webm`, e.detail, () => {
+
+    }, () => {
+
+    });
+  }
 </script>
 
 <div class="player" bind:this={playerHtml} transition:fade={{delay: 0, duration: 200, easing: cubicInOut}}
@@ -247,7 +255,7 @@
       bind:menuItemIndex={menuItemIndex}
     >
       <div slot="recorder">
-        <Recorder bind:stream={stream}>
+        <Recorder bind:stream={stream} on:onDataAvailable={onDataAvailable}>
 
         </Recorder>
       </div>

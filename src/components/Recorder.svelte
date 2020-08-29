@@ -1,9 +1,12 @@
 <script lang="ts">
-  import { onDestroy, onMount, tick } from "svelte";
+  import { onDestroy, onMount, tick, createEventDispatcher } from "svelte";
+
+  const dispatch = createEventDispatcher();
 
   let canvasElement: HTMLCanvasElement;
 
   export let stream;
+  let mediaRecorder;
 
   enum state {
     FIRST_MESSAGE,
@@ -26,6 +29,10 @@
         const video = document.querySelector('video');
         video.play();
       }
+
+      if(mediaRecorder.state !== 'recording') {
+        mediaRecorder.start();
+      }
     }
   };
 
@@ -36,6 +43,9 @@
       const video = document.querySelector('video');
       video.pause();
     }
+
+    mediaRecorder.stop();
+    mediaRecorder.addEventListener('dataavailable', onDataAvailable);
   };
 
   onDestroy(() => {
@@ -43,12 +53,17 @@
     window.removeEventListener('keyup', keyUp);
   });
 
+  const onDataAvailable = (e) => {
+    mediaRecorder.removeEventListener('dataavailable', onDataAvailable);
+    dispatch('onDataAvailable', e.data);
+  };
 
   $: visualize(stream);
 
   function visualize(stream) {
     if(!stream) return;
     const audioCtx = new AudioContext();
+    mediaRecorder = new MediaRecorder(stream, {mimeType: 'audio/webm'});
     var canvasCtx = canvasElement.getContext("2d");
     var source = audioCtx.createMediaStreamSource(stream);
 
