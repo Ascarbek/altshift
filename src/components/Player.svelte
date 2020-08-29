@@ -10,7 +10,8 @@
   import { uploadFile } from './api/firebase-app';
   import Recorder from './Recorder.svelte';
 
-  let stream = null;
+  let AudioInputStream = null;
+  let AudioInputStreamPromise = null;
 
   let audioHtml: HTMLAudioElement;
   let playerHtml: HTMLElement;
@@ -190,7 +191,7 @@
       }
       if(menuItemIndex === 0) {
         currentState = states.RECORDER;
-        stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        AudioInputStreamPromise = navigator.mediaDevices.getUserMedia({ audio: true });
       }
     }
   }
@@ -255,7 +256,7 @@
       bind:menuItemIndex={menuItemIndex}
     >
       <div slot="recorder">
-        <Recorder bind:stream={stream} on:onDataAvailable={onDataAvailable}>
+        <Recorder streamPromise={AudioInputStreamPromise} on:onDataAvailable={onDataAvailable}>
 
         </Recorder>
       </div>

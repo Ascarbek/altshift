@@ -5,10 +5,13 @@
 
   let canvasElement: HTMLCanvasElement;
 
-  export let stream;
+  let stream;
+  export let streamPromise;
   let mediaRecorder;
 
   enum state {
+    ALLOW_MESSAGE,
+    DECLINED_MESSAGE,
     FIRST_MESSAGE,
     ACTIVE_RECORDING,
     SAVE_MENU,
@@ -59,6 +62,8 @@
   };
 
   $: visualize(stream);
+
+  $: showDlg(streamPromise);
 
   function visualize(stream) {
     if(!stream) return;
@@ -111,10 +116,28 @@
       canvasCtx.stroke();
     }
   }
+
+  function showDlg(promise) {
+    currentState = state.ALLOW_MESSAGE;
+    promise.then(res => {
+      currentState = state.FIRST_MESSAGE;
+      stream = res;
+    }).catch(e => {
+      currentState = state.DECLINED_MESSAGE;
+    });
+  }
 </script>
 
 <div class="recorder">
   <canvas bind:this={canvasElement} class="visualizer" class:hidden={currentState !== state.ACTIVE_RECORDING}></canvas>
+
+  <div class="msg" class:hidden={currentState !== state.ALLOW_MESSAGE}>
+    Please allow use<br> of microphone.
+  </div>
+
+  <div class="msg" class:hidden={currentState !== state.DECLINED_MESSAGE}>
+    You have blocked use<br> of microphone.
+  </div>
 
   <div class="msg" class:hidden={currentState !== state.FIRST_MESSAGE}>
     hold <b>ctrl</b> key to start.<br>
