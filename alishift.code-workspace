@@ -8,6 +8,9 @@
 		},
 		{
 			"path": "..\\web-dictaphone"
+		},
+		{
+			"path": "..\\altshift-mixer"
 		}
 	],
 	"settings": {}
