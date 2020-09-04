@@ -1,5 +1,8 @@
 <script lang="ts">
   import { onDestroy, onMount, tick, createEventDispatcher } from "svelte";
+  import { createAuthor, newRecording, newVoice, newPart } from './api/firebase-app';
+
+  import { RecordingStates } from './api/types';
 
   const dispatch = createEventDispatcher();
 
@@ -9,24 +12,23 @@
   export let streamPromise;
   let mediaRecorder;
 
-  enum state {
-    ALLOW_MESSAGE,
-    DECLINED_MESSAGE,
-    FIRST_MESSAGE,
-    ACTIVE_RECORDING,
-    SAVE_MENU,
-  }
+  export let videoId: string;
 
-  let currentState: state = state.FIRST_MESSAGE;
+  let currentState: RecordingStates = RecordingStates.FIRST_MESSAGE;
 
-  onMount(() => {
+  onMount(async () => {
     window.addEventListener('keydown', keyDown);
     window.addEventListener('keyup', keyUp);
+
+    createAuthor();
+    const recId = await newRecording({lang: 'ru', name: 'newRecording', videoId: videoId});
+    const voiceId = await newVoice({name: 'male', recordingId: recId});
+    const partId = await newPart({recordingId: recId, voiceId: voiceId, start: 0, end: 1});
   });
 
   const keyDown = (e) => {
     if(e.ctrlKey) {
-      currentState = state.ACTIVE_RECORDING;
+      currentState = RecordingStates.ACTIVE_RECORDING;
 
       if(document.querySelector('video')) {
         const video = document.querySelector('video');
@@ -40,7 +42,7 @@
   };
 
   const keyUp = (e) => {
-    currentState = state.SAVE_MENU;
+    currentState = RecordingStates.PAUSE_MESSAGE;
 
     if(document.querySelector('video')) {
       const video = document.querySelector('video');
@@ -118,35 +120,39 @@
   }
 
   function showDlg(promise) {
-    currentState = state.ALLOW_MESSAGE;
+    currentState = RecordingStates.ALLOW_MESSAGE;
     promise.then(res => {
-      currentState = state.FIRST_MESSAGE;
+      currentState = RecordingStates.FIRST_MESSAGE;
       stream = res;
     }).catch(e => {
-      currentState = state.DECLINED_MESSAGE;
+      currentState = RecordingStates.DECLINED_MESSAGE;
     });
   }
 </script>
 
 <div class="recorder">
-  <canvas bind:this={canvasElement} class="visualizer" class:hidden={currentState !== state.ACTIVE_RECORDING}></canvas>
+  <canvas bind:this={canvasElement} class="visualizer" class:hidden={currentState !== RecordingStates.ACTIVE_RECORDING}></canvas>
 
-  <div class="msg" class:hidden={currentState !== state.ALLOW_MESSAGE}>
+  <div class="msg" class:hidden={currentState !== RecordingStates.ALLOW_MESSAGE}>
     Please allow use<br> of microphone.
   </div>
 
-  <div class="msg" class:hidden={currentState !== state.DECLINED_MESSAGE}>
+  <div class="msg" class:hidden={currentState !== RecordingStates.DECLINED_MESSAGE}>
     You have blocked use<br> of microphone.
   </div>
 
-  <div class="msg" class:hidden={currentState !== state.FIRST_MESSAGE}>
+  <div class="msg" class:hidden={currentState !== RecordingStates.FIRST_MESSAGE}>
     hold <b>ctrl</b> key to start.<br>
     release to pause.
   </div>
 
-  <div class="msg" class:hidden={currentState !== state.SAVE_MENU}>
+  <div class="msg" class:hidden={currentState !== RecordingStates.PAUSE_MESSAGE}>
     press <b>Ok</b> to save.<br>
     or <b>ctrl</b> to continue.
+  </div>
+
+  <div class="msg" class:hidden={currentState !== RecordingStates.SAVE_MENU}>
+    <input>
   </div>
 </div>
 
@@ -160,6 +166,14 @@
   .msg {
     padding: 3px 5px;
     text-align: center;
+  }
+
+  .msg input {
+    border: none;
+    background: none;
+    outline: none;
+    padding-bottom: 10px;
+    border-bottom: #464c4b 1px solid;
   }
 
   .visualizer {

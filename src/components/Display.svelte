@@ -1,8 +1,8 @@
 <script lang="ts">
-  import states from './displayStates';
   import type { AudioFile } from './api/types';
+  import { DisplayStates } from './api/types';
 
-  export let state = '';
+  export let state: DisplayStates;
   export let data: AudioFile = null;
 
   export let progress = 0;
@@ -15,9 +15,9 @@
   <div class="display">
     {#if false}
       <span></span>
-    {:else if state === states.LOGO}
+    {:else if state === DisplayStates.LOGO}
       <span></span>
-    {:else if state === states.HOME && data}
+    {:else if state === DisplayStates.HOME && data}
       <div class="lang">{data.lang}</div>
       <div class="tags">
         {#each data.tags as tag}
@@ -25,19 +25,19 @@
         {/each}
       </div>
       <div class="audio-name">{data.name}</div>
-    {:else if state === states.MENU}
+    {:else if state === DisplayStates.MENU}
       <div class="menu">
         <button class="menu-item" class:active={menuItemIndex === 0}><i class="fas fa-microphone-alt"></i></button>
         <button class="menu-item" class:active={menuItemIndex === 1}><i class="fas fa-cloud-upload-alt"></i></button>
       </div>
-    {:else if state === states.UPLOAD_PROGRESS}
+    {:else if state === DisplayStates.UPLOAD_PROGRESS}
       {#each [0,1,2,3,4,5,6,7,8,9] as p}
         <div class="upload-progress" class:fill={progress > p*10+5} style={`left: ${30 + p*15}px`}>
         </div>
       {/each}
-    {:else if state === states.RECORDER}
+    {:else if state === DisplayStates.RECORDER}
       <slot name='recorder'></slot>
-    {:else if state === states.NOT_FOUND}
+    {:else if state === DisplayStates.NOT_FOUND}
       <span></span>
     {/if}
   </div>
@@ -99,6 +99,7 @@
     border-radius: 4px;
     color: #464c4b;
     font-family: 'Roboto Mono', monospace;
+    letter-spacing: 1px;
     display: flex;
     align-items: center;
     font-size: 12px;

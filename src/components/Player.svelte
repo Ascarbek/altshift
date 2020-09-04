@@ -2,12 +2,13 @@
   import { onMount, onDestroy, createEventDispatcher } from 'svelte';
   import { fade } from 'svelte/transition';
   import { cubicInOut } from 'svelte/easing';
-  import { updateList, uploadBlob } from './api/firebase-app';
-  import Display from "./Display.svelte";
-  import states from './displayStates';
+
+  import { updateList, uploadFile, uploadBlob } from './api/firebase-app';
   import type { AudioFile } from './api/types';
+  import { DisplayStates } from './api/types';
   import { AudioFiles } from './api/svelte-stores';
-  import { uploadFile } from './api/firebase-app';
+
+  import Display from "./Display.svelte";
   import Recorder from './Recorder.svelte';
 
   let AudioInputStream = null;
@@ -130,44 +131,44 @@
   let currentFile: AudioFile;
   let homeItemIndex: number;
   let menuItemIndex: number;
-  let currentState: string;
+  let currentState: DisplayStates = DisplayStates.MENU;
 
   const onUpClick = () => {
     if($AudioFiles.length === 0) return;
-    if(currentState === states.MENU) {
-      currentState = states.HOME;
+    if(currentState === DisplayStates.MENU) {
+      currentState = DisplayStates.HOME;
       return;
     }
-    else if(currentState !== states.HOME) {
+    else if(currentState !== DisplayStates.HOME) {
       return;
     }
     homeItemIndex--;
     if(homeItemIndex < 0) {
       homeItemIndex = $AudioFiles.length - 1;
-      currentState = states.MENU;
+      currentState = DisplayStates.MENU;
     }
     currentFile = $AudioFiles[homeItemIndex];
   };
 
   const onDownClick = () => {
     if($AudioFiles.length === 0) return;
-    if(currentState === states.MENU) {
-      currentState = states.HOME;
+    if(currentState === DisplayStates.MENU) {
+      currentState = DisplayStates.HOME;
       return;
     }
-    else if(currentState !== states.HOME) {
+    else if(currentState !== DisplayStates.HOME) {
       return;
     }
     homeItemIndex++;
     if(homeItemIndex > $AudioFiles.length - 1) {
       homeItemIndex = 0;
-      currentState = states.MENU;
+      currentState = DisplayStates.MENU;
     }
     currentFile = $AudioFiles[homeItemIndex];
   };
 
   const onLeftClick = () => {
-    if(currentState === states.MENU) {
+    if(currentState === DisplayStates.MENU) {
       menuItemIndex--;
       if(menuItemIndex < 0) {
         menuItemIndex = 1;
@@ -176,7 +177,7 @@
   }
 
   const onRightClick = () => {
-    if(currentState === states.MENU) {
+    if(currentState === DisplayStates.MENU) {
       menuItemIndex++;
       if(menuItemIndex > 1) {
         menuItemIndex = 0;
@@ -185,12 +186,12 @@
   }
 
   const onOkClick = async () => {
-    if(currentState === states.MENU) {
+    if(currentState === DisplayStates.MENU) {
       if(menuItemIndex === 1) {
         uploadClick();
       }
       if(menuItemIndex === 0) {
-        currentState = states.RECORDER;
+        currentState = DisplayStates.RECORDER;
         AudioInputStreamPromise = navigator.mediaDevices.getUserMedia({ audio: true });
       }
     }
@@ -198,10 +199,10 @@
 
   const setDisplayState = (files: AudioFile[]) => {
     if(files.length === 0) {
-      currentState = states.MENU;
+      currentState = DisplayStates.MENU;
     }
     else {
-      currentState = states.HOME;
+      currentState = DisplayStates.HOME;
       homeItemIndex = 0;
       currentFile = files[homeItemIndex];
     }
@@ -219,7 +220,7 @@
   }
 
   const onFileSelect = async (e) => {
-    currentState = states.UPLOAD_PROGRESS;
+    currentState = DisplayStates.UPLOAD_PROGRESS;
     document.getElementById('upload-input').removeEventListener('change', onFileSelect);
     uploadProgress = 0;
 
@@ -229,7 +230,7 @@
     uploadFile(videoType, `${videoId}/${file.name}`, file, (p) => {
       uploadProgress = p;
     }, (path) => {
-      currentState = states.HOME;
+      currentState = DisplayStates.HOME;
       updateList(videoType, videoId);
     });
   }
@@ -256,7 +257,7 @@
       bind:menuItemIndex={menuItemIndex}
     >
       <div slot="recorder">
-        <Recorder streamPromise={AudioInputStreamPromise} on:onDataAvailable={onDataAvailable}>
+        <Recorder streamPromise={AudioInputStreamPromise} on:onDataAvailable={onDataAvailable} videoId={videoId}>
 
         </Recorder>
       </div>
