@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onDestroy, onMount, tick, createEventDispatcher } from "svelte";
-  import { createAuthor, newRecording, newVoice, newPart } from './api/firebase-app';
+  import { createAuthor, newRecording, newVoice, newPart, uploadBlob } from './api/firebase-app';
 
   import { RecordingStates } from './api/types';
 
@@ -16,23 +16,29 @@
 
   let currentState: RecordingStates = RecordingStates.FIRST_MESSAGE;
 
+  let recordingId: string;
+  let voiceId: string;
+  let currentStartTime: number;
+  let currentEndTime: number;
+
   onMount(async () => {
     window.addEventListener('keydown', keyDown);
     window.addEventListener('keyup', keyUp);
 
     createAuthor();
-    const recId = await newRecording({lang: 'ru', name: 'newRecording', videoId: videoId});
-    const voiceId = await newVoice({name: 'male', recordingId: recId});
-    const partId = await newPart({recordingId: recId, voiceId: voiceId, start: 0, end: 1});
+    recordingId = await newRecording({lang: 'ru', name: 'newRecording', videoId: videoId});
+    voiceId = await newVoice({name: 'male', recordingId: recordingId});
   });
 
   const keyDown = (e) => {
     if(e.ctrlKey) {
+      if(currentState === RecordingStates.ACTIVE_RECORDING) return;
       currentState = RecordingStates.ACTIVE_RECORDING;
 
       if(document.querySelector('video')) {
         const video = document.querySelector('video');
         video.play();
+        currentStartTime = video.currentTime;
       }
 
       if(mediaRecorder.state !== 'recording') {
@@ -48,8 +54,8 @@
     if(document.querySelector('video')) {
       const video = document.querySelector('video');
       video.pause();
+      currentEndTime = video.currentTime;
     }
-
     mediaRecorder.stop();
     mediaRecorder.addEventListener('dataavailable', onDataAvailable);
   };
@@ -59,9 +65,16 @@
     window.removeEventListener('keyup', keyUp);
   });
 
-  const onDataAvailable = (e) => {
+  const onDataAvailable = async (e) => {
     mediaRecorder.removeEventListener('dataavailable', onDataAvailable);
-    dispatch('onDataAvailable', e.data);
+
+    const partId = await newPart({recordingId: recordingId, voiceId: voiceId, start: currentStartTime, end: currentEndTime});
+
+    uploadBlob('', `${videoId}/${partId}.webm`, e.data, () => {
+
+    }, () => {
+
+    });
   };
 
   $: visualize(stream);

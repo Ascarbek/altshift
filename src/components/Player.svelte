@@ -263,14 +263,6 @@
       updateList(videoType, videoId);
     });
   }
-
-  const onDataAvailable = async(e) => {
-    uploadBlob(videoType, `${videoId}/newRecording.webm`, e.detail, () => {
-
-    }, () => {
-
-    });
-  }
 </script>
 
 <div class="player" bind:this={playerHtml} transition:fade={{delay: 0, duration: 200, easing: cubicInOut}}
@@ -286,7 +278,7 @@
       bind:menuItemIndex={menuItemIndex}
     >
       <div slot="recorder">
-        <Recorder streamPromise={AudioInputStreamPromise} on:onDataAvailable={onDataAvailable} videoId={videoId}>
+        <Recorder streamPromise={AudioInputStreamPromise} videoId={videoId}>
 
         </Recorder>
       </div>
