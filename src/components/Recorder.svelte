@@ -70,7 +70,7 @@
 
     const partId = await newPart({recordingId: recordingId, voiceId: voiceId, start: currentStartTime, end: currentEndTime});
 
-    uploadBlob('', `${videoId}/${partId}.webm`, e.data, () => {
+    uploadBlob('', `Recordings/${recordingId}/${partId}.webm`, e.data, () => {
 
     }, () => {
 
