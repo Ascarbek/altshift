@@ -29,6 +29,7 @@ export interface Recording {
   name: string;
   videoId: string;
   lang: string;
+  duration: number;
 }
 
 export interface Voice {

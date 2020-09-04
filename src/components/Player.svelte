@@ -19,7 +19,7 @@
   let playerHtml: HTMLElement;
 
   let currentTime: number = 0;
-  let duration: number = 1;
+  let duration: number = -1;
 
   let left: number = 0;
   let top: number = 0;
@@ -42,18 +42,17 @@
   const attachEvents = () => {
     const video = document.querySelector('video');
 
-    if (video && audioHtml) {
-      video.addEventListener('pause', pauseHandler);
-      video.addEventListener('canplay', canPlayHandler);
-      video.addEventListener('play', playHandler);
+    if(video) {
       video.addEventListener('timeupdate', timeHandler);
+      video.addEventListener('canplay', canPlayHandler);
 
-      if(video.duration) {
-        duration = video.duration;
-      }
+      if (audioHtml) {
+        video.addEventListener('pause', pauseHandler);
+        video.addEventListener('play', playHandler);
 
-      if (!video.paused) {
-        audioHtml.play()
+        if (!video.paused) {
+          audioHtml.play()
+        }
       }
     } else {
       initTimeoutHandler = setTimeout(attachEvents, 10);
@@ -65,8 +64,11 @@
     audioHtml.pause();
   }
 
-  const canPlayHandler = () => {
+  const canPlayHandler = (e) => {
     canPlay = true;
+    if(e.target.duration && duration < 0) {
+      duration = e.target.duration;
+    }
   }
 
   const playHandler = () => {
@@ -91,10 +93,12 @@
     const video = e.target;
     currentTime = video.currentTime;
     if (busy) return
-    if (Math.abs(audioHtml.currentTime - video.currentTime) < 0.1) return;
-    audioHtml.currentTime = video.currentTime;
-    if (!video.paused) {
-      audioHtml.play()
+    if(audioHtml) {
+      if (Math.abs(audioHtml.currentTime - video.currentTime) < 0.1) return;
+      audioHtml.currentTime = video.currentTime;
+      if (!video.paused) {
+        audioHtml.play()
+      }
     }
     busy = true;
   }
@@ -278,7 +282,7 @@
       bind:menuItemIndex={menuItemIndex}
     >
       <div slot="recorder">
-        <Recorder streamPromise={AudioInputStreamPromise} videoId={videoId}>
+        <Recorder streamPromise={AudioInputStreamPromise} videoId={videoId} duration={duration}>
 
         </Recorder>
       </div>
@@ -325,12 +329,14 @@
 
 </div>
 
-<RecordingTracks
-  currentTime={currentTime}
-  duration={duration}
-  on:seek={onRecordingTrackSeek}
->
-</RecordingTracks>
+{#if currentState === DisplayStates.RECORDER}
+  <RecordingTracks
+    currentTime={currentTime}
+    duration={duration}
+    on:seek={onRecordingTrackSeek}
+  >
+  </RecordingTracks>
+{/if}
 
 <style>
   audio {

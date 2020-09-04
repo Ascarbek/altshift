@@ -13,6 +13,7 @@
   let mediaRecorder;
 
   export let videoId: string;
+  export let duration: number;
 
   let currentState: RecordingStates = RecordingStates.FIRST_MESSAGE;
 
@@ -26,7 +27,7 @@
     window.addEventListener('keyup', keyUp);
 
     createAuthor();
-    recordingId = await newRecording({lang: 'ru', name: 'newRecording', videoId: videoId});
+    recordingId = await newRecording({lang: 'ru', name: 'newRecording', videoId: videoId, duration: duration});
     voiceId = await newVoice({name: 'male', recordingId: recordingId});
   });
 

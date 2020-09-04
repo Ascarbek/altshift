@@ -105,6 +105,7 @@ export const newRecording = async(params: Recording): Promise<string> => {
     name: params.name,
     videoId: params.videoId,
     lang: params.lang,
+    duration: params.duration,
   });
 
   return newRecRef.id;
