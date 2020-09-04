@@ -27,10 +27,12 @@
   export let videoType: string;
   export let videoId: string;
 
+  let canPlay: boolean = false;
+
   /**
    * playback events
    *
-  */
+   */
   let initTimeoutHandler: number;
 
   const attachEvents = () => {
@@ -38,8 +40,11 @@
 
     if (video && audioHtml) {
       video.addEventListener('pause', pauseHandler);
+      video.addEventListener('canplay', canPlayHandler);
       video.addEventListener('play', playHandler);
       video.addEventListener('timeupdate', timeHandler);
+
+      console.log('duration', video.duration);
 
       if (!video.paused) {
         audioHtml.play()
@@ -50,11 +55,19 @@
   }
 
   const pauseHandler = () => {
+    canPlay = false;
     audioHtml.pause();
   }
 
+  const canPlayHandler = () => {
+    canPlay = true;
+  }
+
   const playHandler = () => {
-    audioHtml.play();
+    canPlay = audioHtml.readyState === 4;
+    if(canPlay) {
+      audioHtml.play();
+    }
   }
 
   let busy = false;
@@ -78,7 +91,7 @@
   /**
    * Player movement events
    *
-  */
+   */
   onMount(() => {
     try {
       const stored = localStorage.getItem('AltShiftPlayerLocation');
@@ -126,7 +139,7 @@
   /**
    * Menu events
    *
-  */
+   */
 
   let currentFile: AudioFile;
   let homeItemIndex: number;
@@ -218,7 +231,7 @@
   /**
    * Upload Audio file events
    *
-  */
+   */
   const uploadClick = () => {
     document.getElementById('upload-input').dispatchEvent(new MouseEvent('click'));
     document.getElementById('upload-input').addEventListener('change', onFileSelect);
