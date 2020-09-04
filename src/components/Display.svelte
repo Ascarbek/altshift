@@ -16,7 +16,11 @@
     {#if false}
       <span></span>
     {:else if state === DisplayStates.LOGO}
-      <span></span>
+      <div class="logo">
+        <span>
+          AltShift
+        </span>
+      </div>
     {:else if state === DisplayStates.HOME && data}
       <div class="lang">{data.lang}</div>
       <div class="tags">
@@ -44,6 +48,14 @@
 </div>
 
 <style>
+  .logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    font-size: 20px;
+  }
+
   .menu {
     display: flex;
     align-items: center;

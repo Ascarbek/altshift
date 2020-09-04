@@ -7,7 +7,8 @@ import "firebase/firestore";
 
 import firebaseConfig from '../../../firebase.config';
 
-import { AudioFiles } from './svelte-stores';
+import { AudioFiles, showLogo } from './svelte-stores';
+
 import type { AudioFile, Recording, Voice, RecordPart } from './types';
 
 const USER_ID = 'ascarbek';
@@ -34,6 +35,8 @@ firebase.auth().onAuthStateChanged(function(user) {
 });
 
 export const updateList = async (videoType: string, videoId: string) => {
+  showLogo.set(true);
+
   const ref = firebase.storage().ref();
 
   const res = await ref.child(videoId).listAll();
@@ -50,6 +53,8 @@ export const updateList = async (videoType: string, videoId: string) => {
   }
 
   AudioFiles.set(audioFiles);
+
+  showLogo.set(false);
 };
 
 export const uploadFile = async(videoType: string, videoId: string, file, progressFn, completeFn) => {

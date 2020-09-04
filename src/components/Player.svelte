@@ -6,7 +6,7 @@
   import { updateList, uploadFile, uploadBlob } from './api/firebase-app';
   import type { AudioFile } from './api/types';
   import { DisplayStates } from './api/types';
-  import { AudioFiles } from './api/svelte-stores';
+  import { AudioFiles, showLogo } from './api/svelte-stores';
 
   import Display from "./Display.svelte";
   import Recorder from './Recorder.svelte';
@@ -197,7 +197,12 @@
     }
   }
 
-  const setDisplayState = (files: AudioFile[]) => {
+  const setDisplayState = (showLogo: boolean, files: AudioFile[]) => {
+    if(showLogo) {
+      currentState = DisplayStates.LOGO;
+      return
+    }
+
     if(files.length === 0) {
       currentState = DisplayStates.MENU;
     }
@@ -208,7 +213,7 @@
     }
   }
 
-  $: setDisplayState($AudioFiles);
+  $: setDisplayState($showLogo, $AudioFiles);
 
   /**
    * Upload Audio file events
