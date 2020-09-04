@@ -10,12 +10,16 @@
 
   import Display from "./Display.svelte";
   import Recorder from './Recorder.svelte';
+  import RecordingTracks from './RecordingTracks.svelte';
 
   let AudioInputStream = null;
   let AudioInputStreamPromise = null;
 
   let audioHtml: HTMLAudioElement;
   let playerHtml: HTMLElement;
+
+  let currentTime: number = 0;
+  let duration: number = 1;
 
   let left: number = 0;
   let top: number = 0;
@@ -44,7 +48,9 @@
       video.addEventListener('play', playHandler);
       video.addEventListener('timeupdate', timeHandler);
 
-      console.log('duration', video.duration);
+      if(video.duration) {
+        duration = video.duration;
+      }
 
       if (!video.paused) {
         audioHtml.play()
@@ -70,6 +76,11 @@
     }
   }
 
+  const onRecordingTrackSeek = (e) => {
+    const video = document.querySelector('video');
+    video.currentTime = e.detail.time;
+  }
+
   let busy = false;
 
   let intervalHandler = setInterval(() => {
@@ -77,11 +88,11 @@
   }, 1000);
 
   const timeHandler = async (e: any) => {
+    const video = e.target;
+    currentTime = video.currentTime;
     if (busy) return
-    if (Math.abs(audioHtml.currentTime - e.target.currentTime) < 0.1) return;
-    const video = document.querySelector('video');
-    if (!video) return;
-    audioHtml.currentTime = e.target.currentTime;
+    if (Math.abs(audioHtml.currentTime - video.currentTime) < 0.1) return;
+    audioHtml.currentTime = video.currentTime;
     if (!video.paused) {
       audioHtml.play()
     }
@@ -321,6 +332,13 @@
   {/if}
 
 </div>
+
+<RecordingTracks
+  currentTime={currentTime}
+  duration={duration}
+  on:seek={onRecordingTrackSeek}
+>
+</RecordingTracks>
 
 <style>
   audio {
