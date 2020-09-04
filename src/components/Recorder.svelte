@@ -42,6 +42,7 @@
   };
 
   const keyUp = (e) => {
+    if(currentState !== RecordingStates.ACTIVE_RECORDING) return;
     currentState = RecordingStates.PAUSE_MESSAGE;
 
     if(document.querySelector('video')) {
