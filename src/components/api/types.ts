@@ -38,6 +38,7 @@ export interface Voice {
 }
 
 export interface RecordPart {
+  partNum: number;
   recordingId: string;
   voiceId: string;
   start: number;

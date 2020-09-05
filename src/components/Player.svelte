@@ -5,7 +5,7 @@
 
   import { updateList, uploadFile, uploadBlob } from './api/firebase-app';
   import type { AudioFile } from './api/types';
-  import { DisplayStates } from './api/types';
+  import { DisplayStates, RecordingStates } from './api/types';
   import { AudioFiles, showLogo } from './api/svelte-stores';
 
   import Display from "./Display.svelte";
@@ -160,6 +160,7 @@
   let homeItemIndex: number;
   let menuItemIndex: number;
   let currentState: DisplayStates = DisplayStates.MENU;
+  let recordingState: RecordingStates;
 
   const onUpClick = () => {
     if($AudioFiles.length === 0) return;
@@ -223,6 +224,12 @@
         AudioInputStreamPromise = navigator.mediaDevices.getUserMedia({ audio: true });
       }
     }
+
+    if(currentState === DisplayStates.RECORDER) {
+      if(recordingState === RecordingStates.PAUSE_MESSAGE) {
+        currentState = DisplayStates.MENU;
+      }
+    }
   }
 
   const setDisplayState = (showLogo: boolean, files: AudioFile[]) => {
@@ -282,7 +289,12 @@
       bind:menuItemIndex={menuItemIndex}
     >
       <div slot="recorder">
-        <Recorder streamPromise={AudioInputStreamPromise} videoId={videoId} duration={duration}>
+        <Recorder
+          streamPromise={AudioInputStreamPromise}
+          videoId={videoId}
+          duration={duration}
+          bind:currentState={recordingState}
+        >
 
         </Recorder>
       </div>

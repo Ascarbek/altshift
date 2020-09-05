@@ -3,6 +3,7 @@
   import { createAuthor, newRecording, newVoice, newPart, uploadBlob } from './api/firebase-app';
 
   import { RecordingStates } from './api/types';
+  import { CurrentParts } from './api/svelte-stores';
 
   const dispatch = createEventDispatcher();
 
@@ -15,12 +16,13 @@
   export let videoId: string;
   export let duration: number;
 
-  let currentState: RecordingStates = RecordingStates.FIRST_MESSAGE;
+  export let currentState: RecordingStates = RecordingStates.FIRST_MESSAGE;
 
   let recordingId: string;
   let voiceId: string;
   let currentStartTime: number;
   let currentEndTime: number;
+  let partNum: number = 0;
 
   onMount(async () => {
     window.addEventListener('keydown', keyDown);
@@ -69,7 +71,10 @@
   const onDataAvailable = async (e) => {
     mediaRecorder.removeEventListener('dataavailable', onDataAvailable);
 
-    const partId = await newPart({recordingId: recordingId, voiceId: voiceId, start: currentStartTime, end: currentEndTime});
+    partNum++;
+    const partId = await newPart({partNum: partNum, recordingId: recordingId, voiceId: voiceId, start: currentStartTime, end: currentEndTime});
+
+    CurrentParts.update(cp => [...cp, {partNum: partNum, recordingId: recordingId, voiceId: voiceId, start: currentStartTime, end: currentEndTime}]);
 
     uploadBlob('', `Recordings/${recordingId}/${partId}.webm`, e.data, () => {
 

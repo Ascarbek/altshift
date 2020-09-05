@@ -130,6 +130,7 @@ export const newPart = async(params: RecordPart): Promise<string> => {
   const newVoiceRef = newRecRef.collection('voices').doc(params.voiceId);
   const newPartRef = newVoiceRef.collection('parts').doc();
   await newPartRef.set({
+    partNum: params.partNum,
     fileName: `${newPartRef.id}.webm`,
     start: params.start,
     end: params.end,
