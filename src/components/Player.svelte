@@ -37,14 +37,26 @@
    * playback events
    *
    */
-  let initTimeoutHandler: number;
+  let initTimeoutHandler1: number;
+  let initTimeoutHandler2: number;
 
-  const attachEvents = () => {
+  const attachVideoEvents = () => {
     const video = document.querySelector('video');
 
     if(video) {
       video.addEventListener('timeupdate', timeHandler);
       video.addEventListener('canplay', canPlayHandler);
+
+
+    } else {
+      initTimeoutHandler1 = setTimeout(attachVideoEvents, 10);
+    }
+  }
+
+  const attachAudioEvents = () => {
+    const video = document.querySelector('video');
+
+    if(video) {
 
       if (audioHtml) {
         video.addEventListener('pause', pauseHandler);
@@ -55,7 +67,7 @@
         }
       }
     } else {
-      initTimeoutHandler = setTimeout(attachEvents, 10);
+      initTimeoutHandler2 = setTimeout(attachAudioEvents, 10);
     }
   }
 
@@ -122,7 +134,7 @@
         top = screen.height - 64 - 20;
       }
 
-      setTimeout(attachEvents, 10);
+      setTimeout(attachVideoEvents, 10);
     } catch (e) {
 
     }
@@ -130,7 +142,8 @@
 
   onDestroy(() => {
     clearInterval(intervalHandler);
-    clearTimeout(initTimeoutHandler);
+    clearTimeout(initTimeoutHandler1);
+    clearTimeout(initTimeoutHandler2);
     window.removeEventListener('mousemove', onMouseMove);
     window.removeEventListener('mouseup', onMouseUp);
   });
@@ -245,6 +258,7 @@
       currentState = DisplayStates.HOME;
       homeItemIndex = 0;
       currentFile = files[homeItemIndex];
+      setTimeout(attachAudioEvents, 10);
     }
   }
 
