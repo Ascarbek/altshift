@@ -2,15 +2,24 @@
   import { onMount, onDestroy, createEventDispatcher } from 'svelte';
   import { fade } from 'svelte/transition';
   import { cubicInOut } from 'svelte/easing';
-  import { updateList } from './api/firebase-app';
-  import Display from "./Display.svelte";
-  import states from './displayStates';
+
+  import { updateList, uploadFile, uploadBlob } from './api/firebase-app';
   import type { AudioFile } from './api/types';
-  import { AudioFiles } from './api/svelte-stores';
-  import { uploadFile } from './api/firebase-app';
+  import { DisplayStates, RecordingStates } from './api/types';
+  import { AudioFiles, showLogo } from './api/svelte-stores';
+
+  import Display from "./Display.svelte";
+  import Recorder from './Recorder.svelte';
+  import RecordingTracks from './RecordingTracks.svelte';
+
+  let AudioInputStream = null;
+  let AudioInputStreamPromise = null;
 
   let audioHtml: HTMLAudioElement;
   let playerHtml: HTMLElement;
+
+  let currentTime: number = 0;
+  let duration: number = -1;
 
   let left: number = 0;
   let top: number = 0;
@@ -22,34 +31,68 @@
   export let videoType: string;
   export let videoId: string;
 
+  let canPlay: boolean = false;
+
   /**
    * playback events
    *
-  */
-  let initTimeoutHandler: number;
+   */
+  let initTimeoutHandler1: number;
+  let initTimeoutHandler2: number;
 
-  const attachEvents = () => {
+  const attachVideoEvents = () => {
     const video = document.querySelector('video');
 
-    if (video && audioHtml) {
-      video.addEventListener('pause', pauseHandler);
-      video.addEventListener('play', playHandler);
+    if(video) {
       video.addEventListener('timeupdate', timeHandler);
+      video.addEventListener('canplay', canPlayHandler);
 
-      if (!video.paused) {
-        audioHtml.play()
+
+    } else {
+      initTimeoutHandler1 = setTimeout(attachVideoEvents, 10);
+    }
+  }
+
+  const attachAudioEvents = () => {
+    const video = document.querySelector('video');
+
+    if(video) {
+
+      if (audioHtml) {
+        video.addEventListener('pause', pauseHandler);
+        video.addEventListener('play', playHandler);
+
+        if (!video.paused) {
+          audioHtml.play()
+        }
       }
     } else {
-      initTimeoutHandler = setTimeout(attachEvents, 10);
+      initTimeoutHandler2 = setTimeout(attachAudioEvents, 10);
     }
   }
 
   const pauseHandler = () => {
+    canPlay = false;
     audioHtml.pause();
   }
 
+  const canPlayHandler = (e) => {
+    canPlay = true;
+    if(e.target.duration && duration < 0) {
+      duration = e.target.duration;
+    }
+  }
+
   const playHandler = () => {
-    audioHtml.play();
+    canPlay = audioHtml.readyState === 4;
+    if(canPlay) {
+      audioHtml.play();
+    }
+  }
+
+  const onRecordingTrackSeek = (e) => {
+    const video = document.querySelector('video');
+    video.currentTime = e.detail.time;
   }
 
   let busy = false;
@@ -59,13 +102,15 @@
   }, 1000);
 
   const timeHandler = async (e: any) => {
+    const video = e.target;
+    currentTime = video.currentTime;
     if (busy) return
-    if (Math.abs(audioHtml.currentTime - e.target.currentTime) < 0.1) return;
-    const video = document.querySelector('video');
-    if (!video) return;
-    audioHtml.currentTime = e.target.currentTime;
-    if (!video.paused) {
-      audioHtml.play()
+    if(audioHtml) {
+      if (Math.abs(audioHtml.currentTime - video.currentTime) < 0.1) return;
+      audioHtml.currentTime = video.currentTime;
+      if (!video.paused) {
+        audioHtml.play()
+      }
     }
     busy = true;
   }
@@ -73,7 +118,7 @@
   /**
    * Player movement events
    *
-  */
+   */
   onMount(() => {
     try {
       const stored = localStorage.getItem('AltShiftPlayerLocation');
@@ -81,7 +126,15 @@
       left = obj.left;
       top = obj.top;
 
-      setTimeout(attachEvents, 10);
+      if(left + 350 > screen.width) {
+        left = screen.width - 350 - 20;
+      }
+
+      if(top + 64 > screen.height) {
+        top = screen.height - 64 - 20;
+      }
+
+      setTimeout(attachVideoEvents, 10);
     } catch (e) {
 
     }
@@ -89,7 +142,8 @@
 
   onDestroy(() => {
     clearInterval(intervalHandler);
-    clearTimeout(initTimeoutHandler);
+    clearTimeout(initTimeoutHandler1);
+    clearTimeout(initTimeoutHandler2);
     window.removeEventListener('mousemove', onMouseMove);
     window.removeEventListener('mouseup', onMouseUp);
   });
@@ -113,73 +167,114 @@
   /**
    * Menu events
    *
-  */
+   */
 
   let currentFile: AudioFile;
-  let currentMenuIndex: number;
-  let currentState: string;
+  let homeItemIndex: number;
+  let menuItemIndex: number;
+  let currentState: DisplayStates = DisplayStates.MENU;
+  let recordingState: RecordingStates;
 
   const onUpClick = () => {
     if($AudioFiles.length === 0) return;
-    if(currentState === states.MENU) {
-      currentState = states.HOME;
+    if(currentState === DisplayStates.MENU) {
+      currentState = DisplayStates.HOME;
       return;
     }
-    else if(currentState !== states.HOME) {
+    else if(currentState !== DisplayStates.HOME) {
       return;
     }
-    currentMenuIndex--;
-    if(currentMenuIndex < 0) {
-      currentMenuIndex = $AudioFiles.length - 1;
-      currentState = states.MENU;
+    homeItemIndex--;
+    if(homeItemIndex < 0) {
+      homeItemIndex = $AudioFiles.length - 1;
+      currentState = DisplayStates.MENU;
     }
-    currentFile = $AudioFiles[currentMenuIndex];
+    currentFile = $AudioFiles[homeItemIndex];
   };
 
   const onDownClick = () => {
     if($AudioFiles.length === 0) return;
-    if(currentState === states.MENU) {
-      currentState = states.HOME;
+    if(currentState === DisplayStates.MENU) {
+      currentState = DisplayStates.HOME;
       return;
     }
-    else if(currentState !== states.HOME) {
+    else if(currentState !== DisplayStates.HOME) {
       return;
     }
-    currentMenuIndex++;
-    if(currentMenuIndex > $AudioFiles.length - 1) {
-      currentMenuIndex = 0;
-      currentState = states.MENU;
+    homeItemIndex++;
+    if(homeItemIndex > $AudioFiles.length - 1) {
+      homeItemIndex = 0;
+      currentState = DisplayStates.MENU;
     }
-    currentFile = $AudioFiles[currentMenuIndex];
+    currentFile = $AudioFiles[homeItemIndex];
   };
 
-  const onOkClick = () => {
-    if(currentState === states.MENU) {
-      uploadClick();
+  const onLeftClick = () => {
+    if(currentState === DisplayStates.MENU) {
+      menuItemIndex--;
+      if(menuItemIndex < 0) {
+        menuItemIndex = 1;
+      }
     }
   }
 
+  const onRightClick = () => {
+    if(currentState === DisplayStates.MENU) {
+      menuItemIndex++;
+      if(menuItemIndex > 1) {
+        menuItemIndex = 0;
+      }
+    }
+  }
 
-  const setDisplayState = (files: AudioFile[]) => {
+  const onOkClick = async () => {
+    if(currentState === DisplayStates.MENU) {
+      if(menuItemIndex === 1) {
+        uploadClick();
+      }
+      if(menuItemIndex === 0) {
+        currentState = DisplayStates.RECORDER;
+        AudioInputStreamPromise = navigator.mediaDevices.getUserMedia({ audio: true });
+      }
+    }
+
+    if(currentState === DisplayStates.RECORDER) {
+      if(recordingState === RecordingStates.PAUSE_MESSAGE) {
+        currentState = DisplayStates.MENU;
+      }
+    }
+  }
+
+  const setDisplayState = (showLogo: boolean, files: AudioFile[]) => {
+    if(showLogo) {
+      currentState = DisplayStates.LOGO;
+      return
+    }
+
     if(files.length === 0) {
-      currentState = states.MENU;
+      currentState = DisplayStates.MENU;
     }
     else {
-      currentState = states.HOME;
-      currentMenuIndex = 0;
-      currentFile = files[currentMenuIndex];
+      currentState = DisplayStates.HOME;
+      homeItemIndex = 0;
+      currentFile = files[homeItemIndex];
+      setTimeout(attachAudioEvents, 10);
     }
   }
 
-  $: setDisplayState($AudioFiles);
+  $: setDisplayState($showLogo, $AudioFiles);
 
+  /**
+   * Upload Audio file events
+   *
+   */
   const uploadClick = () => {
     document.getElementById('upload-input').dispatchEvent(new MouseEvent('click'));
     document.getElementById('upload-input').addEventListener('change', onFileSelect);
   }
 
   const onFileSelect = async (e) => {
-    currentState = states.UPLOAD_PROGRESS;
+    currentState = DisplayStates.UPLOAD_PROGRESS;
     document.getElementById('upload-input').removeEventListener('change', onFileSelect);
     uploadProgress = 0;
 
@@ -189,7 +284,7 @@
     uploadFile(videoType, `${videoId}/${file.name}`, file, (p) => {
       uploadProgress = p;
     }, (path) => {
-      currentState = states.HOME;
+      currentState = DisplayStates.HOME;
       updateList(videoType, videoId);
     });
   }
@@ -205,10 +300,22 @@
       data={currentFile}
       on:uploadClick={uploadClick}
       bind:progress={uploadProgress}
-    />
+      bind:menuItemIndex={menuItemIndex}
+    >
+      <div slot="recorder">
+        <Recorder
+          streamPromise={AudioInputStreamPromise}
+          videoId={videoId}
+          duration={duration}
+          bind:currentState={recordingState}
+        >
+
+        </Recorder>
+      </div>
+    </Display>
 
     <div class="arrow-buttons">
-      <div class="arrow-left">
+      <div class="arrow-left" on:click={onLeftClick}>
         <i class="fas fa-angle-left"></i>
       </div>
 
@@ -216,7 +323,7 @@
         <i class="fas fa-angle-up"></i>
       </div>
 
-      <div class="arrow-right">
+      <div class="arrow-right" on:click={onRightClick}>
         <i class="fas fa-angle-right"></i>
       </div>
 
@@ -248,12 +355,23 @@
 
 </div>
 
+{#if currentState === DisplayStates.RECORDER}
+  <RecordingTracks
+    currentTime={currentTime}
+    duration={duration}
+    on:seek={onRecordingTrackSeek}
+  >
+  </RecordingTracks>
+{/if}
+
 <style>
   audio {
     display: none;
   }
 
   .player {
+    user-select: none;
+
     position: fixed;
     z-index: 10000;
 

@@ -6,4 +6,5 @@ export default {
   AUDIO_DELAY: 'audio delay',
   VOLUME: 'volume',
   UPLOAD_PROGRESS: 'upload_progress',
+  RECORDER: 'recorder',
 }

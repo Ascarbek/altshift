@@ -39,7 +39,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
       if(!cssLoaded) {
         loadJS("https://kit.fontawesome.com/db24c30af8.js");
         loadCSS(getUrl('bundle.css'));
-        loadCSS("https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500&display=swap");
+        loadCSS("https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;600&display=swap");
         cssLoaded = true;
       }
 
