@@ -37,7 +37,7 @@
    * playback events
    *
    */
-  let initTimeoutHandler1: number;
+  let initTimeoutHandler1: NodeJS.Timeout;
   let initTimeoutHandler2: number;
 
   const attachVideoEvents = () => {
