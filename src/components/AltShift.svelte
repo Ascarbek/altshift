@@ -3,8 +3,8 @@
   import type { AudioFile } from './api/types';
   import { updateList } from './api/firebase-app';
 
-  export let videoId = '';
-  export let videoType = '';
+  export let videoId: string = '';
+  export let videoType: string = '';
 
   export let showPlayer = true;
 
