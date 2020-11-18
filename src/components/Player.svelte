@@ -38,7 +38,7 @@
    *
    */
   let initTimeoutHandler1: NodeJS.Timeout;
-  let initTimeoutHandler2: number;
+  let initTimeoutHandler2: NodeJS.Timeout;
 
   const attachVideoEvents = () => {
     const video = document.querySelector('video');
@@ -46,8 +46,6 @@
     if(video) {
       video.addEventListener('timeupdate', timeHandler);
       video.addEventListener('canplay', canPlayHandler);
-
-
     } else {
       initTimeoutHandler1 = setTimeout(attachVideoEvents, 10);
     }
@@ -309,7 +307,6 @@
           duration={duration}
           bind:currentState={recordingState}
         >
-
         </Recorder>
       </div>
     </Display>

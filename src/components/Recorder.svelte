@@ -134,6 +134,8 @@
         x += sliceWidth;
       }
 
+      // this is a hotfix
+      if(!canvasElement) return;
       canvasCtx.lineTo(canvasElement.width, canvasElement.height/2);
       canvasCtx.stroke();
     }
