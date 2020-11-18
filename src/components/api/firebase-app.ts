@@ -13,11 +13,9 @@ import type { AudioFile, Recording, Voice, RecordPart } from './types';
 
 const USER_ID = 'ascarbek';
 
-firebase.initializeApp(firebaseConfig);
-
-firebase.auth().signInAnonymously();
-
-firebase.auth().onAuthStateChanged(function(user) {
+export const initFirebase = async () => {
+  firebase.initializeApp(firebaseConfig);
+  // firebase.auth().onAuthStateChanged(function(user) {
   /* if (user) {
     // Get a reference to the storage service, which is used to create references in your storage bucket
     const ref = firebase.storage().ref();
@@ -32,7 +30,10 @@ firebase.auth().onAuthStateChanged(function(user) {
   else {
 
   } */
-});
+  // });
+
+  await firebase.auth().signInAnonymously();
+}
 
 export const updateList = async (videoType: string, videoId: string) => {
   showLogo.set(true);
@@ -41,6 +42,7 @@ export const updateList = async (videoType: string, videoId: string) => {
 
   const res = await ref.child(videoId).listAll();
   let audioFiles: AudioFile[] = [];
+
   for(const itemRef of res.items) {
     const newFile: AudioFile = {
       path: await ref.child(itemRef.fullPath).getDownloadURL(),
@@ -53,45 +55,29 @@ export const updateList = async (videoType: string, videoId: string) => {
   }
 
   AudioFiles.set(audioFiles);
-
   showLogo.set(false);
 };
 
-export const uploadFile = async(videoType: string, videoId: string, file, progressFn, completeFn) => {
-  const ref = firebase.storage().ref();
-
-  const uploadTask = ref.child(videoId).put(file);
-    uploadTask.on('state_changed', function(snapshot){
-      let progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-      progressFn(progress);
-    }, function(error) {
-      console.error(error);
-    }, function() {
-      uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {
-        completeFn(downloadURL);
-      });
-    });
-};
-
-export const uploadBlob = async(videoType: string, videoId: string, blob, progressFn, completeFn) => {
+export const uploadBlob = (videoType: string, videoId: string, blob: Blob, progressFn, completeFn) => {
   const ref = firebase.storage().ref();
 
   const uploadTask = ref.child(videoId).put(blob);
-    uploadTask.on('state_changed', function(snapshot){
-      let progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-      progressFn(progress);
-    }, function(error) {
-      console.error(error);
-    }, function() {
-      uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {
-        completeFn(downloadURL);
-      });
+
+  uploadTask.on('state_changed', function(snapshot){
+    let progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+    progressFn(progress);
+  }, function(error) {
+    console.error(error);
+  }, function() {
+    uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {
+      completeFn(downloadURL);
     });
+  });
 };
 
 export const createAuthor = async(): Promise<string> => {
   const db = firebase.firestore();
-  const doc = await db.collection("authors").doc(USER_ID);
+  await db.collection("authors").doc(USER_ID);
 
   return USER_ID;
 };
@@ -99,7 +85,7 @@ export const createAuthor = async(): Promise<string> => {
 export const newRecording = async(params: Recording): Promise<string> => {
   const db = firebase.firestore();
   const doc = db.collection("authors").doc(USER_ID);
-  const newRecRef = doc.collection('recordings').doc();
+  const newRecRef = doc.collection('recordings').doc(params.videoId);
 
   await newRecRef.set({
     name: params.name,

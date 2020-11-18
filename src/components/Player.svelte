@@ -1,9 +1,9 @@
 <script lang="ts">
-  import { onMount, onDestroy, createEventDispatcher } from 'svelte';
+  import { onMount, onDestroy } from 'svelte';
   import { fade } from 'svelte/transition';
   import { cubicInOut } from 'svelte/easing';
 
-  import { updateList, uploadFile, uploadBlob } from './api/firebase-app';
+  import { updateList, uploadBlob } from './api/firebase-app';
   import type { AudioFile } from './api/types';
   import { DisplayStates, RecordingStates } from './api/types';
   import { AudioFiles, showLogo } from './api/svelte-stores';
@@ -12,8 +12,8 @@
   import Recorder from './Recorder.svelte';
   import RecordingTracks from './RecordingTracks.svelte';
 
-  let AudioInputStream = null;
-  let AudioInputStreamPromise = null;
+  // let AudioInputStream = null;
+  let AudioInputStreamPromise: Promise<MediaStream> = null;
 
   let audioHtml: HTMLAudioElement;
   let playerHtml: HTMLElement;
@@ -26,7 +26,7 @@
 
   let uploadProgress: number = 0;
 
-  const dispatch = createEventDispatcher();
+  // const dispatch = createEventDispatcher();
 
   export let videoType: string;
   export let videoId: string;
@@ -34,7 +34,7 @@
   let canPlay: boolean = false;
 
   /**
-   * playback events
+   * Playback events
    *
    */
   let initTimeoutHandler1: NodeJS.Timeout;
@@ -55,7 +55,6 @@
     const video = document.querySelector('video');
 
     if(video) {
-
       if (audioHtml) {
         video.addEventListener('pause', pauseHandler);
         video.addEventListener('play', playHandler);
@@ -93,9 +92,9 @@
     video.currentTime = e.detail.time;
   }
 
-  let busy = false;
+  let busy: boolean = false;
 
-  let intervalHandler = setInterval(() => {
+  let intervalHandler: NodeJS.Timeout = setInterval(() => {
     busy = false;
   }, 1000);
 
@@ -107,7 +106,7 @@
       if (Math.abs(audioHtml.currentTime - video.currentTime) < 0.1) return;
       audioHtml.currentTime = video.currentTime;
       if (!video.paused) {
-        audioHtml.play()
+        await audioHtml.play()
       }
     }
     busy = true;
@@ -279,9 +278,9 @@
     const files = e.target.files;
     const file = files[0];
 
-    uploadFile(videoType, `${videoId}/${file.name}`, file, (p) => {
+    uploadBlob(videoType, `${videoId}/${file.name}`, file, (p) => {
       uploadProgress = p;
-    }, (path) => {
+    }, () => {
       currentState = DisplayStates.HOME;
       updateList(videoType, videoId);
     });
@@ -347,7 +346,7 @@
   </div>
 
   {#if currentFile}
-    <audio src={currentFile.path} bind:this={audioHtml}></audio>
+    <audio src="{currentFile.path}" bind:this={audioHtml}></audio>
   {/if}
 
 </div>

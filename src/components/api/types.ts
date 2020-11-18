@@ -3,8 +3,8 @@ export const enum DisplayStates {
   HOME,
   MENU,
   LOGO,
-  AUDIO_DELAY,
-  VOLUME,
+  // AUDIO_DELAY,
+  // VOLUME,
   UPLOAD_PROGRESS,
   RECORDER,
 }

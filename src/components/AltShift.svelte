@@ -1,12 +1,13 @@
 <script lang="ts">
   import Player from "./Player.svelte";
-  import type { AudioFile } from './api/types';
-  import { updateList } from './api/firebase-app';
+  import { initFirebase, updateList } from './api/firebase-app';
+
+  initFirebase();
 
   export let videoId: string = '';
   export let videoType: string = '';
 
-  export let showPlayer = true;
+  export let showPlayer: boolean = true;
 
   $: {
     updateList(videoType, videoId);

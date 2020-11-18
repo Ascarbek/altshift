@@ -31,16 +31,16 @@
       <div class="audio-name">{data.name}</div>
     {:else if state === DisplayStates.MENU}
       <div class="menu">
-        <button class="menu-item" class:active={menuItemIndex === 0}><i class="fas fa-microphone-alt"></i></button>
-        <button class="menu-item" class:active={menuItemIndex === 1}><i class="fas fa-cloud-upload-alt"></i></button>
+        <button class="menu-item active" class:active={menuItemIndex === 0}><i class="fas fa-microphone-alt"></i></button>
+        <button class="menu-item active" class:active={menuItemIndex === 1}><i class="fas fa-cloud-upload-alt"></i></button>
       </div>
     {:else if state === DisplayStates.UPLOAD_PROGRESS}
       {#each [0,1,2,3,4,5,6,7,8,9] as p}
-        <div class="upload-progress" class:fill={progress > p*10+5} style={`left: ${30 + p*15}px`}>
+        <div class="upload-progress fill" class:fill={progress > p*10+5} style={`left: ${30 + p*15}px`}>
         </div>
       {/each}
     {:else if state === DisplayStates.RECORDER}
-      <slot name='recorder'></slot>
+      <slot name='recorder'/>
     {:else if state === DisplayStates.NOT_FOUND}
       <span></span>
     {/if}

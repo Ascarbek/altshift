@@ -1,16 +1,16 @@
 <script lang="ts">
-  import { onDestroy, onMount, tick, createEventDispatcher } from "svelte";
+  import { onDestroy, onMount, /*tick, createEventDispatcher*/ } from "svelte";
   import { createAuthor, newRecording, newVoice, newPart, uploadBlob } from './api/firebase-app';
 
   import { RecordingStates } from './api/types';
   import { CurrentParts } from './api/svelte-stores';
 
-  const dispatch = createEventDispatcher();
+  // const dispatch = createEventDispatcher();
 
   let canvasElement: HTMLCanvasElement;
 
   let stream;
-  export let streamPromise;
+  export let streamPromise: Promise<MediaStream>;
   let mediaRecorder;
 
   export let videoId: string;
@@ -28,7 +28,7 @@
     window.addEventListener('keydown', keyDown);
     window.addEventListener('keyup', keyUp);
 
-    createAuthor();
+    await createAuthor();
     recordingId = await newRecording({lang: 'ru', name: 'newRecording', videoId: videoId, duration: duration});
     voiceId = await newVoice({name: 'male', recordingId: recordingId});
   });
@@ -83,7 +83,7 @@
     });
   };
 
-  $: visualize(stream);
+  // $: visualize(stream);
 
   $: showDlg(streamPromise);
 
@@ -107,6 +107,9 @@
     draw()
 
     function draw() {
+      // this is a hotfix
+      if(!canvasElement) return;
+
       requestAnimationFrame(draw);
 
       analyser.getByteTimeDomainData(dataArray);
@@ -134,8 +137,6 @@
         x += sliceWidth;
       }
 
-      // this is a hotfix
-      if(!canvasElement) return;
       canvasCtx.lineTo(canvasElement.width, canvasElement.height/2);
       canvasCtx.stroke();
     }
@@ -146,6 +147,7 @@
     promise.then(res => {
       currentState = RecordingStates.FIRST_MESSAGE;
       stream = res;
+      visualize(stream);
     }).catch(e => {
       currentState = RecordingStates.DECLINED_MESSAGE;
     });
