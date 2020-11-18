@@ -4,7 +4,7 @@
   "scripts": {
     "build": "cross-env NODE_ENV=build webpack",
     "dev": "cross-env NODE_ENV=dev webpack-dev-server --content-base dist",
-    "serve-static": "serve downloaded -l 8081"
+    "serve-static": "serve downloaded\\MKBHDM1 -l 8081"
   },
   "devDependencies": {
     "@tsconfig/svelte": "^1.0.10",

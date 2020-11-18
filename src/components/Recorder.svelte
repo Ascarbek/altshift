@@ -1,36 +1,38 @@
 <script lang="ts">
-  import { onDestroy, onMount, /*tick, createEventDispatcher*/ } from "svelte";
-  import { createAuthor, newRecording, newVoice, newPart, uploadBlob } from './api/firebase-app';
+  import {onDestroy, onMount,} from "svelte";
+  import {newRecording, uploadBlob} from './api/firebase-app';
 
-  import { RecordingStates } from './api/types';
-  import { CurrentParts } from './api/svelte-stores';
+  import {RecordingStates} from './api/types';
 
   // const dispatch = createEventDispatcher();
 
   let canvasElement: HTMLCanvasElement;
 
-  let stream;
+  // let stream;
+
+  // need to come from user event
   export let streamPromise: Promise<MediaStream>;
+
   let mediaRecorder;
 
   export let videoId: string;
   export let duration: number;
 
-  export let currentState: RecordingStates = RecordingStates.FIRST_MESSAGE;
+  export let currentState: RecordingStates;
 
   let recordingId: string;
   let voiceId: string;
   let currentStartTime: number;
   let currentEndTime: number;
-  let partNum: number = 0;
+  // let partNum: number = 0;
 
   onMount(async () => {
     window.addEventListener('keydown', keyDown);
     window.addEventListener('keyup', keyUp);
 
-    await createAuthor();
-    recordingId = await newRecording({lang: 'ru', name: 'newRecording', videoId: videoId, duration: duration});
-    voiceId = await newVoice({name: 'male', recordingId: recordingId});
+    // await createAuthor();
+    // recordingId = await newRecording({lang: 'ru', name: 'newRecording', videoId: videoId, duration: duration});
+    // voiceId = await newVoice({name: 'male', recordingId: recordingId});
   });
 
   const keyDown = (e) => {
@@ -68,24 +70,38 @@
     window.removeEventListener('keyup', keyUp);
   });
 
+  let saveProgress = 0;
+
   const onDataAvailable = async (e) => {
     mediaRecorder.removeEventListener('dataavailable', onDataAvailable);
 
+    /*
     partNum++;
     const partId = await newPart({partNum: partNum, recordingId: recordingId, voiceId: voiceId, start: currentStartTime, end: currentEndTime});
 
     CurrentParts.update(cp => [...cp, {partNum: partNum, recordingId: recordingId, voiceId: voiceId, start: currentStartTime, end: currentEndTime}]);
+    */
 
-    uploadBlob('', `Recordings/${recordingId}/${partId}.webm`, e.data, () => {
+    currentState = RecordingStates.SAVING_PROGRESS;
+    saveProgress = 0;
 
+    let recordingId = await newRecording({projectId: 'project 1', voiceName: 'male 1', start: currentStartTime, end: currentEndTime});
+
+    saveProgress = 10;
+
+    uploadBlob('', `Recordings/${recordingId}.webm`, e.data, (p) => {
+      saveProgress = p;
     }, () => {
-
+      currentState = RecordingStates.PAUSE_MESSAGE;
     });
   };
 
-  // $: visualize(stream);
+  $: onRecordingStateChange(currentState);
 
-  $: showDlg(streamPromise);
+  function onRecordingStateChange(state) {
+    if(state === RecordingStates.ALLOW_MESSAGE)
+      showDlg();
+  }
 
   function visualize(stream) {
     if(!stream) return;
@@ -142,12 +158,11 @@
     }
   }
 
-  function showDlg(promise) {
-    currentState = RecordingStates.ALLOW_MESSAGE;
-    promise.then(res => {
+  export let showDlg = () => {
+    streamPromise.then(res => {
       currentState = RecordingStates.FIRST_MESSAGE;
-      stream = res;
-      visualize(stream);
+      // stream = res;
+      visualize(res);
     }).catch(e => {
       currentState = RecordingStates.DECLINED_MESSAGE;
     });
@@ -168,6 +183,13 @@
   <div class="msg" class:hidden={currentState !== RecordingStates.FIRST_MESSAGE}>
     hold <b>ctrl</b> key to start.<br>
     release to pause.
+  </div>
+
+  <div class="msg" class:hidden={currentState !== RecordingStates.SAVING_PROGRESS}>
+    {#each [0,1,2,3,4,5,6,7,8,9] as p}
+      <div class="upload-progress fill" class:fill={saveProgress > p*10+5} style={`left: ${30 + p*15}px`}>
+      </div>
+    {/each}
   </div>
 
   <div class="msg" class:hidden={currentState !== RecordingStates.PAUSE_MESSAGE}>
@@ -215,5 +237,17 @@
   canvas {
     width: 100%;
     height: 100%;
+  }
+
+  .upload-progress {
+    background: #9e9e9e;
+    width: 13px;
+    height: 2px;
+    bottom: 9px;
+    position: absolute;
+  }
+
+  .upload-progress.fill {
+    height: 20px;
   }
 </style>

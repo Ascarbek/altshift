@@ -84,17 +84,18 @@ export const createAuthor = async(): Promise<string> => {
 
 export const newRecording = async(params: Recording): Promise<string> => {
   const db = firebase.firestore();
-  const doc = db.collection("authors").doc(USER_ID);
-  const newRecRef = doc.collection('recordings').doc(params.videoId);
+  const doc = db.collection("recordings").doc();
+  // const newRecRef = doc.collection('recordings').doc(params.videoId);
 
-  await newRecRef.set({
-    name: params.name,
-    videoId: params.videoId,
-    lang: params.lang,
-    duration: params.duration,
+  await doc.set({
+    authorId: USER_ID,
+    projectId: params.projectId,
+    voiceName: params.voiceName,
+    start: params.start,
+    end: params.end,
   });
 
-  return newRecRef.id;
+  return doc.id;
 };
 
 export const newVoice = async(params: Voice): Promise<string> => {

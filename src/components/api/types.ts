@@ -13,6 +13,7 @@ export const enum RecordingStates {
   ALLOW_MESSAGE,
   DECLINED_MESSAGE,
   FIRST_MESSAGE,
+  SAVING_PROGRESS,
   ACTIVE_RECORDING,
   PAUSE_MESSAGE,
   SAVE_MENU,
@@ -26,10 +27,10 @@ export interface AudioFile {
 }
 
 export interface Recording {
-  name: string;
-  videoId: string;
-  lang: string;
-  duration: number;
+  projectId: string;
+  voiceName: string;
+  start: number;
+  end: number;
 }
 
 export interface Voice {

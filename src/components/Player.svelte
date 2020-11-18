@@ -35,8 +35,7 @@
 
   /**
    * Playback events
-   *
-   */
+   * */
   let initTimeoutHandler1: NodeJS.Timeout;
   let initTimeoutHandler2: NodeJS.Timeout;
 
@@ -87,17 +86,6 @@
     }
   }
 
-  const onRecordingTrackSeek = (e) => {
-    const video = document.querySelector('video');
-    video.currentTime = e.detail.time;
-  }
-
-  let busy: boolean = false;
-
-  let intervalHandler: NodeJS.Timeout = setInterval(() => {
-    busy = false;
-  }, 1000);
-
   const timeHandler = async (e: any) => {
     const video = e.target;
     currentTime = video.currentTime;
@@ -113,9 +101,25 @@
   }
 
   /**
+   * Recording track Events
+   * */
+  const onRecordingTrackSeek = (e) => {
+    const video = document.querySelector('video');
+    video.currentTime = e.detail.time;
+  }
+
+  /**
+   * Fix for too frequent timeHandler call
+   * */
+  let busy: boolean = false;
+
+  let intervalHandler: NodeJS.Timeout = setInterval(() => {
+    busy = false;
+  }, 1000);
+
+  /**
    * Player movement events
-   *
-   */
+   * */
   onMount(() => {
     try {
       const stored = localStorage.getItem('AltShiftPlayerLocation');
@@ -163,9 +167,7 @@
 
   /**
    * Menu events
-   *
-   */
-
+   * */
   let currentFile: AudioFile;
   let homeItemIndex: number;
   let menuItemIndex: number;
@@ -232,6 +234,7 @@
       if(menuItemIndex === 0) {
         currentState = DisplayStates.RECORDER;
         AudioInputStreamPromise = navigator.mediaDevices.getUserMedia({ audio: true });
+        recordingState = RecordingStates.ALLOW_MESSAGE;
       }
     }
 
@@ -263,8 +266,7 @@
 
   /**
    * Upload Audio file events
-   *
-   */
+   * */
   const uploadClick = () => {
     document.getElementById('upload-input').dispatchEvent(new MouseEvent('click'));
     document.getElementById('upload-input').addEventListener('change', onFileSelect);
