@@ -1,4 +1,4 @@
-<script lang="ts">
+<script lang='ts'>
   import AltShift from './../components/AltShift.svelte';
 
   let showPlayer: boolean = true;
@@ -11,9 +11,9 @@
   let v, a;
 </script>
 
-<input type="checkbox" bind:checked={showPlayer}>
-<input type="text" bind:value={videoId}>
-<input type="text" bind:value={videoType}>
+<input type='checkbox' bind:checked={showPlayer}>
+<input type='text' bind:value={videoId}>
+<input type='text' bind:value={videoType}>
 
 <AltShift showPlayer={showPlayer} videoId={videoId} videoType={videoType}>
 
@@ -24,12 +24,12 @@
   on:play={() => a.play()}
   on:pause={() => a.pause()}
   on:seeked={() => a.currentTime = v.currentTime}
-  class="v" controls muted=false>
-  <source  src="http://localhost:8081/videoplayback.webm">
+  class='v' controls muted='false'>
+  <source src='http://localhost:8081/videoplayback.webm'>
 </video>
 
-<audio bind:this={a} >
-  <source  src="http://localhost:8081/videoplayback.weba">
+<audio bind:this={a}>
+  <source src='http://localhost:8081/videoplayback.weba'>
 </audio>
 
 <style>
@@ -42,6 +42,6 @@
 
   audio {
     position: absolute;
-    top:50px;
+    top: 50px;
   }
 </style>
