@@ -27,7 +27,7 @@ export interface AudioFile {
 }
 
 export interface Recording {
-  projectId: string;
+  projectName: string;
   voiceName: string;
   start: number;
   end: number;
@@ -44,4 +44,8 @@ export interface RecordPart {
   voiceId: string;
   start: number;
   end: number;
+}
+
+export interface IVoice {
+  name: string;
 }

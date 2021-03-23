@@ -2,8 +2,8 @@ import * as firebase from 'firebase/app';
 
 import 'firebase/storage';
 // import "firebase/analytics";
-import "firebase/auth";
-import "firebase/firestore";
+import 'firebase/auth';
+import 'firebase/firestore';
 
 import firebaseConfig from '../../../firebase.config';
 
@@ -33,7 +33,7 @@ export const initFirebase = async () => {
   // });
 
   await firebase.auth().signInAnonymously();
-}
+};
 
 export const updateList = async (videoType: string, videoId: string) => {
   showLogo.set(true);
@@ -43,12 +43,12 @@ export const updateList = async (videoType: string, videoId: string) => {
   const res = await ref.child(videoId).listAll();
   let audioFiles: AudioFile[] = [];
 
-  for(const itemRef of res.items) {
+  for (const itemRef of res.items) {
     const newFile: AudioFile = {
       path: await ref.child(itemRef.fullPath).getDownloadURL(),
       lang: '',
       tags: [],
-      name: itemRef.name
+      name: itemRef.name,
     };
 
     audioFiles.push(newFile);
@@ -63,33 +63,38 @@ export const uploadBlob = (videoType: string, videoId: string, blob: Blob, progr
 
   const uploadTask = ref.child(videoId).put(blob);
 
-  uploadTask.on('state_changed', function(snapshot){
-    let progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-    progressFn(progress);
-  }, function(error) {
-    console.error(error);
-  }, function() {
-    uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {
-      completeFn(downloadURL);
-    });
-  });
+  uploadTask.on(
+    'state_changed',
+    function (snapshot) {
+      let progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+      progressFn(progress);
+    },
+    function (error) {
+      console.error(error);
+    },
+    function () {
+      uploadTask.snapshot.ref.getDownloadURL().then(function (downloadURL) {
+        completeFn(downloadURL);
+      });
+    }
+  );
 };
 
-export const createAuthor = async(): Promise<string> => {
+export const createAuthor = async (): Promise<string> => {
   const db = firebase.firestore();
-  await db.collection("authors").doc(USER_ID);
+  await db.collection('authors').doc(USER_ID);
 
   return USER_ID;
 };
 
-export const newRecording = async(params: Recording): Promise<string> => {
+export const newRecording = async (params: Recording): Promise<string> => {
   const db = firebase.firestore();
-  const doc = db.collection("recordings").doc();
+  const doc = db.collection('recordings').doc();
   // const newRecRef = doc.collection('recordings').doc(params.videoId);
 
   await doc.set({
     authorId: USER_ID,
-    projectId: params.projectId,
+    projectId: params.projectName,
     voiceName: params.voiceName,
     start: params.start,
     end: params.end,
@@ -98,9 +103,11 @@ export const newRecording = async(params: Recording): Promise<string> => {
   return doc.id;
 };
 
-export const newVoice = async(params: Voice): Promise<string> => {
+// export const startTask;
+
+export const newVoice = async (params: Voice): Promise<string> => {
   const db = firebase.firestore();
-  const doc = db.collection("authors").doc(USER_ID);
+  const doc = db.collection('authors').doc(USER_ID);
   const newRecRef = doc.collection('recordings').doc(params.recordingId);
   const newVoiceRef = newRecRef.collection('voices').doc();
   await newVoiceRef.set({
@@ -110,9 +117,9 @@ export const newVoice = async(params: Voice): Promise<string> => {
   return newVoiceRef.id;
 };
 
-export const newPart = async(params: RecordPart): Promise<string> => {
+export const newPart = async (params: RecordPart): Promise<string> => {
   const db = firebase.firestore();
-  const doc = db.collection("authors").doc(USER_ID);
+  const doc = db.collection('authors').doc(USER_ID);
   const newRecRef = doc.collection('recordings').doc(params.recordingId);
   const newVoiceRef = newRecRef.collection('voices').doc(params.voiceId);
   const newPartRef = newVoiceRef.collection('parts').doc();

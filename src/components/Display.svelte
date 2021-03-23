@@ -1,4 +1,4 @@
-<script lang="ts">
+<script lang='ts'>
   import type { AudioFile } from './api/types';
   import { DisplayStates } from './api/types';
 
@@ -10,37 +10,39 @@
   export let menuItemIndex: number = 0;
 </script>
 
-<div class="display-outer">
-  <input id='upload-input' type="file" style="display: none">
-  <div class="display">
+<div class='display-outer'>
+  <input id='upload-input' type='file' style='display: none'>
+  <div class='display'>
     {#if false}
       <span></span>
     {:else if state === DisplayStates.LOGO}
-      <div class="logo">
+      <div class='logo'>
         <span>
           AltShift
         </span>
       </div>
     {:else if state === DisplayStates.HOME && data}
-      <div class="lang">{data.lang}</div>
-      <div class="tags">
+      <div class='lang'>{data.lang}</div>
+      <div class='tags'>
         {#each data.tags as tag}
-          <div class="tag-item">{tag}</div>
+          <div class='tag-item'>{tag}</div>
         {/each}
       </div>
-      <div class="audio-name">{data.name}</div>
+      <div class='audio-name'>{data.name}</div>
     {:else if state === DisplayStates.MENU}
-      <div class="menu">
-        <button class="menu-item active" class:active={menuItemIndex === 0}><i class="fas fa-microphone-alt"></i></button>
-        <button class="menu-item active" class:active={menuItemIndex === 1}><i class="fas fa-cloud-upload-alt"></i></button>
+      <div class='menu'>
+        <button class='menu-item active' class:active={menuItemIndex === 0}><i class='fas fa-microphone-alt'></i>
+        </button>
+        <button class='menu-item active' class:active={menuItemIndex === 1}><i class='fas fa-cloud-upload-alt'></i>
+        </button>
       </div>
     {:else if state === DisplayStates.UPLOAD_PROGRESS}
-      {#each [0,1,2,3,4,5,6,7,8,9] as p}
-        <div class="upload-progress fill" class:fill={progress > p*10+5} style={`left: ${30 + p*15}px`}>
+      {#each [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] as p}
+        <div class='upload-progress fill' class:fill={progress > p*10+5} style={`left: ${30 + p*15}px`}>
         </div>
       {/each}
     {:else if state === DisplayStates.RECORDER}
-      <slot name='recorder'/>
+      <slot name='recorder' />
     {:else if state === DisplayStates.NOT_FOUND}
       <span></span>
     {/if}

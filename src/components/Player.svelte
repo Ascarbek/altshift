@@ -1,22 +1,23 @@
-<script lang="ts">
+<script lang='ts'>
   import { onMount, onDestroy } from 'svelte';
   import { fade } from 'svelte/transition';
   import { cubicInOut } from 'svelte/easing';
 
   import { updateList, uploadBlob } from './api/firebase-app';
-  import type { AudioFile } from './api/types';
+  import type { AudioFile, IVoice } from './api/types';
   import { DisplayStates, RecordingStates } from './api/types';
   import { AudioFiles, showLogo } from './api/svelte-stores';
 
-  import Display from "./Display.svelte";
+  import Display from './Display.svelte';
   import Recorder from './Recorder.svelte';
   import RecordingTracks from './RecordingTracks.svelte';
 
-  // let AudioInputStream = null;
   let AudioInputStreamPromise: Promise<MediaStream> = null;
 
   let audioHtml: HTMLAudioElement;
   let playerHtml: HTMLElement;
+  let projectName: string = 'Project one';
+  let voices: IVoice[] = [{ name: 'male 1' }];
 
   let currentTime: number = 0;
   let duration: number = -1;
@@ -26,8 +27,6 @@
 
   let uploadProgress: number = 0;
 
-  // const dispatch = createEventDispatcher();
-
   export let videoType: string;
   export let videoId: string;
 
@@ -36,69 +35,69 @@
   /**
    * Playback events
    * */
-  let initTimeoutHandler1: NodeJS.Timeout;
-  let initTimeoutHandler2: NodeJS.Timeout;
+  let initTimeoutHandler1: any;
+  let initTimeoutHandler2: any;
 
   const attachVideoEvents = () => {
     const video = document.querySelector('video');
 
-    if(video) {
+    if (video) {
       video.addEventListener('timeupdate', timeHandler);
       video.addEventListener('canplay', canPlayHandler);
     } else {
       initTimeoutHandler1 = setTimeout(attachVideoEvents, 10);
     }
-  }
+  };
 
   const attachAudioEvents = () => {
     const video = document.querySelector('video');
 
-    if(video) {
+    if (video) {
       if (audioHtml) {
         video.addEventListener('pause', pauseHandler);
         video.addEventListener('play', playHandler);
 
         if (!video.paused) {
-          audioHtml.play()
+          audioHtml.play();
         }
       }
     } else {
       initTimeoutHandler2 = setTimeout(attachAudioEvents, 10);
     }
-  }
+  };
 
   const pauseHandler = () => {
     canPlay = false;
     audioHtml.pause();
-  }
+  };
 
   const canPlayHandler = (e) => {
     canPlay = true;
-    if(e.target.duration && duration < 0) {
+    if (e.target.duration && duration < 0) {
       duration = e.target.duration;
     }
-  }
+  };
 
   const playHandler = () => {
     canPlay = audioHtml.readyState === 4;
-    if(canPlay) {
+    if (canPlay) {
       audioHtml.play();
     }
-  }
+  };
 
   const timeHandler = async (e: any) => {
     const video = e.target;
     currentTime = video.currentTime;
-    if (busy) return
-    if(audioHtml) {
+    if (busy) return;
+    if (audioHtml) {
       if (Math.abs(audioHtml.currentTime - video.currentTime) < 0.1) return;
       audioHtml.currentTime = video.currentTime;
       if (!video.paused) {
-        await audioHtml.play()
+        await audioHtml.play();
       }
     }
     busy = true;
-  }
+  };
 
   /**
    * Recording track Events
@@ -106,14 +105,14 @@
   const onRecordingTrackSeek = (e) => {
     const video = document.querySelector('video');
     video.currentTime = e.detail.time;
-  }
+  };
 
   /**
    * Fix for too frequent timeHandler call
    * */
   let busy: boolean = false;
 
-  let intervalHandler: NodeJS.Timeout = setInterval(() => {
+  let intervalHandler: any = setInterval(() => {
     busy = false;
   }, 1000);
 
@@ -127,11 +126,11 @@
       left = obj.left;
       top = obj.top;
 
-      if(left + 350 > screen.width) {
+      if (left + 350 > screen.width) {
         left = screen.width - 350 - 20;
       }
 
-      if(top + 64 > screen.height) {
+      if (top + 64 > screen.height) {
         top = screen.height - 64 - 20;
       }
 
@@ -152,18 +151,18 @@
   const onMouseDown = () => {
     window.addEventListener('mousemove', onMouseMove);
     window.addEventListener('mouseup', onMouseUp);
-  }
+  };
 
   const onMouseUp = () => {
     window.removeEventListener('mousemove', onMouseMove);
     window.removeEventListener('mouseup', onMouseUp);
-    localStorage.setItem('AltShiftPlayerLocation', JSON.stringify({left, top}));
-  }
+    localStorage.setItem('AltShiftPlayerLocation', JSON.stringify({ left, top }));
+  };
 
   const onMouseMove = (e: MouseEvent) => {
     left += e.movementX;
     top += e.movementY;
-  }
+  };
 
   /**
    * Menu events
@@ -175,16 +174,15 @@
   let recordingState: RecordingStates;
 
   const onUpClick = () => {
-    if($AudioFiles.length === 0) return;
-    if(currentState === DisplayStates.MENU) {
+    if ($AudioFiles.length === 0) return;
+    if (currentState === DisplayStates.MENU) {
       currentState = DisplayStates.HOME;
       return;
-    }
-    else if(currentState !== DisplayStates.HOME) {
+    } else if (currentState !== DisplayStates.HOME) {
       return;
     }
     homeItemIndex--;
-    if(homeItemIndex < 0) {
+    if (homeItemIndex < 0) {
       homeItemIndex = $AudioFiles.length - 1;
       currentState = DisplayStates.MENU;
     }
@@ -192,16 +190,15 @@
   };
 
   const onDownClick = () => {
-    if($AudioFiles.length === 0) return;
-    if(currentState === DisplayStates.MENU) {
+    if ($AudioFiles.length === 0) return;
+    if (currentState === DisplayStates.MENU) {
       currentState = DisplayStates.HOME;
       return;
-    }
-    else if(currentState !== DisplayStates.HOME) {
+    } else if (currentState !== DisplayStates.HOME) {
       return;
     }
     homeItemIndex++;
-    if(homeItemIndex > $AudioFiles.length - 1) {
+    if (homeItemIndex > $AudioFiles.length - 1) {
       homeItemIndex = 0;
       currentState = DisplayStates.MENU;
     }
@@ -209,58 +206,57 @@
   };
 
   const onLeftClick = () => {
-    if(currentState === DisplayStates.MENU) {
+    if (currentState === DisplayStates.MENU) {
       menuItemIndex--;
-      if(menuItemIndex < 0) {
+      if (menuItemIndex < 0) {
         menuItemIndex = 1;
       }
     }
-  }
+  };
 
   const onRightClick = () => {
-    if(currentState === DisplayStates.MENU) {
+    if (currentState === DisplayStates.MENU) {
       menuItemIndex++;
-      if(menuItemIndex > 1) {
+      if (menuItemIndex > 1) {
         menuItemIndex = 0;
       }
     }
-  }
+  };
 
   const onOkClick = async () => {
-    if(currentState === DisplayStates.MENU) {
-      if(menuItemIndex === 1) {
+    if (currentState === DisplayStates.MENU) {
+      if (menuItemIndex === 1) {
         uploadClick();
       }
-      if(menuItemIndex === 0) {
+      if (menuItemIndex === 0) {
         currentState = DisplayStates.RECORDER;
         AudioInputStreamPromise = navigator.mediaDevices.getUserMedia({ audio: true });
         recordingState = RecordingStates.ALLOW_MESSAGE;
       }
     }
 
-    if(currentState === DisplayStates.RECORDER) {
-      if(recordingState === RecordingStates.PAUSE_MESSAGE) {
+    if (currentState === DisplayStates.RECORDER) {
+      if (recordingState === RecordingStates.PAUSE_MESSAGE) {
         currentState = DisplayStates.MENU;
       }
     }
-  }
+  };
 
   const setDisplayState = (showLogo: boolean, files: AudioFile[]) => {
-    if(showLogo) {
+    if (showLogo) {
       currentState = DisplayStates.LOGO;
-      return
+      return;
     }
 
-    if(files.length === 0) {
+    if (files.length === 0) {
       currentState = DisplayStates.MENU;
-    }
-    else {
+    } else {
       currentState = DisplayStates.HOME;
       homeItemIndex = 0;
       currentFile = files[homeItemIndex];
       setTimeout(attachAudioEvents, 10);
     }
-  }
+  };
 
   $: setDisplayState($showLogo, $AudioFiles);
 
@@ -270,7 +266,7 @@
   const uploadClick = () => {
     document.getElementById('upload-input').dispatchEvent(new MouseEvent('click'));
     document.getElementById('upload-input').addEventListener('change', onFileSelect);
-  }
+  };
 
   const onFileSelect = async (e) => {
     currentState = DisplayStates.UPLOAD_PROGRESS;
@@ -286,14 +282,14 @@
       currentState = DisplayStates.HOME;
       updateList(videoType, videoId);
     });
-  }
+  };
 </script>
 
-<div class="player" bind:this={playerHtml} transition:fade={{delay: 0, duration: 200, easing: cubicInOut}}
+<div class='player' bind:this={playerHtml} transition:fade={{delay: 0, duration: 200, easing: cubicInOut}}
      style={`left: ${left}px; top: ${top}px`}
      on:mousedown={onMouseDown}>
 
-  <div class="content">
+  <div class='content'>
     <Display
       state={currentState}
       data={currentFile}
@@ -301,60 +297,64 @@
       bind:progress={uploadProgress}
       bind:menuItemIndex={menuItemIndex}
     >
-      <div slot="recorder">
+      <div slot='recorder'>
         <Recorder
           streamPromise={AudioInputStreamPromise}
           videoId={videoId}
           duration={duration}
+          projectName='project one'
+          voiceName='male 1'
           bind:currentState={recordingState}
         >
         </Recorder>
       </div>
     </Display>
 
-    <div class="arrow-buttons">
-      <div class="arrow-left" on:click={onLeftClick}>
-        <i class="fas fa-angle-left"></i>
+    <div class='arrow-buttons'>
+      <div class='arrow-left' on:click={onLeftClick}>
+        <i class='fas fa-angle-left'></i>
       </div>
 
-      <div class="arrow-up" on:click={onUpClick}>
-        <i class="fas fa-angle-up"></i>
+      <div class='arrow-up' on:click={onUpClick}>
+        <i class='fas fa-angle-up'></i>
       </div>
 
-      <div class="arrow-right" on:click={onRightClick}>
-        <i class="fas fa-angle-right"></i>
+      <div class='arrow-right' on:click={onRightClick}>
+        <i class='fas fa-angle-right'></i>
       </div>
 
-      <div class="arrow-down" on:click={onDownClick}>
-        <i class="fas fa-angle-down"></i>
+      <div class='arrow-down' on:click={onDownClick}>
+        <i class='fas fa-angle-down'></i>
       </div>
 
-      <div class="ok-button" on:click={onOkClick}>
+      <div class='ok-button' on:click={onOkClick}>
         <span>OK</span>
       </div>
     </div>
 
-    <div class="settings-button">
+    <div class='settings-button'>
       <span>menu</span>
     </div>
 
-    <div class="back-button">
+    <div class='back-button'>
       <span>back</span>
     </div>
 
-    <div class="power-button">
-      <i class="fas fa-power-off"></i>
+    <div class='power-button'>
+      <i class='fas fa-power-off'></i>
     </div>
   </div>
 
   {#if currentFile}
-    <audio src="{currentFile.path}" bind:this={audioHtml}></audio>
+    <audio src='{currentFile.path}' bind:this={audioHtml}></audio>
   {/if}
 
 </div>
 
 {#if currentState === DisplayStates.RECORDER}
   <RecordingTracks
+    voices={voices}
+    projectName={projectName}
     currentTime={currentTime}
     duration={duration}
     on:seek={onRecordingTrackSeek}

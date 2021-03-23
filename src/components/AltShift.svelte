@@ -1,5 +1,5 @@
-<script lang="ts">
-  import Player from "./Player.svelte";
+<script lang='ts'>
+  import Player from './Player.svelte';
   import { initFirebase, updateList } from './api/firebase-app';
 
   initFirebase();
@@ -15,5 +15,5 @@
 </script>
 
 {#if showPlayer}
-  <Player videoType={videoType} videoId={videoId}/>
+  <Player videoType={videoType} videoId={videoId} />
 {/if}

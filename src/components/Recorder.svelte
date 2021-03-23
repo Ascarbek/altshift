@@ -1,8 +1,8 @@
-<script lang="ts">
-  import {onDestroy, onMount,} from "svelte";
-  import {newRecording, uploadBlob} from './api/firebase-app';
+<script lang='ts'>
+  import { onDestroy, onMount } from 'svelte';
+  import { newRecording, uploadBlob } from './api/firebase-app';
 
-  import {RecordingStates} from './api/types';
+  import { RecordingStates } from './api/types';
 
   // const dispatch = createEventDispatcher();
 
@@ -21,10 +21,12 @@
   export let currentState: RecordingStates;
 
   let recordingId: string;
-  let voiceId: string;
   let currentStartTime: number;
   let currentEndTime: number;
   // let partNum: number = 0;
+
+  export let projectName: string;
+  export let voiceName: string;
 
   onMount(async () => {
     window.addEventListener('keydown', keyDown);
@@ -36,27 +38,27 @@
   });
 
   const keyDown = (e) => {
-    if(e.ctrlKey) {
-      if(currentState === RecordingStates.ACTIVE_RECORDING) return;
+    if (e.ctrlKey) {
+      if (currentState === RecordingStates.ACTIVE_RECORDING) return;
       currentState = RecordingStates.ACTIVE_RECORDING;
 
-      if(document.querySelector('video')) {
+      if (document.querySelector('video')) {
         const video = document.querySelector('video');
         video.play();
         currentStartTime = video.currentTime;
       }
 
-      if(mediaRecorder.state !== 'recording') {
+      if (mediaRecorder.state !== 'recording') {
         mediaRecorder.start();
       }
     }
   };
 
   const keyUp = (e) => {
-    if(currentState !== RecordingStates.ACTIVE_RECORDING) return;
+    if (currentState !== RecordingStates.ACTIVE_RECORDING) return;
     currentState = RecordingStates.PAUSE_MESSAGE;
 
-    if(document.querySelector('video')) {
+    if (document.querySelector('video')) {
       const video = document.querySelector('video');
       video.pause();
       currentEndTime = video.currentTime;
@@ -85,7 +87,12 @@
     currentState = RecordingStates.SAVING_PROGRESS;
     saveProgress = 0;
 
-    let recordingId = await newRecording({projectId: 'project 1', voiceName: 'male 1', start: currentStartTime, end: currentEndTime});
+    let recordingId = await newRecording({
+      projectName: projectName,
+      voiceName: voiceName,
+      start: currentStartTime,
+      end: currentEndTime,
+    });
 
     saveProgress = 10;
 
@@ -99,15 +106,15 @@
   $: onRecordingStateChange(currentState);
 
   function onRecordingStateChange(state) {
-    if(state === RecordingStates.ALLOW_MESSAGE)
+    if (state === RecordingStates.ALLOW_MESSAGE)
       showDlg();
   }
 
   function visualize(stream) {
-    if(!stream) return;
+    if (!stream) return;
     const audioCtx = new AudioContext();
-    mediaRecorder = new MediaRecorder(stream, {mimeType: 'audio/webm'});
-    var canvasCtx = canvasElement.getContext("2d");
+    mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+    var canvasCtx = canvasElement.getContext('2d');
     var source = audioCtx.createMediaStreamSource(stream);
 
     var analyser = audioCtx.createAnalyser();
@@ -117,14 +124,14 @@
 
     source.connect(analyser);
 
-    let WIDTH = canvasElement.width
+    let WIDTH = canvasElement.width;
     let HEIGHT = canvasElement.height;
 
-    draw()
+    draw();
 
     function draw() {
       // this is a hotfix
-      if(!canvasElement) return;
+      if (!canvasElement) return;
 
       requestAnimationFrame(draw);
 
@@ -136,15 +143,15 @@
       canvasCtx.strokeStyle = 'rgb(0, 0, 0)';
       canvasCtx.beginPath();
 
-      var sliceWidth = WIDTH * 1.0 / bufferLength;
-      var x = 0;
+      let sliceWidth = WIDTH * 1.0 / bufferLength;
+      let x = 0;
 
-      for(var i = 0; i < bufferLength; i++) {
+      for (let i = 0; i < bufferLength; i++) {
 
-        var v = dataArray[i] / 128.0;
-        var y = v * HEIGHT/2;
+        let v = dataArray[i] / 128.0;
+        let y = v * HEIGHT / 2;
 
-        if(i === 0) {
+        if (i === 0) {
           canvasCtx.moveTo(x, y);
         } else {
           canvasCtx.lineTo(x, y);
@@ -153,7 +160,7 @@
         x += sliceWidth;
       }
 
-      canvasCtx.lineTo(canvasElement.width, canvasElement.height/2);
+      canvasCtx.lineTo(canvasElement.width, canvasElement.height / 2);
       canvasCtx.stroke();
     }
   }
@@ -166,42 +173,42 @@
     }).catch(e => {
       currentState = RecordingStates.DECLINED_MESSAGE;
     });
-  }
+  };
 </script>
 
-<div class="recorder">
-  <canvas bind:this={canvasElement} class="visualizer" class:hidden={currentState !== RecordingStates.ACTIVE_RECORDING}></canvas>
+<div class='recorder'>
+  <canvas bind:this={canvasElement} class='visualizer'
+          class:hidden={currentState !== RecordingStates.ACTIVE_RECORDING}></canvas>
 
-  <div class="msg" class:hidden={currentState !== RecordingStates.ALLOW_MESSAGE}>
+  <div class='msg' class:hidden={currentState !== RecordingStates.ALLOW_MESSAGE}>
     Please allow use<br> of microphone.
   </div>
 
-  <div class="msg" class:hidden={currentState !== RecordingStates.DECLINED_MESSAGE}>
+  <div class='msg' class:hidden={currentState !== RecordingStates.DECLINED_MESSAGE}>
     You have blocked use<br> of microphone.
   </div>
 
-  <div class="msg" class:hidden={currentState !== RecordingStates.FIRST_MESSAGE}>
+  <div class='msg' class:hidden={currentState !== RecordingStates.FIRST_MESSAGE}>
     hold <b>ctrl</b> key to start.<br>
     release to pause.
   </div>
 
-  <div class="msg" class:hidden={currentState !== RecordingStates.SAVING_PROGRESS}>
-    {#each [0,1,2,3,4,5,6,7,8,9] as p}
-      <div class="upload-progress fill" class:fill={saveProgress > p*10+5} style={`left: ${30 + p*15}px`}>
+  <div class='msg' class:hidden={currentState !== RecordingStates.SAVING_PROGRESS}>
+    {#each [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] as p}
+      <div class='upload-progress fill' class:fill={saveProgress > p*10+5} style={`left: ${30 + p*15}px`}>
       </div>
     {/each}
   </div>
 
-  <div class="msg" class:hidden={currentState !== RecordingStates.PAUSE_MESSAGE}>
+  <div class='msg' class:hidden={currentState !== RecordingStates.PAUSE_MESSAGE}>
     press <b>Ok</b> to save.<br>
     or <b>ctrl</b> to continue.
   </div>
 
-  <div class="msg" class:hidden={currentState !== RecordingStates.SAVE_MENU}>
+  <div class='msg' class:hidden={currentState !== RecordingStates.SAVE_MENU}>
     <input>
   </div>
 </div>
-
 
 
 <style>
@@ -226,7 +233,7 @@
 
   }
 
- .recorder {
+  .recorder {
     position: absolute;
     top: 0;
     left: 0;
