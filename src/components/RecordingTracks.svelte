@@ -1,6 +1,6 @@
 <script lang='ts'>
   import { createEventDispatcher } from 'svelte';
-  import { ProjectName, Voices } from './api/svelte-stores';
+  import { ProjectName, Voices, CurrentParts } from './api/svelte-stores';
 
   const dispatch = createEventDispatcher();
 
@@ -16,11 +16,12 @@
   };
 
   let showToolbarButtons = false;
+  export let onProjectNameChange: (v: string) => void;
 
 </script>
 
 <div class='project-name'>
-  <input bind:value={$ProjectName}>
+  <input bind:value={$ProjectName} on:blur={(e) => onProjectNameChange(e.target.value)}>
 </div>
 
 {#each $Voices as voice}
@@ -29,16 +30,17 @@
     <div class='track-container' on:mousedown={onMouseDown}>
       <div class='cursor' style={`left: ${currentTime*100/duration}%`}></div>
     </div>
-    <div class='toolbar' on:mouseenter={() => showToolbarButtons = true} on:mouseleave={() => showToolbarButtons = false}>
+    <div class='toolbar' on:mouseenter={() => showToolbarButtons = true}
+         on:mouseleave={() => showToolbarButtons = false}>
       <div class='name'>
         <input bind:value={voice.name}>
         {#if showToolbarButtons}
-        <div class=''>
-          <button>
-            <i class="fas fa-plus"></i>
-          </button>
-        </div>
-          {/if}
+          <div class=''>
+            <button>
+              <i class='fas fa-plus'></i>
+            </button>
+          </div>
+        {/if}
       </div>
     </div>
   </div>
@@ -62,7 +64,7 @@
     z-index: 10000;
 
     left: 0.5vw;
-    top: calc(0.5vw + 40px) ;
+    top: calc(0.5vw + 40px);
     width: 99vw;
     height: 80px;
 
@@ -77,6 +79,7 @@
     top: 5px;
     left: 10px;
   }
+
   .name {
     display: flex;
 

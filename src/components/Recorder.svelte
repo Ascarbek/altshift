@@ -1,21 +1,18 @@
 <script lang='ts'>
   import { onDestroy, onMount } from 'svelte';
-  import { newRecording, uploadBlob } from './api/firebase-app';
-  import { currentUser, ProjectName, Voices } from './api/svelte-stores';
+  import { getProject, newProject, newRecording, uploadBlob } from './api/firebase-app';
+  import { CurrentParts, currentUser, ProjectId, ProjectName, Voices } from './api/svelte-stores';
 
-  import { RecordingStates } from './api/types';
-
-  // const dispatch = createEventDispatcher();
+  import { IProject, RecordingStates } from './api/types';
 
   let canvasElement: HTMLCanvasElement;
-
-  // let stream;
 
   // need to come from user event
   export let streamPromise: Promise<MediaStream>;
 
   let mediaRecorder;
 
+  export let videoType: string;
   export let videoId: string;
   export let duration: number;
 
@@ -24,24 +21,32 @@
   let recordingId: string;
   let currentStartTime: number;
   let currentEndTime: number;
-  // let partNum: number = 0;
 
   export let projectName: string;
   export let voiceName: string;
+
+  let currentProject: IProject;
 
   onMount(async () => {
     window.addEventListener('keydown', keyDown);
     window.addEventListener('keyup', keyUp);
 
-    if ($Voices.length === 0) {
-      $Voices = [{ name: voiceName }];
-      $ProjectName = projectName;
+    const test = await getProject(videoType, videoId);
+    if (test) {
+      currentProject = test;
+    } else {
+      currentProject = await newProject(projectName, videoType, videoId, voiceName);
     }
-
-    // await createAuthor();
-    // recordingId = await newRecording({lang: 'ru', name: 'newRecording', videoId: videoId, duration: duration});
-    // voiceId = await newVoice({name: 'male', recordingId: recordingId});
   });
+
+  $: loadData(currentProject);
+
+  function loadData(_data: IProject) {
+    if (!_data) return;
+    $Voices = [{ name: _data.voices[0].name }];
+    $ProjectName = _data.name;
+    $ProjectId = _data.id;
+  }
 
   const keyDown = (e) => {
     if (e.ctrlKey) {
@@ -83,19 +88,12 @@
   const onDataAvailable = async (e) => {
     mediaRecorder.removeEventListener('dataavailable', onDataAvailable);
 
-    /*
-    partNum++;
-    const partId = await newPart({partNum: partNum, recordingId: recordingId, voiceId: voiceId, start: currentStartTime, end: currentEndTime});
-
-    CurrentParts.update(cp => [...cp, {partNum: partNum, recordingId: recordingId, voiceId: voiceId, start: currentStartTime, end: currentEndTime}]);
-    */
-
     currentState = RecordingStates.SAVING_PROGRESS;
     saveProgress = 0;
 
     let recording = await newRecording({
-      projectId: projectName,
-      authorId: USER_ID,
+      projectId: $ProjectId,
+      authorId: $currentUser.uid,
       voiceName: voiceName,
       start: currentStartTime,
       end: currentEndTime,
@@ -108,6 +106,7 @@
       saveProgress = p;
     }, () => {
       currentState = RecordingStates.PAUSE_MESSAGE;
+      $CurrentParts = [...$CurrentParts, recording];
     });
   };
 
@@ -122,13 +121,13 @@
     if (!stream) return;
     const audioCtx = new AudioContext();
     mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
-    var canvasCtx = canvasElement.getContext('2d');
-    var source = audioCtx.createMediaStreamSource(stream);
+    let canvasCtx = canvasElement.getContext('2d');
+    let source = audioCtx.createMediaStreamSource(stream);
 
-    var analyser = audioCtx.createAnalyser();
+    let analyser = audioCtx.createAnalyser();
     analyser.fftSize = 2048;
-    var bufferLength = analyser.frequencyBinCount;
-    var dataArray = new Uint8Array(bufferLength);
+    let bufferLength = analyser.frequencyBinCount;
+    let dataArray = new Uint8Array(bufferLength);
 
     source.connect(analyser);
 
@@ -176,7 +175,6 @@
   export let showDlg = () => {
     streamPromise.then(res => {
       currentState = RecordingStates.FIRST_MESSAGE;
-      // stream = res;
       visualize(res);
     }).catch(e => {
       currentState = RecordingStates.DECLINED_MESSAGE;

@@ -54,6 +54,7 @@ export interface IVoiceOverPlacement {
 }
 
 export interface IProject {
+  id: string;
   name: string;
   videoId: string;
   videoType: string;

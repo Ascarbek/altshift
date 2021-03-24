@@ -7,7 +7,8 @@ import firebaseConfig from '../../../firebase.config';
 
 import { AudioFiles, showLogo, currentUser } from './svelte-stores';
 
-import type { IAudioFile, IVoice, IRecordPart, FRecording } from './types';
+import type { IAudioFile, IVoice, IRecordPart, FRecording, IProject } from './types';
+import { COLLECTION_NAMES } from './constants';
 
 export const DEFAULT_USER_ID = '1yrIkUNKX5QwiHqJBgo7zZOs9vO2';
 
@@ -21,13 +22,6 @@ export const initFirebase = async () => {
       firebase.auth().signInWithEmailAndPassword('guest@altshift.cc', '123qwe');
     }
   });
-};
-
-export const signInRedirect = async () => {
-  const provider = new firebase.auth.GoogleAuthProvider();
-  provider.addScope('.../auth/userinfo.email');
-  const res = await firebase.auth().signInWithRedirect(provider);
-  console.log(res);
 };
 
 export const signIn = async (email, password) => {
@@ -82,9 +76,68 @@ export const uploadBlob = (path: string, blob: Blob, progressFn, completeFn) => 
   );
 };
 
+export const newProject = async (
+  name: string,
+  videoType: string,
+  videoId: string,
+  defaultVoiceName: string
+): Promise<IProject> => {
+  const db = firebase.firestore();
+  const doc = db.collection(COLLECTION_NAMES.PROJECTS).doc();
+  await doc.set({
+    name,
+    videoType,
+    videoId,
+    voices: [{ name: defaultVoiceName }],
+    voiceOvers: [],
+  });
+
+  return {
+    id: doc.id,
+    name,
+    videoType,
+    videoId,
+    voices: [],
+    voiceOvers: [],
+  };
+};
+
+export const renameProject = async (id, name: string) => {
+  const db = firebase.firestore();
+  const doc = db.collection(COLLECTION_NAMES.PROJECTS).doc(id);
+  await doc.set(
+    {
+      name,
+    },
+    { merge: true }
+  );
+};
+
+export const getProject = async (videoType: string, videoId: string): Promise<IProject | null> => {
+  const db = firebase.firestore();
+  const doc = await db
+    .collection(COLLECTION_NAMES.PROJECTS)
+    .where('videoType', '==', videoType)
+    .where('videoId', '==', videoId)
+    .get();
+  if (doc.docs.length) {
+    const data = doc.docs[0].data();
+    return {
+      id: doc.docs[0].id,
+      videoType: data.videoType,
+      videoId: data.videoId,
+      name: data.name,
+      voices: data.voices,
+      voiceOvers: data.voiceOvers,
+    };
+  } else {
+    return null;
+  }
+};
+
 export const newRecording = async (params: FRecording): Promise<IRecordPart> => {
   const db = firebase.firestore();
-  const doc = db.collection('recordings').doc();
+  const doc = db.collection(COLLECTION_NAMES.RECORDINGS).doc();
 
   await doc.set({
     authorId: params.authorId,

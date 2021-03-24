@@ -3,10 +3,10 @@
   import { fade } from 'svelte/transition';
   import { cubicInOut } from 'svelte/easing';
 
-  import { DEFAULT_USER_ID, updateList, uploadBlob } from './api/firebase-app';
+  import { DEFAULT_USER_ID, updateList, uploadBlob, renameProject } from './api/firebase-app';
   import type { IAudioFile, IVoice } from './api/types';
   import { DisplayStates, RecordingStates } from './api/types';
-  import { AudioFiles, showLogo, currentUser } from './api/svelte-stores';
+  import { AudioFiles, showLogo, currentUser, ProjectId } from './api/svelte-stores';
 
   import Display from './Display.svelte';
   import Recorder from './Recorder.svelte';
@@ -228,14 +228,14 @@
   const onOkClick = async () => {
     if (currentState === DisplayStates.MENU) {
       if (menuItemIndex === 1) {
-        if($currentUser?.uid === DEFAULT_USER_ID) {
+        if ($currentUser?.uid === DEFAULT_USER_ID) {
           onShowSignIn();
           return;
         }
         uploadClick();
       }
       if (menuItemIndex === 0) {
-        if($currentUser?.uid === DEFAULT_USER_ID) {
+        if ($currentUser?.uid === DEFAULT_USER_ID) {
           onShowSignIn();
           return;
         }
@@ -295,7 +295,7 @@
     });
   };
 
-  export let onShowSignIn : () => void;
+  export let onShowSignIn: () => void;
 </script>
 
 <div class='player' bind:this={playerHtml} transition:fade={{delay: 0, duration: 200, easing: cubicInOut}}
@@ -313,6 +313,7 @@
       <div slot='recorder'>
         <Recorder
           streamPromise={AudioInputStreamPromise}
+          videoType={videoType}
           videoId={videoId}
           duration={duration}
           projectName='project one'
@@ -369,6 +370,7 @@
     currentTime={currentTime}
     duration={duration}
     on:seek={onRecordingTrackSeek}
+    onProjectNameChange={(v) => renameProject($ProjectId, v)}
   >
   </RecordingTracks>
 {/if}
