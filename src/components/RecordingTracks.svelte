@@ -1,13 +1,11 @@
 <script lang='ts'>
   import { createEventDispatcher } from 'svelte';
-  import { IVoice } from './api/types';
-  import { ProjectName } from './api/svelte-stores';
+  import { ProjectName, Voices } from './api/svelte-stores';
 
   const dispatch = createEventDispatcher();
 
   export let currentTime: number;
   export let duration: number;
-  export let voices: IVoice[];
 
   const onMouseDown = (e) => {
     const width = e.target.clientWidth;
@@ -25,7 +23,7 @@
   <input bind:value={$ProjectName}>
 </div>
 
-{#each voices as voice}
+{#each $Voices as voice}
   <div class='track-outer'>
 
     <div class='track-container' on:mousedown={onMouseDown}>

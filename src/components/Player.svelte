@@ -228,6 +228,10 @@
   const onOkClick = async () => {
     if (currentState === DisplayStates.MENU) {
       if (menuItemIndex === 1) {
+        if($currentUser?.uid === DEFAULT_USER_ID) {
+          onShowSignIn();
+          return;
+        }
         uploadClick();
       }
       if (menuItemIndex === 0) {

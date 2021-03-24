@@ -1,6 +1,7 @@
 <script lang='ts'>
   import { onDestroy, onMount } from 'svelte';
-  import { newRecording, uploadBlob, USER_ID } from './api/firebase-app';
+  import { newRecording, uploadBlob } from './api/firebase-app';
+  import { currentUser, ProjectName, Voices } from './api/svelte-stores';
 
   import { RecordingStates } from './api/types';
 
@@ -31,6 +32,11 @@
   onMount(async () => {
     window.addEventListener('keydown', keyDown);
     window.addEventListener('keyup', keyUp);
+
+    if ($Voices.length === 0) {
+      $Voices = [{ name: voiceName }];
+      $ProjectName = projectName;
+    }
 
     // await createAuthor();
     // recordingId = await newRecording({lang: 'ru', name: 'newRecording', videoId: videoId, duration: duration});
