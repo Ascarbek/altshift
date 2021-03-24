@@ -1,6 +1,6 @@
 <script lang='ts'>
   import { onDestroy, onMount } from 'svelte';
-  import { newRecording, uploadBlob } from './api/firebase-app';
+  import { newRecording, uploadBlob, USER_ID } from './api/firebase-app';
 
   import { RecordingStates } from './api/types';
 
@@ -87,16 +87,18 @@
     currentState = RecordingStates.SAVING_PROGRESS;
     saveProgress = 0;
 
-    let recordingId = await newRecording({
-      projectName: projectName,
+    let recording = await newRecording({
+      projectId: projectName,
+      authorId: USER_ID,
       voiceName: voiceName,
       start: currentStartTime,
       end: currentEndTime,
+      created: new Date().getTime(),
     });
 
     saveProgress = 10;
 
-    uploadBlob('', `Recordings/${recordingId}.webm`, e.data, (p) => {
+    uploadBlob(`Recordings/${recording.id}.webm`, e.data, (p) => {
       saveProgress = p;
     }, () => {
       currentState = RecordingStates.PAUSE_MESSAGE;

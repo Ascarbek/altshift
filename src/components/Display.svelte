@@ -1,9 +1,9 @@
 <script lang='ts'>
-  import type { AudioFile } from './api/types';
+  import type { IAudioFile } from './api/types';
   import { DisplayStates } from './api/types';
 
   export let state: DisplayStates;
-  export let data: AudioFile = null;
+  export let data: IAudioFile = null;
 
   export let progress = 0;
 

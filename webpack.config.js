@@ -8,53 +8,61 @@ const build = process.env.NODE_ENV === 'build';
 const dev = process.env.NODE_ENV === 'dev';
 
 module.exports = {
-	entry: {
-    ...build ? {
-      background: './src/background.js',
-      content: './src/content.js',
-    } : {},
-    ...dev ? {
-      wrapper: './src/wrapper/index.js',
-    } : {},
-	},
-	resolve: {
-		alias: {
-			svelte: path.resolve('node_modules', 'svelte')
-		},
-		extensions: ['.mjs', '.js', '.ts', '.svelte'],
-		mainFields: ['svelte', 'browser', 'module', 'main']
-	},
-	output: {
-		path: __dirname + '/dist',
-		filename: '[name].js',
-		chunkFilename: '[name].[id].js',
-    publicPath: "/"
+  entry: {
+    ...(build
+      ? {
+          background: './src/background.js',
+          content: './src/content.js',
+        }
+      : {}),
+    ...(dev
+      ? {
+          wrapper: './src/wrapper/index.js',
+        }
+      : {}),
   },
-	module: {
-		rules: [
-			{
-				test: /\.svelte$/,
-				use: {
-					loader: 'svelte-loader',
-					options: {
-						emitCss: true,
-						hotReload: false,
-            preprocess: require('svelte-preprocess')({})
-					}
-				}
-			},
+  devServer: {
+    host: '0.0.0.0',
+    // contentBase: 'public',
+    historyApiFallback: true,
+    compress: true,
+    port: 8080,
+  },
+  resolve: {
+    alias: {
+      svelte: path.resolve('node_modules', 'svelte'),
+    },
+    extensions: ['.mjs', '.js', '.ts', '.svelte'],
+    mainFields: ['svelte', 'browser', 'module', 'main'],
+  },
+  output: {
+    path: __dirname + '/dist',
+    filename: '[name].js',
+    chunkFilename: '[name].[id].js',
+    publicPath: '/',
+  },
+  module: {
+    rules: [
+      {
+        test: /\.svelte$/,
+        use: {
+          loader: 'svelte-loader',
+          options: {
+            emitCss: true,
+            hotReload: false,
+            preprocess: require('svelte-preprocess')({}),
+          },
+        },
+      },
       {
         test: /\.ts?$/,
         use: 'ts-loader',
         exclude: /node_modules/,
       },
-			{
-				test: /\.css$/,
-				use: [
-					'style-loader',
-					'css-loader'
-				]
-			},
+      {
+        test: /\.css$/,
+        use: ['style-loader', 'css-loader'],
+      },
       {
         test: /\.(png|svg|jpg|gif)$/,
         use: [
@@ -62,10 +70,10 @@ module.exports = {
             loader: 'file-loader',
             options: {
               outputPath: 'img',
-              name: '[name].[ext]'
-            }
-          }
-        ]
+              name: '[name].[ext]',
+            },
+          },
+        ],
       },
       {
         type: 'javascript/auto',
@@ -74,26 +82,26 @@ module.exports = {
           {
             loader: 'file-loader',
             options: {
-              name: '[name].[ext]'
-            }
-          }
-        ]
+              name: '[name].[ext]',
+            },
+          },
+        ],
       },
-		]
-	},
-	mode: "development",
-	plugins: [
+    ],
+  },
+  mode: 'development',
+  plugins: [
     new CleanWebpackPlugin(),
     new HtmlWebpackPlugin({
-      template: './src/wrapper/index.html'
+      template: './src/wrapper/index.html',
     }),
-		new MiniCssExtractPlugin({
-			filename: '[name].css'
+    new MiniCssExtractPlugin({
+      filename: '[name].css',
     }),
     new webpack.SourceMapDevToolPlugin({
-      filename: '[name].[chunkhash:8].js.map'
+      filename: '[name].[chunkhash:8].js.map',
     }),
-	],
-	// devtool: prod ? false: 'source-map'
-	devtool: false
+  ],
+  // devtool: prod ? false: 'source-map'
+  devtool: false,
 };

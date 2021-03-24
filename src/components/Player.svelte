@@ -3,10 +3,10 @@
   import { fade } from 'svelte/transition';
   import { cubicInOut } from 'svelte/easing';
 
-  import { updateList, uploadBlob } from './api/firebase-app';
-  import type { AudioFile, IVoice } from './api/types';
+  import { DEFAULT_USER_ID, updateList, uploadBlob } from './api/firebase-app';
+  import type { IAudioFile, IVoice } from './api/types';
   import { DisplayStates, RecordingStates } from './api/types';
-  import { AudioFiles, showLogo } from './api/svelte-stores';
+  import { AudioFiles, showLogo, currentUser } from './api/svelte-stores';
 
   import Display from './Display.svelte';
   import Recorder from './Recorder.svelte';
@@ -31,6 +31,8 @@
   export let videoId: string;
 
   let canPlay: boolean = false;
+
+  export let onSignInStart: () => void;
 
   /**
    * Playback events
@@ -167,7 +169,7 @@
   /**
    * Menu events
    * */
-  let currentFile: AudioFile;
+  let currentFile: IAudioFile;
   let homeItemIndex: number;
   let menuItemIndex: number;
   let currentState: DisplayStates = DisplayStates.MENU;
@@ -229,6 +231,11 @@
         uploadClick();
       }
       if (menuItemIndex === 0) {
+        if($currentUser?.uid === DEFAULT_USER_ID) {
+          onShowSignIn();
+          return;
+        }
+
         currentState = DisplayStates.RECORDER;
         AudioInputStreamPromise = navigator.mediaDevices.getUserMedia({ audio: true });
         recordingState = RecordingStates.ALLOW_MESSAGE;
@@ -242,7 +249,7 @@
     }
   };
 
-  const setDisplayState = (showLogo: boolean, files: AudioFile[]) => {
+  const setDisplayState = (showLogo: boolean, files: IAudioFile[]) => {
     if (showLogo) {
       currentState = DisplayStates.LOGO;
       return;
@@ -276,13 +283,15 @@
     const files = e.target.files;
     const file = files[0];
 
-    uploadBlob(videoType, `${videoId}/${file.name}`, file, (p) => {
+    uploadBlob(`${videoId}/${file.name}`, file, (p) => {
       uploadProgress = p;
     }, () => {
       currentState = DisplayStates.HOME;
       updateList(videoType, videoId);
     });
   };
+
+  export let onShowSignIn : () => void;
 </script>
 
 <div class='player' bind:this={playerHtml} transition:fade={{delay: 0, duration: 200, easing: cubicInOut}}
@@ -353,8 +362,6 @@
 
 {#if currentState === DisplayStates.RECORDER}
   <RecordingTracks
-    voices={voices}
-    projectName={projectName}
     currentTime={currentTime}
     duration={duration}
     on:seek={onRecordingTrackSeek}

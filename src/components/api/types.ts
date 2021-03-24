@@ -19,33 +19,44 @@ export const enum RecordingStates {
   SAVE_MENU,
 }
 
-export interface AudioFile {
+export interface IAudioFile {
   name: string;
   path: string;
   tags: string[];
   lang: string;
 }
 
-export interface Recording {
-  projectName: string;
+export interface FRecording {
+  created: number;
+  authorId: string;
+  projectId: string;
   voiceName: string;
   start: number;
   end: number;
 }
 
-export interface Voice {
-  recordingId: string;
-  name: string;
-}
-
-export interface RecordPart {
-  partNum: number;
-  recordingId: string;
-  voiceId: string;
+export interface IRecordPart {
+  id: string;
+  voiceName: string;
+  created: number;
   start: number;
   end: number;
 }
 
 export interface IVoice {
   name: string;
+}
+
+export interface IVoiceOverPlacement {
+  time: number;
+  duration: number;
+  id: string;
+}
+
+export interface IProject {
+  name: string;
+  videoId: string;
+  videoType: string;
+  voiceOvers: IVoiceOverPlacement[];
+  voices: IVoice[];
 }

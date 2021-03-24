@@ -1,67 +1,69 @@
 import * as firebase from 'firebase/app';
-
 import 'firebase/storage';
-// import "firebase/analytics";
 import 'firebase/auth';
 import 'firebase/firestore';
 
 import firebaseConfig from '../../../firebase.config';
 
-import { AudioFiles, showLogo } from './svelte-stores';
+import { AudioFiles, showLogo, currentUser } from './svelte-stores';
 
-import type { AudioFile, Recording, Voice, RecordPart } from './types';
+import type { IAudioFile, IVoice, IRecordPart, FRecording } from './types';
 
-const USER_ID = 'ascarbek';
+export const DEFAULT_USER_ID = '1yrIkUNKX5QwiHqJBgo7zZOs9vO2';
 
 export const initFirebase = async () => {
   firebase.initializeApp(firebaseConfig);
-  // firebase.auth().onAuthStateChanged(function(user) {
-  /* if (user) {
-    // Get a reference to the storage service, which is used to create references in your storage bucket
-    const ref = firebase.storage().ref();
+  firebase.auth().onAuthStateChanged(function (user) {
+    if (user?.uid) {
+      currentUser.set({ uid: user.uid });
+    } else {
+      console.log('logged out');
+      firebase.auth().signInWithEmailAndPassword('guest@altshift.cc', '123qwe');
+    }
+  });
+};
 
-    ref.child('uYGj04Iti3E').listAll().then(res => {
-      res.items.forEach(async function(itemRef) {
-        console.log(await ref.child(itemRef.fullPath).getDownloadURL());
+export const signInRedirect = async () => {
+  const provider = new firebase.auth.GoogleAuthProvider();
+  provider.addScope('.../auth/userinfo.email');
+  const res = await firebase.auth().signInWithRedirect(provider);
+  console.log(res);
+};
 
-      });
-    });
-  }
-  else {
-
-  } */
-  // });
-
-  await firebase.auth().signInAnonymously();
+export const signIn = async (email, password) => {
+  await firebase.auth().signInWithEmailAndPassword(email, password);
 };
 
 export const updateList = async (videoType: string, videoId: string) => {
   showLogo.set(true);
 
-  const ref = firebase.storage().ref();
+  try {
+    const ref = firebase.storage().ref();
+    const res = await ref.child(videoId).listAll();
+    let audioFiles: IAudioFile[] = [];
 
-  const res = await ref.child(videoId).listAll();
-  let audioFiles: AudioFile[] = [];
+    for (const itemRef of res.items) {
+      const newFile: IAudioFile = {
+        path: await ref.child(itemRef.fullPath).getDownloadURL(),
+        lang: '',
+        tags: [],
+        name: itemRef.name,
+      };
 
-  for (const itemRef of res.items) {
-    const newFile: AudioFile = {
-      path: await ref.child(itemRef.fullPath).getDownloadURL(),
-      lang: '',
-      tags: [],
-      name: itemRef.name,
-    };
+      audioFiles.push(newFile);
+    }
 
-    audioFiles.push(newFile);
+    AudioFiles.set(audioFiles);
+    showLogo.set(false);
+  } catch (e) {
+    console.log('some problem');
   }
-
-  AudioFiles.set(audioFiles);
-  showLogo.set(false);
 };
 
-export const uploadBlob = (videoType: string, videoId: string, blob: Blob, progressFn, completeFn) => {
+export const uploadBlob = (path: string, blob: Blob, progressFn, completeFn) => {
   const ref = firebase.storage().ref();
 
-  const uploadTask = ref.child(videoId).put(blob);
+  const uploadTask = ref.child(path).put(blob);
 
   uploadTask.on(
     'state_changed',
@@ -80,55 +82,24 @@ export const uploadBlob = (videoType: string, videoId: string, blob: Blob, progr
   );
 };
 
-export const createAuthor = async (): Promise<string> => {
-  const db = firebase.firestore();
-  await db.collection('authors').doc(USER_ID);
-
-  return USER_ID;
-};
-
-export const newRecording = async (params: Recording): Promise<string> => {
+export const newRecording = async (params: FRecording): Promise<IRecordPart> => {
   const db = firebase.firestore();
   const doc = db.collection('recordings').doc();
-  // const newRecRef = doc.collection('recordings').doc(params.videoId);
 
   await doc.set({
-    authorId: USER_ID,
-    projectId: params.projectName,
+    authorId: params.authorId,
+    created: params.created,
+    projectId: params.projectId,
     voiceName: params.voiceName,
     start: params.start,
     end: params.end,
   });
 
-  return doc.id;
-};
-
-// export const startTask;
-
-export const newVoice = async (params: Voice): Promise<string> => {
-  const db = firebase.firestore();
-  const doc = db.collection('authors').doc(USER_ID);
-  const newRecRef = doc.collection('recordings').doc(params.recordingId);
-  const newVoiceRef = newRecRef.collection('voices').doc();
-  await newVoiceRef.set({
-    name: params.name,
-  });
-
-  return newVoiceRef.id;
-};
-
-export const newPart = async (params: RecordPart): Promise<string> => {
-  const db = firebase.firestore();
-  const doc = db.collection('authors').doc(USER_ID);
-  const newRecRef = doc.collection('recordings').doc(params.recordingId);
-  const newVoiceRef = newRecRef.collection('voices').doc(params.voiceId);
-  const newPartRef = newVoiceRef.collection('parts').doc();
-  await newPartRef.set({
-    partNum: params.partNum,
-    fileName: `${newPartRef.id}.webm`,
+  return {
+    id: doc.id,
+    created: params.created,
     start: params.start,
     end: params.end,
-  });
-
-  return newPartRef.id;
+    voiceName: params.voiceName,
+  };
 };
