@@ -48,10 +48,10 @@ export const updateList = async (videoType: string, videoId: string) => {
     }
 
     AudioFiles.set(audioFiles);
-    showLogo.set(false);
   } catch (e) {
     console.log('some problem');
   }
+  showLogo.set(false);
 };
 
 export const uploadBlob = (path: string, blob: Blob, progressFn, completeFn) => {
