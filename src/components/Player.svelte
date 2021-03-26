@@ -4,7 +4,7 @@
   import { cubicInOut } from 'svelte/easing';
 
   import { DEFAULT_USER_ID, updateList, uploadBlob, renameProject } from './api/firebase-app';
-  import type { IAudioFile, IVoice } from './api/types';
+  import type { IAudioFile } from './api/types';
   import { DisplayStates, RecordingStates } from './api/types';
   import { AudioFiles, showLogo, currentUser, ProjectId } from './api/svelte-stores';
 
@@ -16,8 +16,6 @@
 
   let audioHtml: HTMLAudioElement;
   let playerHtml: HTMLElement;
-  let projectName: string = 'Project one';
-  let voices: IVoice[] = [{ name: 'male 1' }];
 
   let currentTime: number = 0;
   let duration: number = -1;
@@ -31,8 +29,6 @@
   export let videoId: string;
 
   let canPlay: boolean = false;
-
-  export let onSignInStart: () => void;
 
   /**
    * Playback events

@@ -97,7 +97,7 @@ export const newProject = async (
     name,
     videoType,
     videoId,
-    voices: [],
+    voices: [{ name: defaultVoiceName }],
     voiceOvers: [],
   };
 };
@@ -155,4 +155,22 @@ export const newRecording = async (params: FRecording): Promise<IRecordPart> => 
     end: params.end,
     voiceName: params.voiceName,
   };
+};
+
+export const getRecordings = async (projectId: string): Promise<IRecordPart[]> => {
+  const db = firebase.firestore();
+  const resp = await db.collection(COLLECTION_NAMES.RECORDINGS).where('projectId', '==', projectId).get();
+
+  let res: IRecordPart[] = [];
+  for (const doc of resp.docs) {
+    const data = doc.data();
+    res.push({
+      id: doc.id,
+      voiceName: data.voiceName,
+      created: data.created,
+      start: data.start,
+      end: data.end,
+    });
+  }
+  return res;
 };

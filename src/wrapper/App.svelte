@@ -23,6 +23,7 @@
         window.close();
       }, 2000);
     }*/
+    v.volume = 0.1;
   });
 
   let showPlayer: boolean = true;
@@ -64,7 +65,9 @@
 
   <video
     bind:this={v}
-    class='v' controls>
+    class='v' controls
+
+  >
     <source src='http://localhost:8081/tu114.mp4'>
   </video>
 

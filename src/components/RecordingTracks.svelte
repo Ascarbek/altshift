@@ -7,9 +7,11 @@
   export let currentTime: number;
   export let duration: number;
 
+  let trackEl;
+
   const onMouseDown = (e) => {
-    const width = e.target.clientWidth;
-    const x = e.layerX;
+    const width = trackEl.clientWidth;
+    const x = e.pageX - 14;
     const time = duration * (x / width);
     dispatch('seek', { time });
     currentTime = time;
@@ -27,7 +29,11 @@
 {#each $Voices as voice}
   <div class='track-outer'>
 
-    <div class='track-container' on:mousedown={onMouseDown}>
+    <div class='track-container' on:mousedown={onMouseDown} bind:this={trackEl}>
+      {#each $CurrentParts as part}
+        <div class='recording-part'
+             style={`left: ${part.start*100/duration}%; right: ${100 - part.end*100/duration}%`}></div>
+      {/each}
       <div class='cursor' style={`left: ${currentTime*100/duration}%`}></div>
     </div>
     <div class='toolbar' on:mouseenter={() => showToolbarButtons = true}
@@ -63,9 +69,9 @@
     position: fixed;
     z-index: 10000;
 
-    left: 0.5vw;
-    top: calc(0.5vw + 40px);
-    width: 99vw;
+    left: 10px;
+    top: calc(10px + 40px);
+    width: calc(100vw - 20px);
     height: 80px;
 
     background: #f0f0f0;
@@ -105,6 +111,16 @@
     right: 3px;
     height: calc(100% - 6px);
     background: #beceb2;
+    border-radius: 4px;
+  }
+
+  .recording-part {
+    box-sizing: border-box;
+    position: absolute;
+    top: 0;
+    height: 100%;
+    background: #e9cd98;
+    border: #e7ab51 1px solid;
     border-radius: 4px;
   }
 

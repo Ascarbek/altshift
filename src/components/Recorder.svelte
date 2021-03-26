@@ -1,6 +1,6 @@
 <script lang='ts'>
   import { onDestroy, onMount } from 'svelte';
-  import { getProject, newProject, newRecording, uploadBlob } from './api/firebase-app';
+  import { getProject, getRecordings, newProject, newRecording, uploadBlob } from './api/firebase-app';
   import { CurrentParts, currentUser, ProjectId, ProjectName, Voices } from './api/svelte-stores';
 
   import { IProject, RecordingStates } from './api/types';
@@ -14,11 +14,9 @@
 
   export let videoType: string;
   export let videoId: string;
-  export let duration: number;
 
   export let currentState: RecordingStates;
 
-  let recordingId: string;
   let currentStartTime: number;
   let currentEndTime: number;
 
@@ -34,6 +32,8 @@
     const test = await getProject(videoType, videoId);
     if (test) {
       currentProject = test;
+
+      $CurrentParts = await getRecordings(currentProject.id);
     } else {
       currentProject = await newProject(projectName, videoType, videoId, voiceName);
     }
@@ -102,7 +102,8 @@
 
     saveProgress = 10;
 
-    uploadBlob(`Recordings/${recording.id}.webm`, e.data, (p) => {
+    const b = new Blob([e.data], { 'type': 'audio/ogg; codecs=opus' });
+    uploadBlob(`Recordings/${recording.id}.webm`, b, (p) => {
       saveProgress = p;
     }, () => {
       currentState = RecordingStates.PAUSE_MESSAGE;
