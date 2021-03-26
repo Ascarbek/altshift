@@ -1,16 +1,17 @@
 <script lang='ts'>
-  import { onMount, onDestroy } from 'svelte';
+  import { onDestroy, onMount } from 'svelte';
   import { fade } from 'svelte/transition';
   import { cubicInOut } from 'svelte/easing';
 
-  import { DEFAULT_USER_ID, updateList, uploadBlob, renameProject } from './api/firebase-app';
+  import { DEFAULT_USER_ID, renameProject, updateList, uploadBlob } from './api/firebase-app';
   import type { IAudioFile } from './api/types';
   import { DisplayStates, RecordingStates } from './api/types';
-  import { AudioFiles, showLogo, currentUser, ProjectId } from './api/svelte-stores';
+  import { AudioFiles, currentUser, ProjectId, showLogo } from './api/svelte-stores';
 
   import Display from './Display.svelte';
   import Recorder from './Recorder.svelte';
   import RecordingTracks from './RecordingTracks.svelte';
+  import { processProject } from './api/mixer-app';
 
   let AudioInputStreamPromise: Promise<MediaStream> = null;
 
@@ -244,6 +245,15 @@
 
     if (currentState === DisplayStates.RECORDER) {
       if (recordingState === RecordingStates.PAUSE_MESSAGE) {
+        currentState = DisplayStates.UPLOAD_PROGRESS;
+        uploadProgress = 0;
+        const int = setInterval(() => {
+          uploadProgress+=10;
+          if (uploadProgress > 60) {
+            clearInterval(int);
+          }
+        }, 1000);
+        await processProject($ProjectId);
         currentState = DisplayStates.MENU;
       }
     }
