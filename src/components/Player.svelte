@@ -260,14 +260,16 @@
           }
         }, 1000);
         await processProject($ProjectId);
+        clearInterval(int);
         currentState = DisplayStates.MENU;
+        await updateList(videoType, videoId);
       }
     }
   };
 
   const onBackClick = () => {
-    currentState = DisplayStates.MENU
-  }
+    currentState = DisplayStates.MENU;
+  };
 
   const setDisplayState = (showLogo: boolean, files: IAudioFile[]) => {
     if (showLogo) {
