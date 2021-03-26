@@ -56,10 +56,14 @@
 <style>
   .project-name {
     position: fixed;
+    z-index: 10000;
     left: 10px;
     top: 5px;
     width: 100vw;
     height: 40px;
+  }
+
+  .project-name input {
     background: #ffffff;
   }
 
@@ -130,6 +134,5 @@
     bottom: 0;
     width: 1px;
     background: #e64b3d;
-    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.2);
   }
 </style>
