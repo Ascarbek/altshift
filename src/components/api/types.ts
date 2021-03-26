@@ -20,10 +20,10 @@ export const enum RecordingStates {
 }
 
 export interface IAudioFile {
-  name: string;
-  path: string;
-  tags: string[];
-  lang: string;
+  name?: string;
+  path?: string;
+  tags?: string[];
+  lang?: string;
 }
 
 export interface FRecording {

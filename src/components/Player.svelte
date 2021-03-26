@@ -31,6 +31,8 @@
 
   let canPlay: boolean = false;
 
+  let renderPlayer = false;
+
   /**
    * Playback events
    * */
@@ -67,7 +69,7 @@
 
   const pauseHandler = () => {
     canPlay = false;
-    audioHtml.pause();
+    audioHtml?.pause();
   };
 
   const canPlayHandler = (e) => {
@@ -78,9 +80,9 @@
   };
 
   const playHandler = () => {
-    canPlay = audioHtml.readyState === 4;
+    canPlay = audioHtml?.readyState === 4;
     if (canPlay) {
-      audioHtml.play();
+      audioHtml?.play();
     }
   };
 
@@ -176,6 +178,7 @@
     if ($AudioFiles.length === 0) return;
     if (currentState === DisplayStates.MENU) {
       currentState = DisplayStates.HOME;
+      renderPlayer = true;
       return;
     } else if (currentState !== DisplayStates.HOME) {
       return;
@@ -184,6 +187,7 @@
     if (homeItemIndex < 0) {
       homeItemIndex = $AudioFiles.length - 1;
       currentState = DisplayStates.MENU;
+      renderPlayer = false;
     }
     currentFile = $AudioFiles[homeItemIndex];
   };
@@ -192,6 +196,7 @@
     if ($AudioFiles.length === 0) return;
     if (currentState === DisplayStates.MENU) {
       currentState = DisplayStates.HOME;
+      renderPlayer = true;
       return;
     } else if (currentState !== DisplayStates.HOME) {
       return;
@@ -200,6 +205,7 @@
     if (homeItemIndex > $AudioFiles.length - 1) {
       homeItemIndex = 0;
       currentState = DisplayStates.MENU;
+      renderPlayer = false;
     }
     currentFile = $AudioFiles[homeItemIndex];
   };
@@ -248,7 +254,7 @@
         currentState = DisplayStates.UPLOAD_PROGRESS;
         uploadProgress = 0;
         const int = setInterval(() => {
-          uploadProgress+=10;
+          uploadProgress += 10;
           if (uploadProgress > 60) {
             clearInterval(int);
           }
@@ -271,6 +277,7 @@
       currentState = DisplayStates.HOME;
       homeItemIndex = 0;
       currentFile = files[homeItemIndex];
+      renderPlayer = true;
       setTimeout(attachAudioEvents, 10);
     }
   };
@@ -365,7 +372,7 @@
     </div>
   </div>
 
-  {#if currentFile}
+  {#if renderPlayer}
     <audio src='{currentFile.path}' bind:this={audioHtml}></audio>
   {/if}
 
