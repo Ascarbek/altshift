@@ -265,6 +265,10 @@
     }
   };
 
+  const onBackClick = () => {
+    currentState = DisplayStates.MENU
+  }
+
   const setDisplayState = (showLogo: boolean, files: IAudioFile[]) => {
     if (showLogo) {
       currentState = DisplayStates.LOGO;
@@ -363,7 +367,7 @@
       <span>menu</span>
     </div>
 
-    <div class='back-button'>
+    <div class='back-button' on:click={onBackClick}>
       <span>back</span>
     </div>
 
