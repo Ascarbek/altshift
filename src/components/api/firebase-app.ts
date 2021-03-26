@@ -174,3 +174,8 @@ export const getRecordings = async (projectId: string): Promise<IRecordPart[]> =
   }
   return res;
 };
+
+export const deleteRecording = async (id: string) => {
+  const db = firebase.firestore();
+  await db.collection(COLLECTION_NAMES.RECORDINGS).doc(id).delete();
+};

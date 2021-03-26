@@ -1,6 +1,7 @@
 <script lang='ts'>
   import { createEventDispatcher } from 'svelte';
-  import { ProjectName, Voices, CurrentParts } from './api/svelte-stores';
+  import { ProjectName, Voices, CurrentParts, ProjectId } from './api/svelte-stores';
+  import { deleteRecording, getRecordings } from './api/firebase-app';
 
   const dispatch = createEventDispatcher();
 
@@ -20,6 +21,15 @@
   let showToolbarButtons = false;
   export let onProjectNameChange: (v: string) => void;
 
+
+  let hoveringPart: number = -1;
+
+  const onDeleteClick = async (e, part) => {
+    e.stopPropagation();
+
+    await deleteRecording(part.id);
+    $CurrentParts = await getRecordings($ProjectId);
+  }
 </script>
 
 <div class='project-name'>
@@ -30,9 +40,15 @@
   <div class='track-outer'>
 
     <div class='track-container' on:mousedown={onMouseDown} bind:this={trackEl}>
-      {#each $CurrentParts as part}
+      {#each $CurrentParts as part, index}
         <div class='recording-part'
-             style={`left: ${part.start*100/duration}%; right: ${100 - part.end*100/duration}%`}></div>
+             on:mouseenter={() => hoveringPart = index}
+             style={`left: ${part.start*100/duration}%; right: ${100 - part.end*100/duration}%`}>
+
+          {#if hoveringPart === index}
+            <button on:mousedown={(e) => e.stopPropagation()}  on:click={(e) => onDeleteClick(e, part)} class='delete-button'><i class='far fa-trash-alt'></i></button>
+          {/if}
+        </div>
       {/each}
       <div class='cursor' style={`left: ${currentTime*100/duration}%`}></div>
     </div>
@@ -65,6 +81,11 @@
 
   .project-name input {
     background: #ffffff;
+  }
+
+  .delete-button {
+    position: absolute;
+    bottom: 0;
   }
 
   .track-outer {
