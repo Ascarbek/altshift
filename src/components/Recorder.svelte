@@ -82,7 +82,7 @@
         peakLinesItems[i].push(item);
       });
       // console.log(peakLinesItems);
-      const peakLines = peakLinesItems.map((item: number[], index, arr) => item.reduce((prev, curr) => prev + curr, 0) / item.length);
+      peakLines = peakLinesItems.map((item: number[], index, arr) => item.reduce((prev, curr) => prev + curr, 0) / item.length);
       // console.log(peakLines);
     }
     mediaRecorder.stop();
@@ -108,6 +108,7 @@
       voiceName: voiceName,
       start: currentStartTime,
       end: currentEndTime,
+      peaks: peakLines,
       created: new Date().getTime(),
     });
 
@@ -130,6 +131,7 @@
   }
 
   let wavePeaks: number[] = [];
+  let peakLines: number[] = [];
 
   function visualize(stream) {
     if (!stream) return;

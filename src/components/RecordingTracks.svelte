@@ -1,5 +1,5 @@
 <script lang='ts'>
-  import { createEventDispatcher } from 'svelte';
+  import { createEventDispatcher, onDestroy, onMount } from 'svelte';
   import { ProjectName, Voices, CurrentParts, ProjectId } from './api/svelte-stores';
   import { deleteRecording, getRecordings } from './api/firebase-app';
 
@@ -29,16 +29,111 @@
 
     await deleteRecording(part.id);
     $CurrentParts = await getRecordings($ProjectId);
-  }
+  };
+
+  let canvasElement: HTMLCanvasElement;
+  let outer;
+  let handler;
+
+  onMount(() => {
+    handler = setInterval(render, 100);
+  });
+
+  /*
+  $: $CurrentParts && (async () => {
+    if ($CurrentParts.length > 0) {
+      for (const part of $CurrentParts) {
+        await deleteRecording(part.id);
+      }
+    }
+  })();
+*/
+
+  $: console.log($CurrentParts);
+
+  onDestroy(() => {
+    clearInterval(handler);
+  });
+
+  const fullHeight = 90;
+  const paddingTop = 10;
+  const paddingBottom = 20;
+  const paddingLeft = 5;
+  const paddingRight = 5;
+  const trackHeight = 40;
+  const cursorWidth = 2;
+  const cursorRadius = 3;
+  const timeMainNotchHeight = 5;
+  let scale = 4;
+
+  const render = () => {
+    if (!canvasElement) return;
+
+    canvasElement.width = outer.clientWidth;
+    canvasElement.height = outer.clientHeight;
+    const ctx = canvasElement.getContext('2d');
+
+    // BG
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, outer.clientWidth, fullHeight);
+
+    // Track
+    ctx.fillStyle = '#f3f3f3';
+    ctx.fillRect(paddingLeft, paddingTop, outer.clientWidth - paddingLeft - paddingRight, trackHeight);
+
+    // center line
+    ctx.fillStyle = '#e0e0e0';
+    ctx.fillRect(paddingLeft, paddingTop + trackHeight / 2, outer.clientWidth - paddingLeft - paddingRight, 1);
+
+    // cursor
+    ctx.fillStyle = '#be2a2c';
+    ctx.fillRect(currentTime * scale, paddingTop / 2, cursorWidth, trackHeight + paddingTop);
+    ctx.beginPath();
+    ctx.arc(currentTime * scale + cursorWidth / 2, paddingTop / 2, cursorRadius, 0, Math.PI * 2);
+    ctx.arc(currentTime * scale + cursorWidth / 2, trackHeight + paddingTop + paddingTop / 2, cursorRadius, 0, Math.PI * 2);
+    ctx.fill();
+
+    // minutes
+    for (let i = 0; i < 12; i++) {
+      ctx.fillStyle = '#4c4c4c';
+      ctx.fillRect(paddingLeft + i * 60 * scale, paddingTop + trackHeight + paddingTop, 1, timeMainNotchHeight);
+      ctx.fillText(`${i}:00`, paddingLeft + i * 60 * scale, paddingTop + trackHeight + paddingTop + timeMainNotchHeight + 8 + 3);
+
+      for (let j = 1; j < 4; j++) {
+        ctx.fillStyle = '#ababab';
+        ctx.fillRect(paddingLeft + i * 60 * scale + j * 15 * scale, paddingTop + trackHeight + paddingTop + 1, 1, timeMainNotchHeight - 1);
+      }
+    }
+
+    for (const part of $CurrentParts) {
+      ctx.fillStyle = '#000000';
+      ctx.fillRect(paddingLeft + part.start * scale, paddingTop, (part.end - part.start) * scale, trackHeight);
+
+      for (let i = 0; i < part.peaks.length; i++) {
+        if (i > 1 && i < part.peaks.length - 2) {
+          ctx.fillStyle = '#e5e5e5';
+          const step = Math.trunc(i / 2) * 2;
+          const peak = part.peaks[step];
+          ctx.fillRect(paddingLeft + part.start * scale + step * 2, paddingTop + trackHeight / 2 - peak * trackHeight / 4, 1, peak * trackHeight / 2);
+        }
+      }
+
+    }
+  };
+
+
 </script>
 
-<div class='project-name'>
+
+<!--<div class='project-name'>
   <input bind:value={$ProjectName} on:blur={(e) => onProjectNameChange(e.target.value)}>
-</div>
+</div>-->
 
 {#each $Voices as voice}
-  <div class='track-outer'>
+  <div class='track-outer' bind:this={outer} style={`height: ${fullHeight}px`}>
+    <canvas bind:this={canvasElement}></canvas>
 
+    <!--
     <div class='track-container' on:mousedown={onMouseDown} bind:this={trackEl}>
       {#each $CurrentParts as part, index}
         <div class='recording-part'
@@ -65,6 +160,7 @@
         {/if}
       </div>
     </div>
+    -->
   </div>
 {/each}
 
@@ -94,14 +190,14 @@
     position: fixed;
     z-index: 10000;
 
-    left: 10px;
+    left: 0;
     top: calc(10px + 40px);
-    width: calc(100vw - 20px);
-    height: 80px;
+    width: 100vw;
+    /*height: 80px;*/
 
-    background: #f0f0f0;
-    border: #e0e0e0 1px solid;
-    border-radius: 4px;
+    /*background: #f3f3f3;*/
+    /*border: #e0e0e0 1px solid;*/
+    /*border-radius: 6px;*/
     box-shadow: 0 0 3px 0 #000000;
   }
 

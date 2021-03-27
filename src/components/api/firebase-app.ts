@@ -146,6 +146,7 @@ export const newRecording = async (params: FRecording): Promise<IRecordPart> => 
     voiceName: params.voiceName,
     start: params.start,
     end: params.end,
+    peaks: params.peaks,
   });
 
   return {
@@ -154,6 +155,7 @@ export const newRecording = async (params: FRecording): Promise<IRecordPart> => 
     start: params.start,
     end: params.end,
     voiceName: params.voiceName,
+    peaks: params.peaks,
   };
 };
 
@@ -170,6 +172,7 @@ export const getRecordings = async (projectId: string): Promise<IRecordPart[]> =
       created: data.created,
       start: data.start,
       end: data.end,
+      peaks: data.peaks,
     });
   }
   return res;

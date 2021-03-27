@@ -33,6 +33,7 @@ export interface FRecording {
   voiceName: string;
   start: number;
   end: number;
+  peaks: number[];
 }
 
 export interface IRecordPart {
@@ -41,6 +42,7 @@ export interface IRecordPart {
   created: number;
   start: number;
   end: number;
+  peaks: number[];
 }
 
 export interface IVoice {
