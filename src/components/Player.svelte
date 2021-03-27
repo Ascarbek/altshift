@@ -403,7 +403,7 @@
     user-select: none;
 
     position: fixed;
-    z-index: 10000;
+    z-index: 11000;
 
     left: 20px;
     top: 80px;

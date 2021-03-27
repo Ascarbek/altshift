@@ -52,6 +52,7 @@
     if (e.ctrlKey) {
       if (currentState === RecordingStates.ACTIVE_RECORDING) return;
       currentState = RecordingStates.ACTIVE_RECORDING;
+      wavePeaks = [];
 
       if (document.querySelector('video')) {
         const video = document.querySelector('video');
@@ -73,6 +74,16 @@
       const video = document.querySelector('video');
       video.pause();
       currentEndTime = video.currentTime;
+      const peakLinesCount = Math.round((currentEndTime - currentStartTime) * 2);
+      const peakLinesItems = [];
+      wavePeaks.forEach((item, index, arr) => {
+        const i = Math.trunc(index / Math.trunc(arr.length / peakLinesCount));
+        if (!peakLinesItems[i]) peakLinesItems[i] = [];
+        peakLinesItems[i].push(item);
+      });
+      // console.log(peakLinesItems);
+      const peakLines = peakLinesItems.map((item: number[], index, arr) => item.reduce((prev, curr) => prev + curr, 0) / item.length);
+      // console.log(peakLines);
     }
     mediaRecorder.stop();
     mediaRecorder.addEventListener('dataavailable', onDataAvailable);
@@ -118,6 +129,8 @@
       showDlg();
   }
 
+  let wavePeaks: number[] = [];
+
   function visualize(stream) {
     if (!stream) return;
     const audioCtx = new AudioContext();
@@ -154,10 +167,14 @@
       let sliceWidth = WIDTH * 1.0 / bufferLength;
       let x = 0;
 
+      let peak = 0;
+
       for (let i = 0; i < bufferLength; i++) {
 
         let v = dataArray[i] / 128.0;
         let y = v * HEIGHT / 2;
+
+        if (v > peak) peak = v;
 
         if (i === 0) {
           canvasCtx.moveTo(x, y);
@@ -166,6 +183,10 @@
         }
 
         x += sliceWidth;
+      }
+
+      if (currentState === RecordingStates.ACTIVE_RECORDING) {
+        wavePeaks.push(peak);
       }
 
       canvasCtx.lineTo(canvasElement.width, canvasElement.height / 2);
