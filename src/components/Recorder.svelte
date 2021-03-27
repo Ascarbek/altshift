@@ -81,9 +81,7 @@
         if (!peakLinesItems[i]) peakLinesItems[i] = [];
         peakLinesItems[i].push(item);
       });
-      // console.log(peakLinesItems);
       peakLines = peakLinesItems.map((item: number[], index, arr) => item.reduce((prev, curr) => prev + curr, 0) / item.length);
-      // console.log(peakLines);
     }
     mediaRecorder.stop();
     mediaRecorder.addEventListener('dataavailable', onDataAvailable);

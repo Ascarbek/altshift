@@ -110,7 +110,6 @@
           ctx.fillRect(paddingLeft + part.start * scale + step * 2, paddingTop + trackHeight / 2 - (peak - 1) * trackHeight / 2, 1, (peak - 1) * trackHeight + 1);
         }
       }
-
     }
 
     // cursor
