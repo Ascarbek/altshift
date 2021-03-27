@@ -85,14 +85,6 @@
     ctx.fillStyle = '#e0e0e0';
     ctx.fillRect(paddingLeft, paddingTop + trackHeight / 2, outer.clientWidth - paddingLeft - paddingRight, 1);
 
-    // cursor
-    ctx.fillStyle = '#be2a2c';
-    ctx.fillRect(currentTime * scale, paddingTop / 2, cursorWidth, trackHeight + paddingTop);
-    ctx.beginPath();
-    ctx.arc(currentTime * scale + cursorWidth / 2, paddingTop / 2, cursorRadius, 0, Math.PI * 2);
-    ctx.arc(currentTime * scale + cursorWidth / 2, trackHeight + paddingTop + paddingTop / 2, cursorRadius, 0, Math.PI * 2);
-    ctx.fill();
-
     // minutes
     for (let i = 0; i < 12; i++) {
       ctx.fillStyle = '#4c4c4c';
@@ -105,6 +97,7 @@
       }
     }
 
+    // audio tracks
     for (const part of $CurrentParts) {
       ctx.fillStyle = '#000000';
       ctx.fillRect(paddingLeft + part.start * scale, paddingTop, (part.end - part.start) * scale, trackHeight);
@@ -112,13 +105,21 @@
       for (let i = 0; i < part.peaks.length; i++) {
         if (i > 1 && i < part.peaks.length - 2) {
           ctx.fillStyle = '#e5e5e5';
-          const step = Math.trunc(i / 2) * 2;
+          const step = i;
           const peak = part.peaks[step];
-          ctx.fillRect(paddingLeft + part.start * scale + step * 2, paddingTop + trackHeight / 2 - peak * trackHeight / 4, 1, peak * trackHeight / 2);
+          ctx.fillRect(paddingLeft + part.start * scale + step * 2, paddingTop + trackHeight / 2 - (peak - 1) * trackHeight / 2, 1, (peak - 1) * trackHeight + 1);
         }
       }
 
     }
+
+    // cursor
+    ctx.fillStyle = '#be2a2c';
+    ctx.fillRect(currentTime * scale, paddingTop / 2, cursorWidth, trackHeight + paddingTop);
+    ctx.beginPath();
+    ctx.arc(currentTime * scale + cursorWidth / 2, paddingTop / 2, cursorRadius, 0, Math.PI * 2);
+    ctx.arc(currentTime * scale + cursorWidth / 2, trackHeight + paddingTop + paddingTop / 2, cursorRadius, 0, Math.PI * 2);
+    ctx.fill();
   };
 
 
