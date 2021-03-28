@@ -4,6 +4,7 @@
   import { CurrentParts, currentUser, ProjectId, ProjectName, Voices } from './api/svelte-stores';
 
   import { IProject, RecordingStates } from './api/types';
+  import { compressPeaks } from './api/waveHelpers';
 
   let canvasElement: HTMLCanvasElement;
 
@@ -74,14 +75,9 @@
       const video = document.querySelector('video');
       video.pause();
       currentEndTime = video.currentTime;
-      const peakLinesCount = Math.round((currentEndTime - currentStartTime) * 2);
-      const peakLinesItems = [];
-      wavePeaks.forEach((item, index, arr) => {
-        const i = Math.trunc(index / Math.trunc(arr.length / peakLinesCount));
-        if (!peakLinesItems[i]) peakLinesItems[i] = [];
-        peakLinesItems[i].push(item);
-      });
-      peakLines = peakLinesItems.map((item: number[], index, arr) => item.reduce((prev, curr) => prev + curr, 0) / item.length);
+
+      // every 100ms
+      peakLines = compressPeaks(wavePeaks, (currentEndTime - currentStartTime) * 10);
     }
     mediaRecorder.stop();
     mediaRecorder.addEventListener('dataavailable', onDataAvailable);

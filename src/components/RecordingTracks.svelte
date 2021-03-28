@@ -2,6 +2,7 @@
   import { createEventDispatcher, onDestroy, onMount } from 'svelte';
   import { ProjectName, Voices, CurrentParts, ProjectId } from './api/svelte-stores';
   import { deleteRecording, getRecordings } from './api/firebase-app';
+  import { compressPeaks, getFormatted } from './api/waveHelpers';
 
   const dispatch = createEventDispatcher();
 
@@ -18,42 +19,35 @@
     currentTime = time;
   };
 
-  let showToolbarButtons = false;
   export let onProjectNameChange: (v: string) => void;
 
+  const onDeleteClick = async () => {
+    for (const id of selectedParts) {
+      await deleteRecording(id);
+    }
+    selectedParts = [];
 
-  let hoveringPart: number = -1;
-
-  const onDeleteClick = async (e, part) => {
-    e.stopPropagation();
-
-    await deleteRecording(part.id);
     $CurrentParts = await getRecordings($ProjectId);
   };
 
   let canvasElement: HTMLCanvasElement;
   let outer;
-  let handler;
 
+  /*let handler;
   onMount(() => {
     handler = setInterval(render, 100);
   });
-
-  /*
-  $: $CurrentParts && (async () => {
-    if ($CurrentParts.length > 0) {
-      for (const part of $CurrentParts) {
-        await deleteRecording(part.id);
-      }
-    }
-  })();
-*/
-
-  $: console.log($CurrentParts);
-
   onDestroy(() => {
     clearInterval(handler);
-  });
+  });*/
+
+  $: currentTime && render();
+  $: duration && render();
+  $: scale && render();
+  $: $CurrentParts && render();
+  $: selectedParts && render();
+
+  $: console.log($CurrentParts);
 
   const fullHeight = 90;
   const paddingTop = 10;
@@ -64,7 +58,9 @@
   const cursorWidth = 2;
   const cursorRadius = 3;
   const timeMainNotchHeight = 5;
-  let scale = 4;
+  let scale = 2;
+
+  let selectedParts: string[] = [];
 
   const render = () => {
     if (!canvasElement) return;
@@ -86,42 +82,108 @@
     ctx.fillRect(paddingLeft, paddingTop + trackHeight / 2, outer.clientWidth - paddingLeft - paddingRight, 1);
 
     // minutes
-    for (let i = 0; i < 12; i++) {
-      ctx.fillStyle = '#4c4c4c';
-      ctx.fillRect(paddingLeft + i * 60 * scale, paddingTop + trackHeight + paddingTop, 1, timeMainNotchHeight);
-      ctx.fillText(`${i}:00`, paddingLeft + i * 60 * scale, paddingTop + trackHeight + paddingTop + timeMainNotchHeight + 8 + 3);
+    // every 60
 
-      for (let j = 1; j < 4; j++) {
+    let step = 0;
+    let small = 0;
+
+    if (scale <= 2) {
+      step = 60;
+      small = 15;
+    }
+
+    // every 30
+    if (scale > 2 && scale <= 4) {
+      step = 30;
+      small = 10;
+    }
+
+    // every 15
+    if (scale > 4 && scale <= 6) {
+      step = 15;
+      small = 5;
+    }
+
+    if (scale > 6) {
+      step = 15;
+      small = 1;
+    }
+
+    for (let i = 0; i < Math.round(duration); i++) {
+      ctx.fillStyle = '#4c4c4c';
+      ctx.fillRect(paddingLeft + i * step * scale, paddingTop + trackHeight + paddingTop, 1, timeMainNotchHeight);
+      ctx.fillText(getFormatted(i * step), paddingLeft + i * step * scale, paddingTop + trackHeight + paddingTop + timeMainNotchHeight + 8 + 3);
+
+      for (let j = 1; j < step / small; j++) {
         ctx.fillStyle = '#ababab';
-        ctx.fillRect(paddingLeft + i * 60 * scale + j * 15 * scale, paddingTop + trackHeight + paddingTop + 1, 1, timeMainNotchHeight - 1);
+        ctx.fillRect(paddingLeft + i * step * scale + j * small * scale, paddingTop + trackHeight + paddingTop + 1, 1, timeMainNotchHeight - 1);
       }
     }
 
     // audio tracks
     for (const part of $CurrentParts) {
-      ctx.fillStyle = '#000000';
+      if (selectedParts.includes(part.id)) {
+        ctx.fillStyle = '#248093';
+      } else {
+        ctx.fillStyle = '#000000';
+      }
       ctx.fillRect(paddingLeft + part.start * scale, paddingTop, (part.end - part.start) * scale, trackHeight);
 
-      for (let i = 0; i < part.peaks.length; i++) {
-        if (i > 1 && i < part.peaks.length - 2) {
-          ctx.fillStyle = '#e5e5e5';
-          const step = i;
-          const peak = part.peaks[step];
-          ctx.fillRect(paddingLeft + part.start * scale + step * 2, paddingTop + trackHeight / 2 - (peak - 1) * trackHeight / 2, 1, (peak - 1) * trackHeight + 1);
-        }
+      const peakLines = compressPeaks(part.peaks, (part.end - part.start) * scale / 2);
+
+      for (let i = 0; i < peakLines.length; i++) {
+        ctx.fillStyle = '#e5e5e5';
+        const peak = peakLines[i];
+        ctx.fillRect(paddingLeft + part.start * scale + i * 2, paddingTop + trackHeight / 2 - (peak - 1) * trackHeight / 2, 1, (peak - 1) * trackHeight + 1);
       }
     }
 
     // cursor
     ctx.fillStyle = '#be2a2c';
-    ctx.fillRect(currentTime * scale, paddingTop / 2, cursorWidth, trackHeight + paddingTop);
+    ctx.fillRect(paddingLeft + currentTime * scale, paddingTop / 2, cursorWidth, trackHeight + paddingTop);
     ctx.beginPath();
-    ctx.arc(currentTime * scale + cursorWidth / 2, paddingTop / 2, cursorRadius, 0, Math.PI * 2);
-    ctx.arc(currentTime * scale + cursorWidth / 2, trackHeight + paddingTop + paddingTop / 2, cursorRadius, 0, Math.PI * 2);
+    ctx.arc(paddingLeft + currentTime * scale + cursorWidth / 2, paddingTop / 2, cursorRadius, 0, Math.PI * 2);
+    ctx.arc(paddingLeft + currentTime * scale + cursorWidth / 2, trackHeight + paddingTop + paddingTop / 2, cursorRadius, 0, Math.PI * 2);
     ctx.fill();
   };
 
+  let seeking = false;
 
+  const onCanvasDown = (e: MouseEvent) => {
+    if (e.offsetY > paddingTop && e.offsetY < paddingTop + trackHeight) {
+      let hasSelected = false;
+      for (const part of $CurrentParts) {
+        if (e.clientX >= paddingLeft + part.start * scale && e.clientX <= paddingLeft + part.start * scale + (part.end - part.start) * scale) {
+          if (e.shiftKey) {
+            selectedParts = [...selectedParts, part.id];
+          } else {
+            selectedParts = [part.id];
+          }
+          hasSelected = true;
+        }
+      }
+      if (!hasSelected) selectedParts = [];
+    }
+    if (e.offsetY > paddingTop + trackHeight && !seeking) {
+      seeking = true;
+      const x = e.offsetX - paddingLeft;
+      dispatch('seek', { time: x / scale });
+      currentTime = x / scale;
+    }
+  };
+
+  const onCanvasMove = (e: MouseEvent) => {
+    if (seeking) {
+      seeking = true;
+      const x = e.offsetX - paddingLeft;
+      dispatch('seek', { time: x / scale });
+      currentTime = x / scale;
+    }
+  };
+
+  const onCanvasUp = (e: MouseEvent) => {
+    seeking = false;
+  };
 </script>
 
 
@@ -129,38 +191,22 @@
   <input bind:value={$ProjectName} on:blur={(e) => onProjectNameChange(e.target.value)}>
 </div>-->
 
+<div class='toolbar'>
+  <button on:click={() => scale++}>
+    <i class='fas fa-search-plus'></i>
+  </button>
+  <button on:click={() => {if(scale > 1) scale--}}>
+    <i class='fas fa-search-minus'></i>
+  </button>
+  <button on:click={() => onDeleteClick()}>
+    <i class='far fa-trash-alt'></i>
+  </button>
+</div>
+
 {#each $Voices as voice}
   <div class='track-outer' bind:this={outer} style={`height: ${fullHeight}px`}>
-    <canvas bind:this={canvasElement}></canvas>
-
-    <!--
-    <div class='track-container' on:mousedown={onMouseDown} bind:this={trackEl}>
-      {#each $CurrentParts as part, index}
-        <div class='recording-part'
-             on:mouseenter={() => hoveringPart = index}
-             style={`left: ${part.start*100/duration}%; right: ${100 - part.end*100/duration}%`}>
-
-          {#if hoveringPart === index}
-            <button on:mousedown={(e) => e.stopPropagation()}  on:click={(e) => onDeleteClick(e, part)} class='delete-button'><i class='far fa-trash-alt'></i></button>
-          {/if}
-        </div>
-      {/each}
-      <div class='cursor' style={`left: ${currentTime*100/duration}%`}></div>
-    </div>
-    <div class='toolbar' on:mouseenter={() => showToolbarButtons = true}
-         on:mouseleave={() => showToolbarButtons = false}>
-      <div class='name'>
-        <input bind:value={voice.name}>
-        {#if showToolbarButtons}
-          <div class=''>
-            <button>
-              <i class='fas fa-plus'></i>
-            </button>
-          </div>
-        {/if}
-      </div>
-    </div>
-    -->
+    <canvas bind:this={canvasElement} on:mousedown={onCanvasDown} on:mousemove={onCanvasMove}
+            on:mouseup={onCanvasUp}></canvas>
   </div>
 {/each}
 
@@ -202,9 +248,13 @@
   }
 
   .toolbar {
-    position: absolute;
-    top: 5px;
+    position: fixed;
+    z-index: 10000;
     left: 10px;
+    top: 5px;
+    width: 200px;
+    padding: 7px;
+    background: #ffffff;
   }
 
   .name {
