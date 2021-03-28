@@ -9,16 +9,6 @@
   export let currentTime: number;
   export let duration: number;
 
-  let trackEl;
-
-  const onMouseDown = (e) => {
-    const width = trackEl.clientWidth;
-    const x = e.pageX - 14;
-    const time = duration * (x / width);
-    dispatch('seek', { time });
-    currentTime = time;
-  };
-
   export let onProjectNameChange: (v: string) => void;
 
   const onDeleteClick = async () => {
@@ -33,23 +23,16 @@
   let canvasElement: HTMLCanvasElement;
   let outer;
 
-  /*let handler;
-  onMount(() => {
-    handler = setInterval(render, 100);
-  });
-  onDestroy(() => {
-    clearInterval(handler);
-  });*/
-
   $: currentTime && render();
   $: duration && render();
   $: scale && render();
   $: $CurrentParts && render();
   $: selectedParts && render();
+  $: scrollOffset && render();
 
   $: console.log($CurrentParts);
 
-  const fullHeight = 90;
+  const fullHeight = 110;
   const paddingTop = 10;
   const paddingBottom = 20;
   const paddingLeft = 5;
@@ -58,7 +41,13 @@
   const cursorWidth = 2;
   const cursorRadius = 3;
   const timeMainNotchHeight = 5;
+
+  const barHeight = 13;
+  const barCenter = paddingTop + trackHeight + paddingTop + timeMainNotchHeight + 25 + barHeight / 2;
+  const barTop = paddingTop + trackHeight + paddingTop + timeMainNotchHeight + 25;
+
   let scale = 2;
+
 
   let selectedParts: string[] = [];
 
@@ -72,6 +61,21 @@
     // BG
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, outer.clientWidth, fullHeight);
+
+    // scrollbar
+    const barWidth = outer.clientWidth / 2;
+    if (scrollOffset < 0)
+      actualScrollOffset = 0;
+    else if (scrollOffset > outer.clientWidth - paddingLeft - paddingRight - barWidth)
+      actualScrollOffset = outer.clientWidth - paddingLeft - paddingRight - barWidth;
+    else actualScrollOffset = scrollOffset;
+
+    ctx.fillStyle = '#e5e5e5';
+    ctx.fillRect(paddingLeft + barHeight / 2 + actualScrollOffset, barTop, barWidth - barHeight, barHeight);
+    ctx.beginPath();
+    ctx.arc(paddingLeft + barHeight / 2 + actualScrollOffset, barCenter, barHeight / 2, 0, Math.PI * 2);
+    ctx.arc(paddingLeft + barWidth - barHeight / 2 + actualScrollOffset, barCenter, barHeight / 2, 0, Math.PI * 2);
+    ctx.fill();
 
     // Track
     ctx.fillStyle = '#f3f3f3';
@@ -148,6 +152,9 @@
   };
 
   let seeking = false;
+  let scrolling = false;
+  let scrollOffset = 0;
+  let actualScrollOffset = 0;
 
   const onCanvasDown = (e: MouseEvent) => {
     if (e.offsetY > paddingTop && e.offsetY < paddingTop + trackHeight) {
@@ -164,11 +171,14 @@
       }
       if (!hasSelected) selectedParts = [];
     }
-    if (e.offsetY > paddingTop + trackHeight && !seeking) {
+    if (!seeking && e.offsetY > paddingTop + trackHeight && e.offsetY < barTop) {
       seeking = true;
       const x = e.offsetX - paddingLeft;
       dispatch('seek', { time: x / scale });
       currentTime = x / scale;
+    }
+    if (!scrolling && e.offsetY > barTop) {
+      scrolling = true;
     }
   };
 
@@ -179,10 +189,19 @@
       dispatch('seek', { time: x / scale });
       currentTime = x / scale;
     }
+    if (scrolling) {
+      scrollOffset += e.movementX;
+    }
+
+    if(e.offsetY > barTop) {
+      // hover effect
+    }
   };
 
   const onCanvasUp = (e: MouseEvent) => {
     seeking = false;
+    scrolling = false;
+    scrollOffset = actualScrollOffset;
   };
 </script>
 
@@ -192,6 +211,7 @@
 </div>-->
 
 <div class='toolbar'>
+  <input class='project-name' bind:value={$ProjectName} on:blur={(e) => onProjectNameChange(e.target.value)}>
   <button on:click={() => scale++}>
     <i class='fas fa-search-plus'></i>
   </button>
@@ -210,40 +230,14 @@
   </div>
 {/each}
 
-
 <style>
-  .project-name {
-    position: fixed;
-    z-index: 10000;
-    left: 10px;
-    top: 5px;
-    width: 100vw;
-    height: 40px;
-  }
-
-  .project-name input {
-    background: #ffffff;
-  }
-
-  .delete-button {
-    position: absolute;
-    bottom: 0;
-  }
-
   .track-outer {
     user-select: none;
-
     position: fixed;
     z-index: 10000;
-
     left: 0;
     top: calc(10px + 40px);
     width: 100vw;
-    /*height: 80px;*/
-
-    /*background: #f3f3f3;*/
-    /*border: #e0e0e0 1px solid;*/
-    /*border-radius: 6px;*/
     box-shadow: 0 0 3px 0 #000000;
   }
 
@@ -252,14 +246,9 @@
     z-index: 10000;
     left: 10px;
     top: 5px;
-    width: 200px;
+    width: 800px;
     padding: 7px;
     background: #ffffff;
-  }
-
-  .name {
-    display: flex;
-
   }
 
   input {
@@ -271,35 +260,12 @@
     padding-bottom: 5px;
   }
 
+  .project-name {
+    margin-right: 10px;
+    width: 300px;
+  }
+
   input:focus {
     border-bottom: 1px solid #000000;
-  }
-
-  .track-container {
-    position: absolute;
-    top: 3px;
-    left: 3px;
-    right: 3px;
-    height: calc(100% - 6px);
-    background: #beceb2;
-    border-radius: 4px;
-  }
-
-  .recording-part {
-    box-sizing: border-box;
-    position: absolute;
-    top: 0;
-    height: 100%;
-    background: #e9cd98;
-    border: #e7ab51 1px solid;
-    border-radius: 4px;
-  }
-
-  .cursor {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    width: 1px;
-    background: #e64b3d;
   }
 </style>
