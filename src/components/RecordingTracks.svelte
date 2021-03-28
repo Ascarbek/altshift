@@ -202,8 +202,8 @@
     if (seeking) {
       seeking = true;
       const x = e.offsetX - paddingLeft;
-      dispatch('seek', { time: (scrollSeconds+x / scale) });
-      currentTime = (scrollSeconds+x / scale);
+      dispatch('seek', { time: (scrollSeconds + x / scale) });
+      currentTime = (scrollSeconds + x / scale);
     }
 
     if (scrolling) {
@@ -238,6 +238,9 @@
   <button on:click={() => onDeleteClick()}>
     <i class='far fa-trash-alt'></i>
   </button>
+  <div>
+    {getFormatted(currentTime, true)}
+  </div>
 </div>
 
 {#each $Voices as voice}
@@ -266,6 +269,12 @@
     width: 800px;
     padding: 7px;
     background: #ffffff;
+    display: flex;
+    align-items: center;
+  }
+
+  button {
+    margin-right: 10px;
   }
 
   input {
