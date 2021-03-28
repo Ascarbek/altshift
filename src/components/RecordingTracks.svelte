@@ -30,7 +30,7 @@
   $: selectedParts && render();
   $: scrollOffset && render();
 
-  $: console.log($CurrentParts);
+  $: console.log(duration);
 
   const fullHeight = 110;
   const paddingTop = 10;
@@ -48,10 +48,9 @@
 
   let scale = 2;
 
-
   let selectedParts: string[] = [];
 
-  const render = () => {
+  function render() {
     if (!canvasElement) return;
 
     canvasElement.width = outer.clientWidth;
@@ -77,6 +76,9 @@
     ctx.arc(paddingLeft + barWidth - barHeight / 2 + actualScrollOffset, barCenter, barHeight / 2, 0, Math.PI * 2);
     ctx.fill();
 
+    scrollPercent = actualScrollOffset / (outer.clientWidth - paddingLeft - paddingRight - barWidth);
+    scrollSeconds = (duration - (outer.clientWidth - paddingLeft - paddingRight) / scale) * scrollPercent;
+
     // Track
     ctx.fillStyle = '#f3f3f3';
     ctx.fillRect(paddingLeft, paddingTop, outer.clientWidth - paddingLeft - paddingRight, trackHeight);
@@ -86,11 +88,10 @@
     ctx.fillRect(paddingLeft, paddingTop + trackHeight / 2, outer.clientWidth - paddingLeft - paddingRight, 1);
 
     // minutes
-    // every 60
-
     let step = 0;
     let small = 0;
 
+    // every 60
     if (scale <= 2) {
       step = 60;
       small = 15;
@@ -108,19 +109,24 @@
       small = 5;
     }
 
+    // with small
     if (scale > 6) {
       step = 15;
       small = 1;
     }
 
-    for (let i = 0; i < Math.round(duration); i++) {
+    for (let i = 0; i < Math.round(duration / step) + 1; i++) {
       ctx.fillStyle = '#4c4c4c';
-      ctx.fillRect(paddingLeft + i * step * scale, paddingTop + trackHeight + paddingTop, 1, timeMainNotchHeight);
-      ctx.fillText(getFormatted(i * step), paddingLeft + i * step * scale, paddingTop + trackHeight + paddingTop + timeMainNotchHeight + 8 + 3);
+      if (i * step - scrollSeconds >= 0) {
+        ctx.fillRect(paddingLeft + (i * step - scrollSeconds) * scale, paddingTop + trackHeight + paddingTop, 1, timeMainNotchHeight);
+        ctx.fillText(getFormatted(i * step), paddingLeft + (i * step - scrollSeconds) * scale, paddingTop + trackHeight + paddingTop + timeMainNotchHeight + 8 + 3);
+      }
 
       for (let j = 1; j < step / small; j++) {
         ctx.fillStyle = '#ababab';
-        ctx.fillRect(paddingLeft + i * step * scale + j * small * scale, paddingTop + trackHeight + paddingTop + 1, 1, timeMainNotchHeight - 1);
+        if (i * step + j * small - scrollSeconds >= 0) {
+          ctx.fillRect(paddingLeft + (i * step + j * small - scrollSeconds) * scale, paddingTop + trackHeight + paddingTop + 1, 1, timeMainNotchHeight - 1);
+        }
       }
     }
 
@@ -131,36 +137,46 @@
       } else {
         ctx.fillStyle = '#000000';
       }
-      ctx.fillRect(paddingLeft + part.start * scale, paddingTop, (part.end - part.start) * scale, trackHeight);
+      if (part.start - scrollSeconds >= 0) {
+        ctx.fillRect(paddingLeft + (part.start - scrollSeconds) * scale, paddingTop, (part.end - part.start) * scale, trackHeight);
+      } else if (part.end - scrollSeconds >= 0) {
+        ctx.fillRect(paddingLeft, paddingTop, (part.end - scrollSeconds) * scale, trackHeight);
+      }
 
       const peakLines = compressPeaks(part.peaks, (part.end - part.start) * scale / 2);
 
       for (let i = 0; i < peakLines.length; i++) {
         ctx.fillStyle = '#e5e5e5';
         const peak = peakLines[i];
-        ctx.fillRect(paddingLeft + part.start * scale + i * 2, paddingTop + trackHeight / 2 - (peak - 1) * trackHeight / 2, 1, (peak - 1) * trackHeight + 1);
+        if (part.start + (i * 2) / scale - scrollSeconds >= 0) {
+          ctx.fillRect(paddingLeft + (part.start - scrollSeconds) * scale + i * 2, paddingTop + trackHeight / 2 - (peak - 1) * trackHeight / 2, 1, (peak - 1) * trackHeight + 1);
+        }
       }
     }
 
     // cursor
     ctx.fillStyle = '#be2a2c';
-    ctx.fillRect(paddingLeft + currentTime * scale, paddingTop / 2, cursorWidth, trackHeight + paddingTop);
-    ctx.beginPath();
-    ctx.arc(paddingLeft + currentTime * scale + cursorWidth / 2, paddingTop / 2, cursorRadius, 0, Math.PI * 2);
-    ctx.arc(paddingLeft + currentTime * scale + cursorWidth / 2, trackHeight + paddingTop + paddingTop / 2, cursorRadius, 0, Math.PI * 2);
-    ctx.fill();
-  };
+    if (currentTime - scrollSeconds >= 0) {
+      ctx.fillRect(paddingLeft + (currentTime - scrollSeconds) * scale, paddingTop / 2, cursorWidth, trackHeight + paddingTop);
+      ctx.beginPath();
+      ctx.arc(paddingLeft + (currentTime - scrollSeconds) * scale + cursorWidth / 2, paddingTop / 2, cursorRadius, 0, Math.PI * 2);
+      ctx.arc(paddingLeft + (currentTime - scrollSeconds) * scale + cursorWidth / 2, trackHeight + paddingTop + paddingTop / 2, cursorRadius, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
 
   let seeking = false;
   let scrolling = false;
   let scrollOffset = 0;
   let actualScrollOffset = 0;
+  let scrollPercent = 0;
+  let scrollSeconds = 0;
 
   const onCanvasDown = (e: MouseEvent) => {
     if (e.offsetY > paddingTop && e.offsetY < paddingTop + trackHeight) {
       let hasSelected = false;
       for (const part of $CurrentParts) {
-        if (e.clientX >= paddingLeft + part.start * scale && e.clientX <= paddingLeft + part.start * scale + (part.end - part.start) * scale) {
+        if (e.clientX >= paddingLeft + (part.start - scrollSeconds) * scale && e.clientX <= paddingLeft + (part.start - scrollSeconds) * scale + (part.end - part.start) * scale) {
           if (e.shiftKey) {
             selectedParts = [...selectedParts, part.id];
           } else {
@@ -174,8 +190,8 @@
     if (!seeking && e.offsetY > paddingTop + trackHeight && e.offsetY < barTop) {
       seeking = true;
       const x = e.offsetX - paddingLeft;
-      dispatch('seek', { time: x / scale });
-      currentTime = x / scale;
+      dispatch('seek', { time: (scrollSeconds + x / scale) });
+      currentTime = (scrollSeconds + x / scale);
     }
     if (!scrolling && e.offsetY > barTop) {
       scrolling = true;
@@ -186,14 +202,15 @@
     if (seeking) {
       seeking = true;
       const x = e.offsetX - paddingLeft;
-      dispatch('seek', { time: x / scale });
-      currentTime = x / scale;
+      dispatch('seek', { time: (scrollSeconds+x / scale) });
+      currentTime = (scrollSeconds+x / scale);
     }
+
     if (scrolling) {
       scrollOffset += e.movementX;
     }
 
-    if(e.offsetY > barTop) {
+    if (e.offsetY > barTop) {
       // hover effect
     }
   };
