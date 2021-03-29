@@ -74,13 +74,16 @@
 
   const canPlayHandler = (e) => {
     canPlay = true;
-    if (e.target.duration && duration < 0) {
+    if (e.target.duration) {
       duration = e.target.duration;
     }
   };
 
-  const playHandler = () => {
+  const playHandler = (e) => {
     canPlay = audioHtml?.readyState === 4;
+    if (e.target.duration) {
+      duration = e.target.duration;
+    }
     if (canPlay) {
       audioHtml?.play();
     }

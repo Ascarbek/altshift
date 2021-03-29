@@ -1,13 +1,36 @@
 <script lang='ts'>
   import { createEventDispatcher, onDestroy, onMount } from 'svelte';
   import { ProjectName, Voices, CurrentParts, ProjectId } from './api/svelte-stores';
-  import { deleteRecording, getRecordings } from './api/firebase-app';
+  import { deleteRecording, getRecordings, getRecordingPart } from './api/firebase-app';
   import { compressPeaks, getFormatted } from './api/waveHelpers';
 
   const dispatch = createEventDispatcher();
 
   export let currentTime: number;
   export let duration: number;
+  let isPlaying: boolean;
+
+  const onVideoPaused = () => {
+    isPlaying = false;
+  };
+  const onVideoPlayed = () => {
+    isPlaying = true;
+  };
+
+  onMount(() => {
+    const video = document.querySelector('video');
+    if (video) {
+      video.addEventListener('pause', onVideoPaused);
+      video.addEventListener('play', onVideoPlayed);
+    }
+  });
+  onDestroy(() => {
+    const video = document.querySelector('video');
+    if (video) {
+      video.removeEventListener('pause', onVideoPaused);
+      video.removeEventListener('play', onVideoPlayed);
+    }
+  });
 
   export let onProjectNameChange: (v: string) => void;
 
@@ -32,6 +55,13 @@
 
   $: console.log(duration);
 
+  let partUrl: { [key: string]: string } = {};
+  $: $CurrentParts && (async () => {
+    for (const part of $CurrentParts) {
+      partUrl[part.id] = await getRecordingPart(part.id);
+    }
+  })();
+
   const fullHeight = 110;
   const paddingTop = 10;
   const paddingBottom = 20;
@@ -49,6 +79,29 @@
   let scale = 2;
 
   let selectedParts: string[] = [];
+
+  $: synchronize($CurrentParts, isPlaying, currentTime);
+
+  function synchronize(p1, p2, p3) {
+    if (!$CurrentParts) return;
+    for (const part of $CurrentParts) {
+      const audio = document.getElementById('part-' + part.id) as HTMLMediaElement;
+      if (!audio) continue;
+      if (currentTime >= part.start && currentTime < part.end) {
+        if (!isPlaying) {
+          audio.pause();
+          continue;
+        }
+        if (audio.paused) {
+          audio.play();
+        }
+        if (Math.abs(audio.currentTime - currentTime + part.start) > 0.1)
+          audio.currentTime = currentTime - part.start;
+      } else {
+        audio.pause();
+      }
+    }
+  }
 
   function render() {
     if (!canvasElement) return;
@@ -248,6 +301,10 @@
     <canvas bind:this={canvasElement} on:mousedown={onCanvasDown} on:mousemove={onCanvasMove}
             on:mouseup={onCanvasUp}></canvas>
   </div>
+{/each}
+
+{#each $CurrentParts as part}
+  <audio id={'part-' + part.id} src='{partUrl[part.id]}'></audio>
 {/each}
 
 <style>

@@ -182,3 +182,8 @@ export const deleteRecording = async (id: string) => {
   const db = firebase.firestore();
   await db.collection(COLLECTION_NAMES.RECORDINGS).doc(id).delete();
 };
+
+export const getRecordingPart = async (partId: string): Promise<string> => {
+  const ref = firebase.storage().ref();
+  return await ref.child(`Recordings/${partId}.webm`).getDownloadURL();
+};
