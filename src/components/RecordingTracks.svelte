@@ -1,6 +1,6 @@
 <script lang='ts'>
   import { createEventDispatcher, onDestroy, onMount } from 'svelte';
-  import { ProjectName, Voices, CurrentParts, ProjectId } from './api/svelte-stores';
+  import { ProjectName, Voices, CurrentParts, ProjectId, RecordingStart } from './api/svelte-stores';
   import { deleteRecording, getRecordings, getRecordingPart } from './api/firebase-app';
   import { compressPeaks, getFormatted } from './api/waveHelpers';
 
@@ -204,6 +204,16 @@
         if (part.start + (i * 2) / scale - scrollSeconds >= 0) {
           ctx.fillRect(paddingLeft + (part.start - scrollSeconds) * scale + i * 2, paddingTop + trackHeight / 2 - (peak - 1) * trackHeight / 2, 1, (peak - 1) * trackHeight + 1);
         }
+      }
+    }
+
+    // b63838
+    if($RecordingStart > -1) {
+      ctx.fillStyle = '#f27979';
+      if ($RecordingStart - scrollSeconds >= 0) {
+        ctx.fillRect(paddingLeft + ($RecordingStart - scrollSeconds) * scale, paddingTop, (currentTime - $RecordingStart) * scale, trackHeight);
+      } else if ($RecordingStart - scrollSeconds >= 0) {
+        ctx.fillRect(paddingLeft, paddingTop, (currentTime - scrollSeconds) * scale, trackHeight);
       }
     }
 

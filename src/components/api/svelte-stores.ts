@@ -8,3 +8,4 @@ export let CurrentParts = writable<IRecordPart[]>([]);
 export let ProjectName = writable<string>('');
 export let ProjectId = writable<string>('');
 export let currentUser = writable<{ uid?: string }>({});
+export let RecordingStart = writable<number>(-1);

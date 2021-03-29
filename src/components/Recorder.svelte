@@ -1,7 +1,7 @@
 <script lang='ts'>
   import { onDestroy, onMount } from 'svelte';
   import { getProject, getRecordings, newProject, newRecording, uploadBlob } from './api/firebase-app';
-  import { CurrentParts, currentUser, ProjectId, ProjectName, Voices } from './api/svelte-stores';
+  import { CurrentParts, currentUser, ProjectId, ProjectName, RecordingStart, Voices } from './api/svelte-stores';
 
   import { IProject, RecordingStates } from './api/types';
   import { compressPeaks } from './api/waveHelpers';
@@ -59,6 +59,7 @@
         const video = document.querySelector('video');
         video.play();
         currentStartTime = video.currentTime;
+        $RecordingStart = currentStartTime;
       }
 
       if (mediaRecorder.state !== 'recording') {
@@ -75,6 +76,7 @@
       const video = document.querySelector('video');
       video.pause();
       currentEndTime = video.currentTime;
+      $RecordingStart = -1;
 
       // every 100ms
       peakLines = compressPeaks(wavePeaks, (currentEndTime - currentStartTime) * 10);
