@@ -6,7 +6,7 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
 
   if (netflixMatch && netflixMatch.length > 0) {
     // enable icon
-    chrome.pageAction.show(tabId);
+    // chrome.action.show(tabId);
 
     // handle watch page
     let watchPageMatch = tab.url.match(/^https:\/\/www\.netflix\.com\/watch\/([\w\-]+)/);
@@ -21,7 +21,7 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
       chrome.tabs.sendMessage(tab.id, { action: 'NETFLIX_BROWSE_PAGE' });
     }
   } else if (youtubeMatch && youtubeMatch.length > 0) {
-    chrome.pageAction.show(tabId);
+    // chrome.action.show(tabId);
 
     let watchPageMatch = tab.url.match(/^https:\/\/www\.youtube\.com\/watch\?v=([\w\-]+)/);
     if (watchPageMatch && watchPageMatch.length > 1) {
@@ -35,6 +35,6 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
       chrome.tabs.sendMessage(tab.id, { action: 'YOUTUBE_BROWSE_PAGE' });
     }
   } else {
-    chrome.pageAction.hide(tabId);
+    // chrome.action.hide(tabId);
   }
 });
