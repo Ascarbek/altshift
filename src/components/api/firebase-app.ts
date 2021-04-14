@@ -21,7 +21,7 @@ export const userSignEvent = async () => {
   firebase.auth().onAuthStateChanged(async (user) => {
     if (user?.uid) {
       const resp = await db.collection(COLLECTION_NAMES.AUTHORS).doc(user.uid).get();
-      currentUser.set({ uid: user.uid, email: user.email, defaultProjectName: resp.data().defaultProjectName });
+      currentUser.set({ uid: user.uid, email: user.email, defaultProjectName: resp.data()?.defaultProjectName });
     } else {
       console.log('logged out');
       await firebase.auth().signInWithEmailAndPassword('guest@altshift.cc', '123qwe');
