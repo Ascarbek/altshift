@@ -180,4 +180,8 @@
     text-decoration: none;
     font-weight: lighter;
   }
+
+  input {
+    outline: 0;
+  }
 </style>

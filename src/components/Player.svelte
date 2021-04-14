@@ -3,10 +3,10 @@
   import { fade } from 'svelte/transition';
   import { cubicInOut } from 'svelte/easing';
 
-  import { DEFAULT_USER_ID, renameProject, updateList, uploadBlob } from './api/firebase-app';
-  import type { IAudioFile } from './api/types';
+  import { DEFAULT_USER_ID, updateList, uploadBlob } from './api/firebase-app';
+  import type { IAudioFile, IAuthor } from './api/types';
   import { DisplayStates, RecordingStates } from './api/types';
-  import { AudioFiles, currentUser, ProjectId, showLogo } from './api/svelte-stores';
+  import { AudioFiles, currentUser, ProjectId, ProjectName, showLogo } from './api/svelte-stores';
 
   import Display from './Display.svelte';
   import Recorder from './Recorder.svelte';
@@ -263,7 +263,7 @@
             clearInterval(int);
           }
         }, 1000);
-        await processProject($ProjectId);
+        await processProject($ProjectId, $currentUser.defaultProjectName);
         clearInterval(int);
         currentState = DisplayStates.MENU;
         await updateList(videoType, videoId);
@@ -339,7 +339,7 @@
           videoType={videoType}
           videoId={videoId}
           duration={duration}
-          projectName='project one'
+          projectName={$currentUser.defaultProjectName}
           voiceName='male 1'
           bind:currentState={recordingState}
         >
@@ -393,7 +393,6 @@
     currentTime={currentTime}
     duration={duration}
     on:seek={onRecordingTrackSeek}
-    onProjectNameChange={(v) => renameProject($ProjectId, v)}
   >
   </RecordingTracks>
 {/if}

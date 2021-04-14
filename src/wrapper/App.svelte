@@ -11,7 +11,7 @@
       isAuth = true;
     }
 
-    v.volume = 0.1;
+    v.volume = 0.45;
   });
 
   let showPlayer: boolean = true;

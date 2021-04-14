@@ -1,7 +1,7 @@
 <script lang='ts'>
   import { onDestroy, onMount } from 'svelte';
   import { getProject, getRecordings, newProject, newRecording, uploadBlob } from './api/firebase-app';
-  import { CurrentParts, currentUser, ProjectId, ProjectName, RecordingStart, Voices } from './api/svelte-stores';
+  import { CurrentParts, currentUser, ProjectId, RecordingStart, Voices } from './api/svelte-stores';
 
   import { IProject, RecordingStates } from './api/types';
   import { compressPeaks } from './api/waveHelpers';
@@ -30,7 +30,8 @@
     window.addEventListener('keydown', keyDown);
     window.addEventListener('keyup', keyUp);
 
-    const test = await getProject(videoType, videoId);
+    const test = await getProject($currentUser.uid, videoType, videoId);
+
     if (test) {
       currentProject = test;
 
@@ -45,7 +46,7 @@
   function loadData(_data: IProject) {
     if (!_data) return;
     $Voices = [{ name: _data.voices[0].name }];
-    $ProjectName = _data.name;
+    // $ProjectName = _data.name;
     $ProjectId = _data.id;
   }
 

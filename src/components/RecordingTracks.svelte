@@ -1,6 +1,6 @@
 <script lang='ts'>
   import { createEventDispatcher, onDestroy, onMount } from 'svelte';
-  import { ProjectName, Voices, CurrentParts, ProjectId, RecordingStart } from './api/svelte-stores';
+  import { currentUser, Voices, CurrentParts, ProjectId, RecordingStart } from './api/svelte-stores';
   import { deleteRecording, getRecordings, getRecordingPart } from './api/firebase-app';
   import { compressPeaks, getFormatted } from './api/waveHelpers';
 
@@ -31,8 +31,6 @@
       video.removeEventListener('play', onVideoPlayed);
     }
   });
-
-  export let onProjectNameChange: (v: string) => void;
 
   const onDeleteClick = async () => {
     for (const id of selectedParts) {
@@ -291,7 +289,7 @@
 </div>-->
 
 <div class='toolbar'>
-  <input class='project-name' bind:value={$ProjectName} on:blur={(e) => onProjectNameChange(e.target.value)}>
+  <div class='project-name'>{$currentUser.defaultProjectName}</div>
   <button on:click={() => scale++}>
     <i class='fas fa-search-plus'></i>
   </button>
