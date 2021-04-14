@@ -3,7 +3,8 @@
   import { getProject, getRecordings, newProject, newRecording, uploadBlob } from './api/firebase-app';
   import { CurrentParts, currentUser, ProjectId, RecordingStart, Voices } from './api/svelte-stores';
 
-  import { IProject, RecordingStates } from './api/types';
+  import type { IProject } from './api/types';
+  import { RecordingStates } from './api/types';
   import { compressPeaks } from './api/waveHelpers';
 
   let canvasElement: HTMLCanvasElement;
