@@ -331,10 +331,10 @@
   .toolbar {
     position: fixed;
     z-index: 10000;
-    left: 10px;
-    top: 5px;
-    width: 800px;
-    padding: 7px;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    padding: 10px;
     background: #ffffff;
     display: flex;
     align-items: center;

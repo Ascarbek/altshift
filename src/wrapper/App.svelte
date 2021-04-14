@@ -19,8 +19,8 @@
   // let videoId = '-aQ2E0mlRQI';
   // let videoId: string = 's73k6J-q740';
   // let videoId: string = 'f4g2nPY-VZc';
-  // let videoId: string = '22H8M8h6Hdo';
-  let videoId: string = '5nLWTVTwOhY';
+  let videoId: string = '22H8M8h6Hdo';
+  // let videoId: string = '5nLWTVTwOhY';
   let videoType: string = 'YOUTUBE_VIDEO_PAGE';
 
   let v;
@@ -28,20 +28,22 @@
 </script>
 
 <div class='viewport'>
-  <input type='checkbox' bind:checked={showPlayer}>
-  <input type='text' bind:value={videoId}>
-  <input type='text' bind:value={videoType}>
-
   <AltShift showPlayer={showPlayer} videoId={videoId} videoType={videoType}>
 
   </AltShift>
+
+  <div class='test'>
+    <input type='checkbox' bind:checked={showPlayer}>
+    <input type='text' bind:value={videoId}>
+    <input type='text' bind:value={videoType}>
+  </div>
 
   <video
     bind:this={v}
     class='v' controls
 
   >
-    <source src='http://localhost:8081/canyoutrust.mp4'>
+    <source src='http://localhost:8081/tu114.mp4'>
   </video>
 </div>
 
@@ -56,6 +58,15 @@
   .viewport {
     width: 100vw;
     height: 100vh;
-    background: #222222;
+    background: #ffffff;
+  }
+
+  .test {
+    position: absolute;
+    top: 110px;
+    left: 30px;
+    display: flex;
+    align-items: center;
+
   }
 </style>
