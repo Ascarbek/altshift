@@ -7,7 +7,7 @@ import firebaseConfig from '../../../firebase.config';
 
 import { AudioFiles, showLogo, currentUser } from './svelte-stores';
 
-import type { IAudioFile, IVoice, IRecordPart, FRecording, IProject } from './types';
+import type { IAudioFile, IVoice, IRecordPart, FRecording, IProject, IAuthor } from './types';
 import { COLLECTION_NAMES } from './constants';
 
 export const DEFAULT_USER_ID = '1yrIkUNKX5QwiHqJBgo7zZOs9vO2';
@@ -35,7 +35,6 @@ export const signIn = async (email, password) => {
 
 export const updateList = async (videoType: string, videoId: string) => {
   showLogo.set(true);
-
   try {
     const ref = firebase.storage().ref();
     const res = await ref.child(videoId).listAll();

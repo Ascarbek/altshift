@@ -4,9 +4,9 @@
   import { cubicInOut } from 'svelte/easing';
 
   import { DEFAULT_USER_ID, updateList, uploadBlob } from './api/firebase-app';
-  import type { IAudioFile, IAuthor } from './api/types';
+  import type { IAudioFile } from './api/types';
   import { DisplayStates, RecordingStates } from './api/types';
-  import { AudioFiles, currentUser, ProjectId, ProjectName, showLogo } from './api/svelte-stores';
+  import { AudioFiles, currentUser, ProjectId, showLogo } from './api/svelte-stores';
 
   import Display from './Display.svelte';
   import Recorder from './Recorder.svelte';
@@ -32,6 +32,14 @@
   let canPlay: boolean = false;
 
   let renderPlayer = false;
+
+  const resetOnVideoChange = (id: string) => {
+    homeItemIndex = 0;
+    currentState = DisplayStates.MENU;
+    renderPlayer = false;
+  };
+
+  $: resetOnVideoChange(videoId);
 
   /**
    * Playback events
@@ -146,6 +154,7 @@
   });
 
   onDestroy(() => {
+    renderPlayer = false;
     clearInterval(intervalHandler);
     clearTimeout(initTimeoutHandler1);
     clearTimeout(initTimeoutHandler2);
@@ -254,7 +263,7 @@
     }
 
     if (currentState === DisplayStates.RECORDER) {
-      if (recordingState === RecordingStates.PAUSE_MESSAGE) {
+      if (recordingState === RecordingStates.PAUSE_MESSAGE || recordingState === RecordingStates.FIRST_MESSAGE) {
         currentState = DisplayStates.UPLOAD_PROGRESS;
         uploadProgress = 0;
         const int = setInterval(() => {

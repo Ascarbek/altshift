@@ -1,7 +1,7 @@
 <script lang='ts'>
   import Player from './Player.svelte';
   import { initFirebase, updateList, userSignEvent } from './api/firebase-app';
-  import { currentUser } from './api/svelte-stores';
+  import { AudioFiles, currentUser } from './api/svelte-stores';
   import SignIn from './SignIn.svelte';
 
   initFirebase();
@@ -12,9 +12,7 @@
 
   export let showPlayer: boolean = true;
 
-  $: {
-    $currentUser?.uid?.length && updateList(videoType, videoId);
-  }
+  $: updateList(videoType, videoId);
 
   let showSignIn = false;
 </script>
