@@ -139,7 +139,7 @@
       }
 
       setTimeout(attachVideoEvents, 10);
-      onShowSignIn();
+
     } catch (e) {
 
     }

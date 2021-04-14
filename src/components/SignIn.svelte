@@ -1,23 +1,25 @@
 <script lang='ts'>
   import { signIn } from './api/firebase-app';
+  import { fade } from 'svelte/transition';
 
   export let onClose: () => void;
   let email;
   let password;
   const onOkClick = async () => {
     await signIn(email, password);
-    onClose()
-  }
+    onClose();
+  };
 </script>
 
-<div class='backdrop'></div>
-<div class='form'>
+<div class='backdrop' transition:fade></div>
+
+<div class='form' transition:fade>
   <div class='icon-part'>
-    <i class="fas fa-microphone-alt"></i>
+    <i class='fas fa-microphone-alt'></i>
   </div>
 
   <div class='fields-part'>
-    <button class='cancel-button' on:click={() => onClose()}><i class="fas fa-times"></i></button>
+    <button class='cancel-button' on:click={() => onClose()}><i class='fas fa-times'></i></button>
 
     <div class='form-title'>
       Welcome!
@@ -43,7 +45,7 @@
     <div class='button-group'>
       <button class='ok-button' on:click={() => onOkClick()}>
         <span style='margin-right: 10px; font-size: 18px'>Sign in</span>
-        <i class="fas fa-long-arrow-alt-right"></i>
+        <i class='fas fa-long-arrow-alt-right'></i>
       </button>
 
       <a href='https://www.altshift.cc/request-login' target='_blank'>submit for alpha test</a>
