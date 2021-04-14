@@ -1,7 +1,7 @@
 <script lang='ts'>
   import { onDestroy, onMount } from 'svelte';
   import { getProject, getRecordings, newProject, newRecording, uploadBlob } from './api/firebase-app';
-  import { CurrentParts, currentUser, ProjectId, ProjectName, RecordingStart, Voices } from './api/svelte-stores';
+  import { CurrentParts, currentUser, ProjectId, RecordingStart, Voices } from './api/svelte-stores';
 
   import { IProject, RecordingStates } from './api/types';
   import { compressPeaks } from './api/waveHelpers';
@@ -30,7 +30,8 @@
     window.addEventListener('keydown', keyDown);
     window.addEventListener('keyup', keyUp);
 
-    const test = await getProject(videoType, videoId);
+    const test = await getProject($currentUser.uid, videoType, videoId);
+
     if (test) {
       currentProject = test;
 
@@ -45,7 +46,6 @@
   function loadData(_data: IProject) {
     if (!_data) return;
     $Voices = [{ name: _data.voices[0].name }];
-    $ProjectName = _data.name;
     $ProjectId = _data.id;
   }
 
@@ -95,7 +95,7 @@
   const onDataAvailable = async (e) => {
     mediaRecorder.removeEventListener('dataavailable', onDataAvailable);
 
-    currentState = RecordingStates.SAVING_PROGRESS;
+    // currentState = RecordingStates.SAVING_PROGRESS;
     saveProgress = 0;
 
     let recording = await newRecording({
@@ -114,7 +114,7 @@
     uploadBlob(`Recordings/${recording.id}.webm`, b, (p) => {
       saveProgress = p;
     }, () => {
-      currentState = RecordingStates.PAUSE_MESSAGE;
+      // currentState = RecordingStates.PAUSE_MESSAGE;
       $CurrentParts = [...$CurrentParts, recording];
     });
   };

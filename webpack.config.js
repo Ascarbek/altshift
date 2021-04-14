@@ -11,14 +11,14 @@ module.exports = {
   entry: {
     ...(build
       ? {
-          background: './src/background.js',
-          content: './src/content.js',
-        }
+        background: './src/background.js',
+        content: './src/content.js',
+      }
       : {}),
     ...(dev
       ? {
-          wrapper: './src/wrapper/index.js',
-        }
+        wrapper: './src/wrapper/index.js',
+      }
       : {}),
   },
   devServer: {
@@ -95,11 +95,8 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: './src/wrapper/index.html',
     }),
-    new MiniCssExtractPlugin({
-      filename: '[name].css',
-    }),
     new webpack.SourceMapDevToolPlugin({
-      filename: '[name].[chunkhash:8].js.map',
+      filename: '[name].js.map',
     }),
   ],
   // devtool: prod ? false: 'source-map'

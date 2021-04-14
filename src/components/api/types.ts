@@ -57,9 +57,14 @@ export interface IVoiceOverPlacement {
 
 export interface IProject {
   id: string;
-  name: string;
+  authorId: string;
   videoId: string;
   videoType: string;
-  voiceOvers: IVoiceOverPlacement[];
   voices: IVoice[];
+}
+
+export interface IAuthor {
+  uid?: string;
+  email?: string;
+  defaultProjectName?: string;
 }

@@ -3,7 +3,7 @@
   import { fade } from 'svelte/transition';
   import { cubicInOut } from 'svelte/easing';
 
-  import { DEFAULT_USER_ID, renameProject, updateList, uploadBlob } from './api/firebase-app';
+  import { DEFAULT_USER_ID, updateList, uploadBlob } from './api/firebase-app';
   import type { IAudioFile } from './api/types';
   import { DisplayStates, RecordingStates } from './api/types';
   import { AudioFiles, currentUser, ProjectId, showLogo } from './api/svelte-stores';
@@ -32,6 +32,14 @@
   let canPlay: boolean = false;
 
   let renderPlayer = false;
+
+  const resetOnVideoChange = (id: string) => {
+    homeItemIndex = 0;
+    currentState = DisplayStates.MENU;
+    renderPlayer = false;
+  };
+
+  $: resetOnVideoChange(videoId);
 
   /**
    * Playback events
@@ -139,12 +147,14 @@
       }
 
       setTimeout(attachVideoEvents, 10);
+
     } catch (e) {
 
     }
   });
 
   onDestroy(() => {
+    renderPlayer = false;
     clearInterval(intervalHandler);
     clearTimeout(initTimeoutHandler1);
     clearTimeout(initTimeoutHandler2);
@@ -253,7 +263,7 @@
     }
 
     if (currentState === DisplayStates.RECORDER) {
-      if (recordingState === RecordingStates.PAUSE_MESSAGE) {
+      if (recordingState === RecordingStates.PAUSE_MESSAGE || recordingState === RecordingStates.FIRST_MESSAGE) {
         currentState = DisplayStates.UPLOAD_PROGRESS;
         uploadProgress = 0;
         const int = setInterval(() => {
@@ -262,7 +272,7 @@
             clearInterval(int);
           }
         }, 1000);
-        await processProject($ProjectId);
+        await processProject($ProjectId, $currentUser.defaultProjectName);
         clearInterval(int);
         currentState = DisplayStates.MENU;
         await updateList(videoType, videoId);
@@ -338,7 +348,7 @@
           videoType={videoType}
           videoId={videoId}
           duration={duration}
-          projectName='project one'
+          projectName={$currentUser.defaultProjectName}
           voiceName='male 1'
           bind:currentState={recordingState}
         >
@@ -392,7 +402,6 @@
     currentTime={currentTime}
     duration={duration}
     on:seek={onRecordingTrackSeek}
-    onProjectNameChange={(v) => renameProject($ProjectId, v)}
   >
   </RecordingTracks>
 {/if}

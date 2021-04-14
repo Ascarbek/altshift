@@ -7,22 +7,27 @@ import firebaseConfig from '../../../firebase.config';
 
 import { AudioFiles, showLogo, currentUser } from './svelte-stores';
 
-import type { IAudioFile, IVoice, IRecordPart, FRecording, IProject } from './types';
+import type { IAudioFile, IVoice, IRecordPart, FRecording, IProject, IAuthor } from './types';
 import { COLLECTION_NAMES } from './constants';
 
 export const DEFAULT_USER_ID = '1yrIkUNKX5QwiHqJBgo7zZOs9vO2';
 
-export const initFirebase = async () => {
+export const initFirebase = () => {
   firebase.initializeApp(firebaseConfig);
-  firebase.auth().onAuthStateChanged(function (user) {
+};
+
+export const userSignEvent = async () => {
+  const db = firebase.firestore();
+  firebase.auth().onAuthStateChanged(async (user) => {
     if (user?.uid) {
-      currentUser.set({ uid: user.uid });
+      const resp = await db.collection(COLLECTION_NAMES.AUTHORS).doc(user.uid).get();
+      currentUser.set({ uid: user.uid, email: user.email, defaultProjectName: resp.data()?.defaultProjectName });
     } else {
       console.log('logged out');
-      firebase.auth().signInWithEmailAndPassword('guest@altshift.cc', '123qwe');
+      await firebase.auth().signInWithEmailAndPassword('guest@altshift.cc', '123qwe');
     }
   });
-};
+}
 
 export const signIn = async (email, password) => {
   await firebase.auth().signInWithEmailAndPassword(email, password);
@@ -30,7 +35,6 @@ export const signIn = async (email, password) => {
 
 export const updateList = async (videoType: string, videoId: string) => {
   showLogo.set(true);
-
   try {
     const ref = firebase.storage().ref();
     const res = await ref.child(videoId).listAll();
@@ -61,44 +65,42 @@ export const uploadBlob = (path: string, blob: Blob, progressFn, completeFn) => 
 
   uploadTask.on(
     'state_changed',
-    function (snapshot) {
+    function(snapshot) {
       let progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
       progressFn(progress);
     },
-    function (error) {
+    function(error) {
       console.error(error);
     },
-    function () {
-      uploadTask.snapshot.ref.getDownloadURL().then(function (downloadURL) {
+    function() {
+      uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {
         completeFn(downloadURL);
       });
-    }
+    },
   );
 };
 
 export const newProject = async (
-  name: string,
+  authorId:string,
   videoType: string,
   videoId: string,
-  defaultVoiceName: string
+  defaultVoiceName: string,
 ): Promise<IProject> => {
   const db = firebase.firestore();
   const doc = db.collection(COLLECTION_NAMES.PROJECTS).doc();
   await doc.set({
-    name,
+    authorId,
     videoType,
     videoId,
     voices: [{ name: defaultVoiceName }],
-    voiceOvers: [],
   });
 
   return {
     id: doc.id,
-    name,
+    authorId,
     videoType,
     videoId,
     voices: [{ name: defaultVoiceName }],
-    voiceOvers: [],
   };
 };
 
@@ -109,14 +111,15 @@ export const renameProject = async (id, name: string) => {
     {
       name,
     },
-    { merge: true }
+    { merge: true },
   );
 };
 
-export const getProject = async (videoType: string, videoId: string): Promise<IProject | null> => {
+export const getProject = async (authorId: string, videoType: string, videoId: string): Promise<IProject | null> => {
   const db = firebase.firestore();
   const doc = await db
     .collection(COLLECTION_NAMES.PROJECTS)
+    .where('authorId', '==', authorId)
     .where('videoType', '==', videoType)
     .where('videoId', '==', videoId)
     .get();
@@ -124,11 +127,10 @@ export const getProject = async (videoType: string, videoId: string): Promise<IP
     const data = doc.docs[0].data();
     return {
       id: doc.docs[0].id,
+      authorId: data.authorId,
       videoType: data.videoType,
       videoId: data.videoId,
-      name: data.name,
       voices: data.voices,
-      voiceOvers: data.voiceOvers,
     };
   } else {
     return null;
