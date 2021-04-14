@@ -46,7 +46,6 @@
   function loadData(_data: IProject) {
     if (!_data) return;
     $Voices = [{ name: _data.voices[0].name }];
-    // $ProjectName = _data.name;
     $ProjectId = _data.id;
   }
 
@@ -96,7 +95,7 @@
   const onDataAvailable = async (e) => {
     mediaRecorder.removeEventListener('dataavailable', onDataAvailable);
 
-    currentState = RecordingStates.SAVING_PROGRESS;
+    // currentState = RecordingStates.SAVING_PROGRESS;
     saveProgress = 0;
 
     let recording = await newRecording({
@@ -115,7 +114,7 @@
     uploadBlob(`Recordings/${recording.id}.webm`, b, (p) => {
       saveProgress = p;
     }, () => {
-      currentState = RecordingStates.PAUSE_MESSAGE;
+      // currentState = RecordingStates.PAUSE_MESSAGE;
       $CurrentParts = [...$CurrentParts, recording];
     });
   };
