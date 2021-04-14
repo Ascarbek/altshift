@@ -18,8 +18,7 @@
         "https://www.youtube.com/*"
       ],
       "js": [
-        "content.js",
-        "content.js.map"
+        "content.js"
       ]
     }
   ],
