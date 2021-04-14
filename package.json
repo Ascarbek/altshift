@@ -4,9 +4,24 @@
   "scripts": {
     "build": "cross-env NODE_ENV=build webpack",
     "dev": "cross-env NODE_ENV=dev webpack-dev-server --content-base dist",
-    "serve-static": "npx serve -s downloaded -l 8081"
+    "serve-static": "npx serve -s downloaded -l 8081",
+    "build:rollup": "rollup -c",
+    "dev:rollup": "rollup -c -w",
+    "start": "sirv public --no-clear",
+    "validate": "svelte-check"
   },
   "devDependencies": {
+    "@rollup/plugin-commonjs": "^17.0.0",
+    "@rollup/plugin-json": "^4.1.0",
+    "@rollup/plugin-node-resolve": "^11.0.0",
+    "@rollup/plugin-typescript": "^8.0.0",
+    "dotenv": "^8.2.0",
+    "rollup": "^2.3.4",
+    "rollup-plugin-css-only": "^3.1.0",
+    "rollup-plugin-livereload": "^2.0.0",
+    "rollup-plugin-svelte": "^7.0.0",
+    "rollup-plugin-terser": "^7.0.0",
+    "sirv-cli": "^1.0.0",
     "@tsconfig/svelte": "^1.0.10",
     "@types/dom-mediacapture-record": "^1.0.7",
     "clean-webpack-plugin": "^3.0.0",

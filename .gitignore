@@ -8,6 +8,7 @@ coverage
 # machine specific
 package-lock.json
 yarn.lock
+.env
 
 # misc
 .idea
@@ -17,6 +18,7 @@ yarn.lock
 
 # build
 /dist
+/public/build
 
 # sensitive
 /backend/credentials
