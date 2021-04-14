@@ -29,7 +29,6 @@
   ],
   "host_permissions": [
     "https://*.altshift.cc/*",
-    "https://*.typekit.net/*",
     "https://*.googleapis.com/*"
   ]
 }
