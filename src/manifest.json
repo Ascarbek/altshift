@@ -3,7 +3,7 @@
   "manifest_version": 3,
   "description": "Play voice overs for youtube videos",
   "short_name": "altshift",
-  "version": "1.01",
+  "version": "1.02",
   "background": {
     "service_worker": "background.js"
   },
