@@ -273,6 +273,22 @@
     scrolling = false;
     scrollOffset = actualScrollOffset;
   };
+
+  let onDelete = false;
+
+  const onKeyDown = (e) => {
+    if (e.code === 'Delete') {
+      onDelete = true;
+    }
+  };
+
+  const onKeyUp = (e) => {
+    onDelete = false;
+  };
+
+  $: if (onDelete) {
+    onDeleteClick();
+  }
 </script>
 
 <div class='toolbar'>
@@ -301,6 +317,8 @@
 {#each $CurrentParts as part}
   <audio id={'part-' + part.id} src='{part.path}'></audio>
 {/each}
+
+<svelte:window on:keydown={onKeyDown} on:keyup={onKeyUp}></svelte:window>
 
 <style>
   .track-outer {
