@@ -3,10 +3,10 @@
   import { fade } from 'svelte/transition';
   import { cubicInOut } from 'svelte/easing';
 
-  import { DEFAULT_USER_ID, updateList, uploadBlob } from './api/firebase-app';
+  import { updateList } from './api/supabase-app';
   import type { IAudioFile } from './api/types';
   import { DisplayStates, RecordingStates } from './api/types';
-  import { AudioFiles, currentUser, ProjectId, showLogo } from './api/svelte-stores';
+  import { AudioFiles, currentUser, ProjectId, showLogo, supabase } from './api/svelte-stores';
 
   import Display from './Display.svelte';
   import Recorder from './Recorder.svelte';
@@ -243,19 +243,15 @@
 
   const onOkClick = async () => {
     if (currentState === DisplayStates.MENU) {
+      if (!$currentUser?.uid) {
+        onShowSignIn();
+        return;
+      }
+
       if (menuItemIndex === 1) {
-        if ($currentUser?.uid === DEFAULT_USER_ID) {
-          onShowSignIn();
-          return;
-        }
         uploadClick();
       }
       if (menuItemIndex === 0) {
-        if ($currentUser?.uid === DEFAULT_USER_ID) {
-          onShowSignIn();
-          return;
-        }
-
         currentState = DisplayStates.RECORDER;
         AudioInputStreamPromise = navigator.mediaDevices.getUserMedia({ audio: true });
         recordingState = RecordingStates.ALLOW_MESSAGE;
@@ -275,7 +271,7 @@
         await processProject($ProjectId, $currentUser.defaultProjectName);
         clearInterval(int);
         currentState = DisplayStates.MENU;
-        await updateList(videoType, videoId);
+        await updateList(videoType, videoId, $supabase);
       }
     }
   };
@@ -319,12 +315,12 @@
     const files = e.target.files;
     const file = files[0];
 
-    uploadBlob(`${videoId}/${file.name}`, file, (p) => {
-      uploadProgress = p;
-    }, () => {
-      currentState = DisplayStates.HOME;
-      updateList(videoType, videoId);
-    });
+    /*   uploadBlob(`${videoId}/${file.name}`, file, (p) => {
+         uploadProgress = p;
+       }, () => {
+         currentState = DisplayStates.HOME;
+         updateList(videoType, videoId, $supabase);
+       });*/
   };
 
   export let onShowSignIn: () => void;

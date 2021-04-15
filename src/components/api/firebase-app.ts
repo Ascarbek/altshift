@@ -9,6 +9,7 @@ import { AudioFiles, showLogo, currentUser } from './svelte-stores';
 
 import type { IAudioFile, IVoice, IRecordPart, FRecording, IProject, IAuthor } from './types';
 import { COLLECTION_NAMES } from './constants';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
 export const DEFAULT_USER_ID = '1yrIkUNKX5QwiHqJBgo7zZOs9vO2';
 
@@ -27,7 +28,7 @@ export const userSignEvent = async () => {
       await firebase.auth().signInWithEmailAndPassword('guest@altshift.cc', '123qwe');
     }
   });
-}
+};
 
 export const signIn = async (email, password) => {
   await firebase.auth().signInWithEmailAndPassword(email, password);
@@ -81,7 +82,7 @@ export const uploadBlob = (path: string, blob: Blob, progressFn, completeFn) => 
 };
 
 export const newProject = async (
-  authorId:string,
+  authorId: string,
   videoType: string,
   videoId: string,
   defaultVoiceName: string,

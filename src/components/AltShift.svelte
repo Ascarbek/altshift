@@ -1,18 +1,28 @@
 <script lang='ts'>
   import Player from './Player.svelte';
-  import { initFirebase, updateList, userSignEvent } from './api/firebase-app';
-  import { AudioFiles, currentUser } from './api/svelte-stores';
+  import { getDefaultProjectName, initialize, updateList } from './api/supabase-app';
+  import { currentUser, supabase } from './api/svelte-stores';
   import SignIn from './SignIn.svelte';
+  import { onMount } from 'svelte';
 
-  initFirebase();
-  userSignEvent()
+  onMount(async () => {
+    $supabase = initialize();
+    const user = $supabase.auth.user();
+    if (user?.id?.length) {
+      $currentUser = {
+        email: user.email,
+        uid: user.id,
+        defaultProjectName: await getDefaultProjectName(user.id, $supabase),
+      };
+    }
+  });
 
   export let videoId: string = '';
   export let videoType: string = '';
 
   export let showPlayer: boolean = true;
 
-  $: updateList(videoType, videoId);
+  $: updateList(videoType, videoId, $supabase);
 
   let showSignIn = false;
 </script>
@@ -23,5 +33,6 @@
 {/if}
 
 {#if showSignIn}
-  <SignIn onClose={() => showSignIn = false} />
+  <SignIn onClose={() => showSignIn = false}
+  />
 {/if}
