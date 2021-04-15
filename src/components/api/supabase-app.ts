@@ -82,7 +82,7 @@ export const getRecordings = async (projectId: string): Promise<IRecordPart[]> =
   const urls: any = {};
 
   for (const item of data) {
-    const resp = await supabase.storage.from('recording-parts').createSignedUrl(`${item.id}.webm`, 24 * 60 * 60);
+    const resp = await supabase.storage.from('recording-parts').createSignedUrl(`${item.id}.webm`, 120);
     urls[item.id] = URL.createObjectURL(new Blob([(await axios({
       url: resp.data.signedURL,
       method: 'GET',
