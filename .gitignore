@@ -20,6 +20,7 @@ yarn.lock
 /dist
 /public/content.js
 /public/content.css
+/public/content.js.map
 
 # sensitive
 /backend/credentials
