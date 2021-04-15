@@ -180,6 +180,7 @@ export const addAudioFile = async (projectId: string, projectName: string, video
         lang: '',
         video_type: videoType,
         video_id: videoId,
+        project_id: projectId,
       }]);
   }
 };
