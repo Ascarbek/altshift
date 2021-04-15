@@ -165,6 +165,23 @@ export const newRecording = async (params: FRecording): Promise<IRecordPart> => 
   };
 };
 
+export const addAudioFile = async (projectId: string, projectName: string, videoType: string, videoId: string): Promise<void> => {
+  const supabase: SupabaseClient = get(supabaseStore);
+  const { data: checkData } = await supabase.from('audio_file')
+    .select()
+    .filter('project_id', 'eq', projectId);
 
+  if (!checkData.length) {
+    await supabase.from('audio_file')
+      .insert([{
+        name: projectName,
+        path: `https://audio.altshift.cc/${projectId}.webm`,
+        tags: [],
+        lang: '',
+        video_type: videoType,
+        video_id: videoId,
+      }]);
+  }
+};
 
 

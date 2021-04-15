@@ -3,7 +3,7 @@
   import { fade } from 'svelte/transition';
   import { cubicInOut } from 'svelte/easing';
 
-  import { updateList } from './api/supabase-app';
+  import { addAudioFile, updateList } from './api/supabase-app';
   import type { IAudioFile } from './api/types';
   import { DisplayStates, RecordingStates } from './api/types';
   import { AudioFiles, currentUser, ProjectId, showLogo, supabase } from './api/svelte-stores';
@@ -269,6 +269,7 @@
           }
         }, 1000);
         await processProject($ProjectId, $currentUser.defaultProjectName);
+        await addAudioFile($ProjectId, $currentUser.defaultProjectName, videoType, videoId);
         clearInterval(int);
         currentState = DisplayStates.MENU;
         await updateList(videoType, videoId);
