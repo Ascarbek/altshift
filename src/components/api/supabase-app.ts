@@ -104,7 +104,9 @@ export const getRecordings = async (projectId: string): Promise<IRecordPart[]> =
 export const getOrCreateProject = async (authorId: string, videoType: string, videoId: string): Promise<IProject> => {
   const supabase: SupabaseClient = get(supabaseStore);
   const { data, error } = await supabase.from('project').select()
-    .filter('author_id', 'eq', authorId);
+    .filter('author_id', 'eq', authorId)
+    .filter('video_type', 'eq', videoType)
+    .filter('video_id', 'eq', videoId);
   if (error) {
     console.error(error);
     return;

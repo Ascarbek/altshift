@@ -23,8 +23,6 @@
 
   export let showPlayer: boolean = true;
 
-
-
   let showSignIn = false;
 </script>
 

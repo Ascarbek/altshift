@@ -51,8 +51,6 @@
   $: selectedParts && render();
   $: scrollOffset && render();
 
-  $: console.log(duration);
-
   const fullHeight = 110;
   const paddingTop = 10;
   const paddingBottom = 20;
