@@ -1,7 +1,7 @@
 <script lang='ts'>
   import { createEventDispatcher, onDestroy, onMount } from 'svelte';
   import { currentUser, Voices, CurrentParts, ProjectId, RecordingStart } from './api/svelte-stores';
-  import { deleteRecording, getRecordings, getRecordingPart } from './api/firebase-app';
+  import { deleteRecording, getRecordings } from './api/supabase-app';
   import { compressPeaks, getFormatted } from './api/waveHelpers';
 
   const dispatch = createEventDispatcher();
@@ -52,13 +52,6 @@
   $: scrollOffset && render();
 
   $: console.log(duration);
-
-  let partUrl: { [key: string]: string } = {};
-  $: $CurrentParts && (async () => {
-    for (const part of $CurrentParts) {
-      partUrl[part.id] = await getRecordingPart(part.id);
-    }
-  })();
 
   const fullHeight = 110;
   const paddingTop = 10;
@@ -206,7 +199,7 @@
     }
 
     // b63838
-    if($RecordingStart > -1) {
+    if ($RecordingStart > -1) {
       ctx.fillStyle = '#f27979';
       if ($RecordingStart - scrollSeconds >= 0) {
         ctx.fillRect(paddingLeft + ($RecordingStart - scrollSeconds) * scale, paddingTop, (currentTime - $RecordingStart) * scale, trackHeight);
@@ -283,11 +276,6 @@
   };
 </script>
 
-
-<!--<div class='project-name'>
-  <input bind:value={$ProjectName} on:blur={(e) => onProjectNameChange(e.target.value)}>
-</div>-->
-
 <div class='toolbar'>
   <div class='project-name'>{$currentUser.defaultProjectName}</div>
   <button on:click={() => scale++}>
@@ -312,7 +300,7 @@
 {/each}
 
 {#each $CurrentParts as part}
-  <audio id={'part-' + part.id} src='{partUrl[part.id]}'></audio>
+  <audio id={'part-' + part.id} src='{part.path}'></audio>
 {/each}
 
 <style>

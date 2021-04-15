@@ -1,11 +1,13 @@
 <script lang='ts'>
   import { onDestroy, onMount } from 'svelte';
-  import { getProject, getRecordings, newProject, newRecording, uploadBlob } from './api/firebase-app';
-  import { CurrentParts, currentUser, ProjectId, RecordingStart, Voices } from './api/svelte-stores';
+  // import { getProject, getRecordings, newProject, newRecording, uploadBlob } from './api/firebase-app';
+  import { CurrentParts, currentUser, ProjectId, RecordingStart, supabase, Voices } from './api/svelte-stores';
+  import { v4 } from 'uuid';
 
   import type { IProject } from './api/types';
   import { RecordingStates } from './api/types';
   import { compressPeaks } from './api/waveHelpers';
+  import { getOrCreateProject, getRecordings, newRecording } from './api/supabase-app';
 
   let canvasElement: HTMLCanvasElement;
 
@@ -31,22 +33,15 @@
     window.addEventListener('keydown', keyDown);
     window.addEventListener('keyup', keyUp);
 
-    const test = await getProject($currentUser.uid, videoType, videoId);
-
-    if (test) {
-      currentProject = test;
-
-      $CurrentParts = await getRecordings(currentProject.id);
-    } else {
-      currentProject = await newProject(projectName, videoType, videoId, voiceName);
-    }
+    currentProject = await getOrCreateProject($currentUser.uid, videoType, videoId);
+    $CurrentParts = await getRecordings(currentProject.id);
   });
 
   $: loadData(currentProject);
 
   function loadData(_data: IProject) {
     if (!_data) return;
-    $Voices = [{ name: _data.voices[0].name }];
+    $Voices = [{ name: 'default voice' }];
     $ProjectId = _data.id;
   }
 
@@ -96,8 +91,14 @@
   const onDataAvailable = async (e) => {
     mediaRecorder.removeEventListener('dataavailable', onDataAvailable);
 
-    // currentState = RecordingStates.SAVING_PROGRESS;
     saveProgress = 0;
+    const id = v4();
+
+    const file: File = new File([e.data], `${id}.webm`);
+
+    await $supabase.storage.from('recording-parts').upload(`${id}.webm`, file);
+    const resp = await $supabase.storage.from('recording-parts').createSignedUrl(`${id}.webm`, 24 * 60);
+    const path = resp.data.signedURL;
 
     let recording = await newRecording({
       projectId: $ProjectId,
@@ -106,18 +107,13 @@
       start: currentStartTime,
       end: currentEndTime,
       peaks: peakLines,
-      created: new Date().getTime(),
+      created: Math.trunc(new Date().getTime() / 1000),
+      path,
     });
 
-    saveProgress = 10;
 
-    const b = new Blob([e.data], { 'type': 'audio/ogg; codecs=opus' });
-    uploadBlob(`Recordings/${recording.id}.webm`, b, (p) => {
-      saveProgress = p;
-    }, () => {
-      // currentState = RecordingStates.PAUSE_MESSAGE;
-      $CurrentParts = [...$CurrentParts, recording];
-    });
+    $CurrentParts = [...$CurrentParts, recording];
+
   };
 
   $: onRecordingStateChange(currentState);

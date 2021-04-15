@@ -12,9 +12,10 @@
       $currentUser = {
         email: user.email,
         uid: user.id,
-        defaultProjectName: await getDefaultProjectName(user.id, $supabase),
+        defaultProjectName: await getDefaultProjectName(user.id),
       };
     }
+    $: await updateList(videoType, videoId);
   });
 
   export let videoId: string = '';
@@ -22,7 +23,7 @@
 
   export let showPlayer: boolean = true;
 
-  $: updateList(videoType, videoId, $supabase);
+
 
   let showSignIn = false;
 </script>

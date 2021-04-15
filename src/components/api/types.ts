@@ -34,6 +34,7 @@ export interface FRecording {
   start: number;
   end: number;
   peaks: number[];
+  path: string;
 }
 
 export interface IRecordPart {
@@ -43,6 +44,7 @@ export interface IRecordPart {
   start: number;
   end: number;
   peaks: number[];
+  path: string;
 }
 
 export interface IVoice {
@@ -60,7 +62,7 @@ export interface IProject {
   authorId: string;
   videoId: string;
   videoType: string;
-  voices: IVoice[];
+  voices?: IVoice[];
 }
 
 export interface IAuthor {

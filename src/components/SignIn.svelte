@@ -1,5 +1,4 @@
 <script lang='ts'>
-  import { signIn } from './api/firebase-app';
   import { fade } from 'svelte/transition';
   import { currentUser, supabase } from './api/svelte-stores';
   import { getDefaultProjectName } from './api/supabase-app';
@@ -19,7 +18,7 @@
       $currentUser = {
         email,
         uid: user.id,
-        defaultProjectName: await getDefaultProjectName(user.id, $supabase),
+        defaultProjectName: await getDefaultProjectName(user.id),
       };
 
       onClose();
