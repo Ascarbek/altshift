@@ -17,6 +17,7 @@ export const enum RecordingStates {
   ACTIVE_RECORDING,
   PAUSE_MESSAGE,
   SAVE_MENU,
+  LOADING,
 }
 
 export interface IAudioFile {
@@ -27,6 +28,7 @@ export interface IAudioFile {
 }
 
 export interface FRecording {
+  id: string;
   created: number;
   authorId: string;
   projectId: string;

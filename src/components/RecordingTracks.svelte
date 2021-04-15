@@ -23,6 +23,7 @@
       video.addEventListener('pause', onVideoPaused);
       video.addEventListener('play', onVideoPlayed);
     }
+    render();
   });
   onDestroy(() => {
     const video = document.querySelector('video');
@@ -35,10 +36,9 @@
   const onDeleteClick = async () => {
     for (const id of selectedParts) {
       await deleteRecording(id);
+      $CurrentParts = $CurrentParts.filter((item) => item.id !== id);
     }
     selectedParts = [];
-
-    $CurrentParts = await getRecordings($ProjectId);
   };
 
   let canvasElement: HTMLCanvasElement;
@@ -86,8 +86,9 @@
         if (audio.paused) {
           audio.play();
         }
-        if (Math.abs(audio.currentTime - currentTime + part.start) > 0.1)
+        if (Math.abs(audio.currentTime - currentTime + part.start) > 0.1) {
           audio.currentTime = currentTime - part.start;
+        }
       } else {
         audio.pause();
       }

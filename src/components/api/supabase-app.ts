@@ -3,6 +3,7 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { AudioFiles, showLogo, supabase as supabaseStore } from './svelte-stores';
 import type { IAudioFile, IProject, IRecordPart, FRecording } from './types';
 import { v4 } from 'uuid';
+import axios from 'axios';
 
 
 export const initialize = () => {
@@ -64,7 +65,9 @@ export const getDefaultProjectName = async (id: string): Promise<string> => {
 };
 
 export const deleteRecording = async (id: string) => {
-
+  const supabase: SupabaseClient = get(supabaseStore);
+  await supabase.from('recording_part').delete().match({ id });
+  await supabase.storage.from('recording-parts').remove([`${id}.webm`]);
 };
 
 export const getRecordings = async (projectId: string): Promise<IRecordPart[]> => {
@@ -75,6 +78,18 @@ export const getRecordings = async (projectId: string): Promise<IRecordPart[]> =
     console.error(error);
     return;
   }
+
+  const urls: any = {};
+
+  for (const item of data) {
+    const resp = await supabase.storage.from('recording-parts').createSignedUrl(`${item.id}.webm`, 24 * 60 * 60);
+    urls[item.id] = URL.createObjectURL(new Blob([(await axios({
+      url: resp.data.signedURL,
+      method: 'GET',
+      responseType: 'blob',
+    })).data]));
+  }
+
   return data.map<IRecordPart>(item => ({
     id: item.id,
     created: item.created,
@@ -82,7 +97,7 @@ export const getRecordings = async (projectId: string): Promise<IRecordPart[]> =
     end: item.end,
     peaks: item.peaks,
     voiceName: 'male 1',
-    path: item.path,
+    path: urls[item.id],
   }));
 };
 
@@ -125,7 +140,7 @@ export const newRecording = async (params: FRecording): Promise<IRecordPart> => 
   const supabase: SupabaseClient = get(supabaseStore);
   const { data, error } = await supabase.from('recording_part')
     .insert([{
-      id: v4(),
+      id: params.id,
       project_id: params.projectId,
       created: params.created,
       start: params.start,

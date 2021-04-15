@@ -1,6 +1,5 @@
 <script lang='ts'>
   import { onDestroy, onMount } from 'svelte';
-  // import { getProject, getRecordings, newProject, newRecording, uploadBlob } from './api/firebase-app';
   import { CurrentParts, currentUser, ProjectId, RecordingStart, supabase, Voices } from './api/svelte-stores';
   import { v4 } from 'uuid';
 
@@ -32,9 +31,6 @@
   onMount(async () => {
     window.addEventListener('keydown', keyDown);
     window.addEventListener('keyup', keyUp);
-
-    currentProject = await getOrCreateProject($currentUser.uid, videoType, videoId);
-    $CurrentParts = await getRecordings(currentProject.id);
   });
 
   $: loadData(currentProject);
@@ -94,13 +90,16 @@
     saveProgress = 0;
     const id = v4();
 
-    const file: File = new File([e.data], `${id}.webm`);
+    const blob = new Blob([e.data], { 'type': 'audio/ogg; codecs=opus' });
+    const file: File = new File([blob], `${id}.webm`);
 
     await $supabase.storage.from('recording-parts').upload(`${id}.webm`, file);
-    const resp = await $supabase.storage.from('recording-parts').createSignedUrl(`${id}.webm`, 24 * 60);
-    const path = resp.data.signedURL;
+    // const resp = await $supabase.storage.from('recording-parts').createSignedUrl(`${id}.webm`, 24 * 60 * 60);
+
+    const path = URL.createObjectURL(blob);
 
     let recording = await newRecording({
+      id,
       projectId: $ProjectId,
       authorId: $currentUser.uid,
       voiceName: voiceName,
@@ -111,16 +110,21 @@
       path,
     });
 
-
     $CurrentParts = [...$CurrentParts, recording];
-
   };
 
   $: onRecordingStateChange(currentState);
 
-  function onRecordingStateChange(state) {
-    if (state === RecordingStates.ALLOW_MESSAGE)
+  async function onRecordingStateChange(state) {
+    if (state === RecordingStates.ALLOW_MESSAGE) {
       showDlg();
+    }
+
+    if (state === RecordingStates.LOADING) {
+      currentProject = await getOrCreateProject($currentUser.uid, videoType, videoId);
+      $CurrentParts = await getRecordings(currentProject.id);
+      currentState = RecordingStates.FIRST_MESSAGE;
+    }
   }
 
   let wavePeaks: number[] = [];
@@ -191,7 +195,7 @@
 
   export let showDlg = () => {
     streamPromise.then(res => {
-      currentState = RecordingStates.FIRST_MESSAGE;
+      currentState = RecordingStates.LOADING;
       visualize(res);
     }).catch(e => {
       currentState = RecordingStates.DECLINED_MESSAGE;
@@ -209,6 +213,10 @@
 
   <div class='msg' class:hidden={currentState !== RecordingStates.DECLINED_MESSAGE}>
     You have blocked use<br> of microphone.
+  </div>
+
+  <div class='msg' class:hidden={currentState !== RecordingStates.LOADING}>
+    please wait...
   </div>
 
   <div class='msg' class:hidden={currentState !== RecordingStates.FIRST_MESSAGE}>

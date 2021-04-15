@@ -271,7 +271,7 @@
         await processProject($ProjectId, $currentUser.defaultProjectName);
         clearInterval(int);
         currentState = DisplayStates.MENU;
-        await updateList(videoType, videoId, $supabase);
+        await updateList(videoType, videoId);
       }
     }
   };
@@ -393,7 +393,7 @@
 
 </div>
 
-{#if currentState === DisplayStates.RECORDER}
+{#if currentState === DisplayStates.RECORDER && recordingState !== RecordingStates.LOADING}
   <RecordingTracks
     currentTime={currentTime}
     duration={duration}

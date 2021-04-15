@@ -18,7 +18,8 @@ yarn.lock
 
 # build
 /dist
-/public/build
+/public/content.js
+/public/content.css
 
 # sensitive
 /backend/credentials

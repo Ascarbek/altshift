@@ -2,11 +2,11 @@
   "name": "svelte-app",
   "version": "1.0.0",
   "scripts": {
-    "build": "cross-env NODE_ENV=build webpack",
-    "dev": "cross-env NODE_ENV=dev webpack-dev-server --content-base dist",
+    "build:webpack": "cross-env NODE_ENV=build webpack",
+    "dev:webpack": "cross-env NODE_ENV=dev webpack-dev-server --content-base dist",
     "serve-static": "npx serve -s downloaded -l 8081",
-    "build:rollup": "rollup -c",
-    "dev:rollup": "rollup -c -w",
+    "build:rollup": "rollup -c rollup.dev.config.js",
+    "dev:rollup": "rollup -c rollup.dev.config.js -w",
     "start": "sirv public --no-clear",
     "validate": "svelte-check"
   },

@@ -36,12 +36,12 @@ function serve() {
 }
 
 export default {
-  input: 'src/wrapper/index.js',
+  input: production ? 'src/content.js' : 'src/wrapper/index.js',
   output: {
     sourcemap: true,
     format: 'iife',
     name: 'app',
-    file: 'public/build/bundle.js',
+    file: 'public/content.js',
   },
   plugins: [
     svelte({
@@ -53,7 +53,7 @@ export default {
     }),
     // we'll extract any component CSS out into
     // a separate file - better for performance
-    css({ output: 'bundle.css' }),
+    css({ output: 'content.css' }),
 
     json(),
 
