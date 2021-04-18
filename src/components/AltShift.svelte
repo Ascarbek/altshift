@@ -1,4 +1,4 @@
-<script lang='ts'>
+<script lang="ts">
   import Player from './Player.svelte';
   import { getDefaultProjectName, initialize, updateList } from './api/supabase-app';
   import { currentUser, supabase } from './api/svelte-stores';
@@ -27,11 +27,9 @@
 </script>
 
 {#if showPlayer}
-  <Player onShowSignIn={() => showSignIn = true} videoType={videoType} videoId={videoId}
-  />
+  <Player onShowSignIn="{() => (showSignIn = true)}" videoType="{videoType}" videoId="{videoId}" />
 {/if}
 
 {#if showSignIn}
-  <SignIn onClose={() => showSignIn = false}
-  />
+  <SignIn onClose="{() => (showSignIn = false)}" />
 {/if}

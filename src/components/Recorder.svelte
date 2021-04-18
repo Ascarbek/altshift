@@ -1,4 +1,4 @@
-<script lang='ts'>
+<script lang="ts">
   import { onDestroy, onMount } from 'svelte';
   import { CurrentParts, currentUser, ProjectId, RecordingStart, supabase, Voices } from './api/svelte-stores';
   import { v4 } from 'uuid';
@@ -90,7 +90,7 @@
     saveProgress = 0;
     const id = v4();
 
-    const blob = new Blob([e.data], { 'type': 'audio/ogg; codecs=opus' });
+    const blob = new Blob([e.data], { type: 'audio/ogg; codecs=opus' });
     const file: File = new File([blob], `${id}.webm`);
 
     await $supabase.storage.from('recording-parts').upload(`${id}.webm`, file);
@@ -163,15 +163,14 @@
       canvasCtx.strokeStyle = 'rgb(0, 0, 0)';
       canvasCtx.beginPath();
 
-      let sliceWidth = WIDTH * 1.0 / bufferLength;
+      let sliceWidth = (WIDTH * 1.0) / bufferLength;
       let x = 0;
 
       let peak = 0;
 
       for (let i = 0; i < bufferLength; i++) {
-
         let v = dataArray[i] / 128.0;
-        let y = v * HEIGHT / 2;
+        let y = (v * HEIGHT) / 2;
 
         if (v > peak) peak = v;
 
@@ -194,53 +193,54 @@
   }
 
   export let showDlg = () => {
-    streamPromise.then(res => {
-      currentState = RecordingStates.LOADING;
-      visualize(res);
-    }).catch(e => {
-      currentState = RecordingStates.DECLINED_MESSAGE;
-    });
+    streamPromise
+      .then((res) => {
+        currentState = RecordingStates.LOADING;
+        visualize(res);
+      })
+      .catch((e) => {
+        currentState = RecordingStates.DECLINED_MESSAGE;
+      });
   };
 </script>
 
-<div class='recorder'>
-  <canvas bind:this={canvasElement} class='visualizer'
-          class:hidden={currentState !== RecordingStates.ACTIVE_RECORDING}></canvas>
+<div class="recorder">
+  <canvas
+    bind:this={canvasElement}
+    class="visualizer"
+    class:hidden={currentState !== RecordingStates.ACTIVE_RECORDING}
+  />
 
-  <div class='msg' class:hidden={currentState !== RecordingStates.ALLOW_MESSAGE}>
-    Please allow use<br> of microphone.
+  <div class="msg" class:hidden={currentState !== RecordingStates.ALLOW_MESSAGE}>
+    Please allow use<br /> of microphone.
   </div>
 
-  <div class='msg' class:hidden={currentState !== RecordingStates.DECLINED_MESSAGE}>
-    You have blocked use<br> of microphone.
+  <div class="msg" class:hidden={currentState !== RecordingStates.DECLINED_MESSAGE}>
+    You have blocked use<br /> of microphone.
   </div>
 
-  <div class='msg' class:hidden={currentState !== RecordingStates.LOADING}>
-    please wait...
-  </div>
+  <div class="msg" class:hidden={currentState !== RecordingStates.LOADING}>please wait...</div>
 
-  <div class='msg' class:hidden={currentState !== RecordingStates.FIRST_MESSAGE}>
-    hold <b>ctrl</b> key to start.<br>
+  <div class="msg" class:hidden={currentState !== RecordingStates.FIRST_MESSAGE}>
+    hold <b>ctrl</b> key to start.<br />
     release to pause.
   </div>
 
-  <div class='msg' class:hidden={currentState !== RecordingStates.SAVING_PROGRESS}>
+  <div class="msg" class:hidden={currentState !== RecordingStates.SAVING_PROGRESS}>
     {#each [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] as p}
-      <div class='upload-progress fill' class:fill={saveProgress > p*10+5} style={`left: ${30 + p*15}px`}>
-      </div>
+      <div class="upload-progress fill" class:fill={saveProgress > p * 10 + 5} style={`left: ${30 + p * 15}px`} />
     {/each}
   </div>
 
-  <div class='msg' class:hidden={currentState !== RecordingStates.PAUSE_MESSAGE}>
-    press <b>Ok</b> to save.<br>
+  <div class="msg" class:hidden={currentState !== RecordingStates.PAUSE_MESSAGE}>
+    press <b>Ok</b> to save.<br />
     or <b>ctrl</b> to continue.
   </div>
 
-  <div class='msg' class:hidden={currentState !== RecordingStates.SAVE_MENU}>
-    <input>
+  <div class="msg" class:hidden={currentState !== RecordingStates.SAVE_MENU}>
+    <input />
   </div>
 </div>
-
 
 <style>
   .hidden {
@@ -261,7 +261,6 @@
   }
 
   .visualizer {
-
   }
 
   .recorder {
