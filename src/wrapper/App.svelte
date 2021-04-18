@@ -19,8 +19,8 @@
   // let videoId = '-aQ2E0mlRQI';
   // let videoId: string = 's73k6J-q740';
   // let videoId: string = 'f4g2nPY-VZc';
-  let videoId: string = '22H8M8h6Hdo';
-  // let videoId: string = '5nLWTVTwOhY';
+  // let videoId: string = '22H8M8h6Hdo';
+  let videoId: string = '5nLWTVTwOhY';
   let videoType: string = 'YOUTUBE_VIDEO_PAGE';
 
   let v;
@@ -43,14 +43,14 @@
     class='v' controls
 
   >
-    <source src='http://localhost:8081/tu114.mp4'>
+    <source src='http://localhost:8081/canyoutrust.mp4'>
   </video>
 </div>
 
 <style>
   video {
     position: absolute;
-    top: 200px;
+    top: 300px;
     left: 20px;
     width: 800px;
   }
@@ -63,7 +63,7 @@
 
   .test {
     position: absolute;
-    top: 110px;
+    top: 127px;
     left: 30px;
     display: flex;
     align-items: center;
