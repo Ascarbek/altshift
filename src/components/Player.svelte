@@ -1,4 +1,4 @@
-<script lang='ts'>
+<script lang="ts">
   import { onDestroy, onMount } from 'svelte';
   import { fade } from 'svelte/transition';
   import { cubicInOut } from 'svelte/easing';
@@ -106,6 +106,8 @@
       audioHtml.currentTime = video.currentTime;
       if (!video.paused) {
         await audioHtml.play();
+        const video = document.querySelector('video');
+        video.volume = 0.3;
       }
     }
     busy = true;
@@ -147,10 +149,7 @@
       }
 
       setTimeout(attachVideoEvents, 10);
-
-    } catch (e) {
-
-    }
+    } catch (e) {}
   });
 
   onDestroy(() => {
@@ -327,80 +326,76 @@
   export let onShowSignIn: () => void;
 </script>
 
-<div class='player' bind:this={playerHtml} transition:fade={{delay: 0, duration: 200, easing: cubicInOut}}
-     style={`left: ${left}px; top: ${top}px`}
-     on:mousedown={onMouseDown}>
-
-  <div class='content'>
+<div
+  class="player"
+  bind:this="{playerHtml}"
+  transition:fade="{{ delay: 0, duration: 200, easing: cubicInOut }}"
+  style="{`left: ${left}px; top: ${top}px`}"
+  on:mousedown="{onMouseDown}"
+>
+  <div class="content">
     <Display
-      state={currentState}
-      data={currentFile}
-      on:uploadClick={uploadClick}
-      bind:progress={uploadProgress}
-      bind:menuItemIndex={menuItemIndex}
+      state="{currentState}"
+      data="{currentFile}"
+      on:uploadClick="{uploadClick}"
+      bind:progress="{uploadProgress}"
+      bind:menuItemIndex
     >
-      <div slot='recorder'>
+      <div slot="recorder">
         <Recorder
-          streamPromise={AudioInputStreamPromise}
-          videoType={videoType}
-          videoId={videoId}
-          duration={duration}
-          projectName={$currentUser.defaultProjectName}
-          voiceName='male 1'
-          bind:currentState={recordingState}
-        >
-        </Recorder>
+          streamPromise="{AudioInputStreamPromise}"
+          videoType="{videoType}"
+          videoId="{videoId}"
+          duration="{duration}"
+          projectName="{$currentUser.defaultProjectName}"
+          voiceName="male 1"
+          bind:currentState="{recordingState}"
+        />
       </div>
     </Display>
 
-    <div class='arrow-buttons'>
-      <div class='arrow-left' on:click={onLeftClick}>
-        <i class='fas fa-angle-left'></i>
+    <div class="arrow-buttons">
+      <div class="arrow-left" on:click="{onLeftClick}">
+        <i class="fas fa-angle-left"></i>
       </div>
 
-      <div class='arrow-up' on:click={onUpClick}>
-        <i class='fas fa-angle-up'></i>
+      <div class="arrow-up" on:click="{onUpClick}">
+        <i class="fas fa-angle-up"></i>
       </div>
 
-      <div class='arrow-right' on:click={onRightClick}>
-        <i class='fas fa-angle-right'></i>
+      <div class="arrow-right" on:click="{onRightClick}">
+        <i class="fas fa-angle-right"></i>
       </div>
 
-      <div class='arrow-down' on:click={onDownClick}>
-        <i class='fas fa-angle-down'></i>
+      <div class="arrow-down" on:click="{onDownClick}">
+        <i class="fas fa-angle-down"></i>
       </div>
 
-      <div class='ok-button' on:click={onOkClick}>
+      <div class="ok-button" on:click="{onOkClick}">
         <span>OK</span>
       </div>
     </div>
 
-    <div class='settings-button'>
+    <div class="settings-button">
       <span>menu</span>
     </div>
 
-    <div class='back-button' on:click={onBackClick}>
+    <div class="back-button" on:click="{onBackClick}">
       <span>back</span>
     </div>
 
-    <div class='power-button'>
-      <i class='fas fa-power-off'></i>
+    <div class="power-button">
+      <i class="fas fa-power-off"></i>
     </div>
   </div>
 
   {#if renderPlayer}
-    <audio src='{currentFile.path}' bind:this={audioHtml}></audio>
+    <audio src="{currentFile.path}" bind:this="{audioHtml}"></audio>
   {/if}
-
 </div>
 
 {#if currentState === DisplayStates.RECORDER && recordingState !== RecordingStates.LOADING}
-  <RecordingTracks
-    currentTime={currentTime}
-    duration={duration}
-    on:seek={onRecordingTrackSeek}
-  >
-  </RecordingTracks>
+  <RecordingTracks currentTime="{currentTime}" duration="{duration}" on:seek="{onRecordingTrackSeek}" />
 {/if}
 
 <style>
@@ -439,14 +434,22 @@
     width: 50px;
   }
 
-  .arrow-left, .arrow-right, .arrow-up, .arrow-down, .ok-button {
+  .arrow-left,
+  .arrow-right,
+  .arrow-up,
+  .arrow-down,
+  .ok-button {
     position: absolute;
     color: #9e9e9e;
     font-size: 16px;
     padding: 3px;
   }
 
-  .arrow-left:hover, .arrow-right:hover, .arrow-up:hover, .arrow-down:hover, .ok-button:hover {
+  .arrow-left:hover,
+  .arrow-right:hover,
+  .arrow-up:hover,
+  .arrow-down:hover,
+  .ok-button:hover {
     color: #000000;
   }
 
@@ -470,14 +473,19 @@
     left: calc(50% - 8px);
   }
 
-  .ok-button, .settings-button, .back-button, .power-button {
+  .ok-button,
+  .settings-button,
+  .back-button,
+  .power-button {
     position: absolute;
     color: #9e9e9e;
     font-family: 'Roboto Mono', monospace;
     font-size: 11px;
   }
 
-  .ok-button:hover, .settings-button:hover, .back-button:hover {
+  .ok-button:hover,
+  .settings-button:hover,
+  .back-button:hover {
     color: #000000;
   }
 
@@ -510,7 +518,10 @@
   }
   */
 
-  .settings-button, .back-button, .arrow-buttons, .power-button {
+  .settings-button,
+  .back-button,
+  .arrow-buttons,
+  .power-button {
     cursor: pointer;
   }
 </style>

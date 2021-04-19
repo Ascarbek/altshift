@@ -206,38 +206,41 @@
 
 <div class="recorder">
   <canvas
-    bind:this={canvasElement}
+    bind:this="{canvasElement}"
     class="visualizer"
-    class:hidden={currentState !== RecordingStates.ACTIVE_RECORDING}
-  />
+    class:hidden="{currentState !== RecordingStates.ACTIVE_RECORDING}"></canvas>
 
-  <div class="msg" class:hidden={currentState !== RecordingStates.ALLOW_MESSAGE}>
+  <div class="msg" class:hidden="{currentState !== RecordingStates.ALLOW_MESSAGE}">
     Please allow use<br /> of microphone.
   </div>
 
-  <div class="msg" class:hidden={currentState !== RecordingStates.DECLINED_MESSAGE}>
+  <div class="msg" class:hidden="{currentState !== RecordingStates.DECLINED_MESSAGE}">
     You have blocked use<br /> of microphone.
   </div>
 
-  <div class="msg" class:hidden={currentState !== RecordingStates.LOADING}>please wait...</div>
+  <div class="msg" class:hidden="{currentState !== RecordingStates.LOADING}">please wait...</div>
 
-  <div class="msg" class:hidden={currentState !== RecordingStates.FIRST_MESSAGE}>
+  <div class="msg" class:hidden="{currentState !== RecordingStates.FIRST_MESSAGE}">
     hold <b>ctrl</b> key to start.<br />
     release to pause.
   </div>
 
-  <div class="msg" class:hidden={currentState !== RecordingStates.SAVING_PROGRESS}>
+  <div class="msg" class:hidden="{currentState !== RecordingStates.SAVING_PROGRESS}">
     {#each [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] as p}
-      <div class="upload-progress fill" class:fill={saveProgress > p * 10 + 5} style={`left: ${30 + p * 15}px`} />
+      <div
+        class="upload-progress fill"
+        class:fill="{saveProgress > p * 10 + 5}"
+        style="{`left: ${30 + p * 15}px`}"
+      ></div>
     {/each}
   </div>
 
-  <div class="msg" class:hidden={currentState !== RecordingStates.PAUSE_MESSAGE}>
+  <div class="msg" class:hidden="{currentState !== RecordingStates.PAUSE_MESSAGE}">
     press <b>Ok</b> to save.<br />
     or <b>ctrl</b> to continue.
   </div>
 
-  <div class="msg" class:hidden={currentState !== RecordingStates.SAVE_MENU}>
+  <div class="msg" class:hidden="{currentState !== RecordingStates.SAVE_MENU}">
     <input />
   </div>
 </div>

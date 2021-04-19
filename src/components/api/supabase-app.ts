@@ -5,10 +5,12 @@ import type { IAudioFile, IProject, IRecordPart, FRecording } from './types';
 import { v4 } from 'uuid';
 import axios from 'axios';
 
-
 export const initialize = () => {
-// Create a single supabase client for interacting with your database
-  return createClient('https://yyircgyncjnyymfkcsvz.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlhdCI6MTYxODQ2OTAzNSwiZXhwIjoxOTM0MDQ1MDM1fQ.BZY72_nhzIVhhqg6OuEhTvHsLSvqRqfDveUyYdOkJ8g');
+  // Create a single supabase client for interacting with your database
+  return createClient(
+    'https://yyircgyncjnyymfkcsvz.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlhdCI6MTYxODQ2OTAzNSwiZXhwIjoxOTM0MDQ1MDM1fQ.BZY72_nhzIVhhqg6OuEhTvHsLSvqRqfDveUyYdOkJ8g'
+  );
 };
 
 export const updateList = async (videoType: string, videoId: string) => {
@@ -23,7 +25,9 @@ export const updateList = async (videoType: string, videoId: string) => {
 
     let audioFiles: IAudioFile[] = [];
 
-    const { data, error } = await supabase.from('audio_file').select()
+    const { data, error } = await supabase
+      .from('audio_file')
+      .select()
       .filter('video_type', 'eq', videoType)
       .filter('video_id', 'eq', videoId);
     if (error) {
@@ -50,8 +54,7 @@ export const updateList = async (videoType: string, videoId: string) => {
 
 export const getDefaultProjectName = async (id: string): Promise<string> => {
   const supabase: SupabaseClient = get(supabaseStore);
-  const { data, error } = await supabase.from('author').select()
-    .filter('id', 'eq', id);
+  const { data, error } = await supabase.from('author').select().filter('id', 'eq', id);
 
   if (error) {
     console.error(error);
@@ -72,8 +75,7 @@ export const deleteRecording = async (id: string) => {
 
 export const getRecordings = async (projectId: string): Promise<IRecordPart[]> => {
   const supabase: SupabaseClient = get(supabaseStore);
-  const { data, error } = await supabase.from('recording_part').select()
-    .filter('project_id', 'eq', projectId);
+  const { data, error } = await supabase.from('recording_part').select().filter('project_id', 'eq', projectId);
   if (error) {
     console.error(error);
     return;
@@ -81,16 +83,28 @@ export const getRecordings = async (projectId: string): Promise<IRecordPart[]> =
 
   const urls: any = {};
 
-  for (const item of data) {
-    const resp = await supabase.storage.from('recording-parts').createSignedUrl(`${item.id}.webm`, 120);
-    urls[item.id] = URL.createObjectURL(new Blob([(await axios({
-      url: resp.data.signedURL,
-      method: 'GET',
-      responseType: 'blob',
-    })).data]));
-  }
+  // for (const item of data) {
+  await Promise.all(
+    data.map((item) =>
+      (async (item) => {
+        const resp = await supabase.storage.from('recording-parts').createSignedUrl(`${item.id}.webm`, 120);
 
-  return data.map<IRecordPart>(item => ({
+        urls[item.id] = URL.createObjectURL(
+          new Blob([
+            (
+              await axios({
+                url: resp.data.signedURL,
+                method: 'GET',
+                responseType: 'blob',
+              })
+            ).data,
+          ])
+        );
+      })(item)
+    )
+  );
+
+  return data.map<IRecordPart>((item) => ({
     id: item.id,
     created: item.created,
     start: item.start,
@@ -103,7 +117,9 @@ export const getRecordings = async (projectId: string): Promise<IRecordPart[]> =
 
 export const getOrCreateProject = async (authorId: string, videoType: string, videoId: string): Promise<IProject> => {
   const supabase: SupabaseClient = get(supabaseStore);
-  const { data, error } = await supabase.from('project').select()
+  const { data, error } = await supabase
+    .from('project')
+    .select()
     .filter('author_id', 'eq', authorId)
     .filter('video_type', 'eq', videoType)
     .filter('video_id', 'eq', videoId);
@@ -120,13 +136,17 @@ export const getOrCreateProject = async (authorId: string, videoType: string, vi
       videoId,
     };
   } else {
-    const { data, error } = await supabase.from('project')
-      .insert([{
-        id: v4(),
-        author_id: authorId,
-        video_type: videoType,
-        video_id: videoId,
-      }], { returning: 'representation' });
+    const { data, error } = await supabase.from('project').insert(
+      [
+        {
+          id: v4(),
+          author_id: authorId,
+          video_type: videoType,
+          video_id: videoId,
+        },
+      ],
+      { returning: 'representation' }
+    );
 
     return {
       id: data[0].id,
@@ -137,19 +157,22 @@ export const getOrCreateProject = async (authorId: string, videoType: string, vi
   }
 };
 
-
 export const newRecording = async (params: FRecording): Promise<IRecordPart> => {
   const supabase: SupabaseClient = get(supabaseStore);
-  const { data, error } = await supabase.from('recording_part')
-    .insert([{
-      id: params.id,
-      project_id: params.projectId,
-      created: params.created,
-      start: params.start,
-      end: params.end,
-      peaks: params.peaks,
-      path: params.path,
-    }], { returning: 'representation' });
+  const { data, error } = await supabase.from('recording_part').insert(
+    [
+      {
+        id: params.id,
+        project_id: params.projectId,
+        created: params.created,
+        start: params.start,
+        end: params.end,
+        peaks: params.peaks,
+        path: params.path,
+      },
+    ],
+    { returning: 'representation' }
+  );
   if (error) {
     console.error(error);
     return;
@@ -165,15 +188,18 @@ export const newRecording = async (params: FRecording): Promise<IRecordPart> => 
   };
 };
 
-export const addAudioFile = async (projectId: string, projectName: string, videoType: string, videoId: string): Promise<void> => {
+export const addAudioFile = async (
+  projectId: string,
+  projectName: string,
+  videoType: string,
+  videoId: string
+): Promise<void> => {
   const supabase: SupabaseClient = get(supabaseStore);
-  const { data: checkData } = await supabase.from('audio_file')
-    .select()
-    .filter('project_id', 'eq', projectId);
+  const { data: checkData } = await supabase.from('audio_file').select().filter('project_id', 'eq', projectId);
 
   if (!checkData.length) {
-    await supabase.from('audio_file')
-      .insert([{
+    await supabase.from('audio_file').insert([
+      {
         name: projectName,
         path: `https://audio.altshift.cc/${projectId}.webm`,
         tags: [],
@@ -181,8 +207,7 @@ export const addAudioFile = async (projectId: string, projectName: string, video
         video_type: videoType,
         video_id: videoId,
         project_id: projectId,
-      }]);
+      },
+    ]);
   }
 };
-
-

@@ -1,4 +1,4 @@
-<script lang='ts'>
+<script lang="ts">
   import { createEventDispatcher, onDestroy, onMount } from 'svelte';
   import { currentUser, Voices, CurrentParts, ProjectId, RecordingStart } from './api/svelte-stores';
   import { deleteRecording, getRecordings } from './api/supabase-app';
@@ -25,6 +25,7 @@
     }
     render();
   });
+
   onDestroy(() => {
     const video = document.querySelector('video');
     if (video) {
@@ -106,8 +107,7 @@
 
     // scrollbar
     const barWidth = outer.clientWidth / 2;
-    if (scrollOffset < 0)
-      actualScrollOffset = 0;
+    if (scrollOffset < 0) actualScrollOffset = 0;
     else if (scrollOffset > outer.clientWidth - paddingLeft - paddingRight - barWidth)
       actualScrollOffset = outer.clientWidth - paddingLeft - paddingRight - barWidth;
     else actualScrollOffset = scrollOffset;
@@ -161,14 +161,28 @@
     for (let i = 0; i < Math.round(duration / step) + 1; i++) {
       ctx.fillStyle = '#4c4c4c';
       if (i * step - scrollSeconds >= 0) {
-        ctx.fillRect(paddingLeft + (i * step - scrollSeconds) * scale, paddingTop + trackHeight + paddingTop, 1, timeMainNotchHeight);
-        ctx.fillText(getFormatted(i * step), paddingLeft + (i * step - scrollSeconds) * scale, paddingTop + trackHeight + paddingTop + timeMainNotchHeight + 8 + 3);
+        ctx.fillRect(
+          paddingLeft + (i * step - scrollSeconds) * scale,
+          paddingTop + trackHeight + paddingTop,
+          1,
+          timeMainNotchHeight
+        );
+        ctx.fillText(
+          getFormatted(i * step),
+          paddingLeft + (i * step - scrollSeconds) * scale,
+          paddingTop + trackHeight + paddingTop + timeMainNotchHeight + 8 + 3
+        );
       }
 
       for (let j = 1; j < step / small; j++) {
         ctx.fillStyle = '#ababab';
         if (i * step + j * small - scrollSeconds >= 0) {
-          ctx.fillRect(paddingLeft + (i * step + j * small - scrollSeconds) * scale, paddingTop + trackHeight + paddingTop + 1, 1, timeMainNotchHeight - 1);
+          ctx.fillRect(
+            paddingLeft + (i * step + j * small - scrollSeconds) * scale,
+            paddingTop + trackHeight + paddingTop + 1,
+            1,
+            timeMainNotchHeight - 1
+          );
         }
       }
     }
@@ -181,18 +195,28 @@
         ctx.fillStyle = '#000000';
       }
       if (part.start - scrollSeconds >= 0) {
-        ctx.fillRect(paddingLeft + (part.start - scrollSeconds) * scale, paddingTop, (part.end - part.start) * scale, trackHeight);
+        ctx.fillRect(
+          paddingLeft + (part.start - scrollSeconds) * scale,
+          paddingTop,
+          (part.end - part.start) * scale,
+          trackHeight
+        );
       } else if (part.end - scrollSeconds >= 0) {
         ctx.fillRect(paddingLeft, paddingTop, (part.end - scrollSeconds) * scale, trackHeight);
       }
 
-      const peakLines = compressPeaks(part.peaks, (part.end - part.start) * scale / 2);
+      const peakLines = compressPeaks(part.peaks, ((part.end - part.start) * scale) / 2);
 
       for (let i = 0; i < peakLines.length; i++) {
         ctx.fillStyle = '#e5e5e5';
         const peak = peakLines[i];
         if (part.start + (i * 2) / scale - scrollSeconds >= 0) {
-          ctx.fillRect(paddingLeft + (part.start - scrollSeconds) * scale + i * 2, paddingTop + trackHeight / 2 - (peak - 1) * trackHeight / 2, 1, (peak - 1) * trackHeight + 1);
+          ctx.fillRect(
+            paddingLeft + (part.start - scrollSeconds) * scale + i * 2,
+            paddingTop + trackHeight / 2 - ((peak - 1) * trackHeight) / 2,
+            1,
+            (peak - 1) * trackHeight + 1
+          );
         }
       }
     }
@@ -201,7 +225,12 @@
     if ($RecordingStart > -1) {
       ctx.fillStyle = '#f27979';
       if ($RecordingStart - scrollSeconds >= 0) {
-        ctx.fillRect(paddingLeft + ($RecordingStart - scrollSeconds) * scale, paddingTop, (currentTime - $RecordingStart) * scale, trackHeight);
+        ctx.fillRect(
+          paddingLeft + ($RecordingStart - scrollSeconds) * scale,
+          paddingTop,
+          (currentTime - $RecordingStart) * scale,
+          trackHeight
+        );
       } else if ($RecordingStart - scrollSeconds >= 0) {
         ctx.fillRect(paddingLeft, paddingTop, (currentTime - scrollSeconds) * scale, trackHeight);
       }
@@ -210,10 +239,27 @@
     // cursor
     ctx.fillStyle = '#be2a2c';
     if (currentTime - scrollSeconds >= 0) {
-      ctx.fillRect(paddingLeft + (currentTime - scrollSeconds) * scale, paddingTop / 2, cursorWidth, trackHeight + paddingTop);
+      ctx.fillRect(
+        paddingLeft + (currentTime - scrollSeconds) * scale,
+        paddingTop / 2,
+        cursorWidth,
+        trackHeight + paddingTop
+      );
       ctx.beginPath();
-      ctx.arc(paddingLeft + (currentTime - scrollSeconds) * scale + cursorWidth / 2, paddingTop / 2, cursorRadius, 0, Math.PI * 2);
-      ctx.arc(paddingLeft + (currentTime - scrollSeconds) * scale + cursorWidth / 2, trackHeight + paddingTop + paddingTop / 2, cursorRadius, 0, Math.PI * 2);
+      ctx.arc(
+        paddingLeft + (currentTime - scrollSeconds) * scale + cursorWidth / 2,
+        paddingTop / 2,
+        cursorRadius,
+        0,
+        Math.PI * 2
+      );
+      ctx.arc(
+        paddingLeft + (currentTime - scrollSeconds) * scale + cursorWidth / 2,
+        trackHeight + paddingTop + paddingTop / 2,
+        cursorRadius,
+        0,
+        Math.PI * 2
+      );
       ctx.fill();
     }
   }
@@ -229,7 +275,10 @@
     if (e.offsetY > paddingTop && e.offsetY < paddingTop + trackHeight) {
       let hasSelected = false;
       for (const part of $CurrentParts) {
-        if (e.clientX >= paddingLeft + (part.start - scrollSeconds) * scale && e.clientX <= paddingLeft + (part.start - scrollSeconds) * scale + (part.end - part.start) * scale) {
+        if (
+          e.clientX >= paddingLeft + (part.start - scrollSeconds) * scale &&
+          e.clientX <= paddingLeft + (part.start - scrollSeconds) * scale + (part.end - part.start) * scale
+        ) {
           if (e.shiftKey) {
             selectedParts = [...selectedParts, part.id];
           } else {
@@ -243,8 +292,8 @@
     if (!seeking && e.offsetY > paddingTop + trackHeight && e.offsetY < barTop) {
       seeking = true;
       const x = e.offsetX - paddingLeft;
-      dispatch('seek', { time: (scrollSeconds + x / scale) });
-      currentTime = (scrollSeconds + x / scale);
+      dispatch('seek', { time: scrollSeconds + x / scale });
+      currentTime = scrollSeconds + x / scale;
     }
     if (!scrolling && e.offsetY > barTop) {
       scrolling = true;
@@ -255,8 +304,8 @@
     if (seeking) {
       seeking = true;
       const x = e.offsetX - paddingLeft;
-      dispatch('seek', { time: (scrollSeconds + x / scale) });
-      currentTime = (scrollSeconds + x / scale);
+      dispatch('seek', { time: scrollSeconds + x / scale });
+      currentTime = scrollSeconds + x / scale;
     }
 
     if (scrolling) {
@@ -291,16 +340,20 @@
   }
 </script>
 
-<div class='toolbar'>
-  <div class='project-name'>{$currentUser.defaultProjectName}</div>
-  <button on:click={() => scale++}>
-    <i class='fas fa-search-plus'></i>
+<div class="toolbar">
+  <div class="project-name">{$currentUser.defaultProjectName}</div>
+  <button on:click="{() => scale++}">
+    <i class="fas fa-search-plus"></i>
   </button>
-  <button on:click={() => {if(scale > 1) scale--}}>
-    <i class='fas fa-search-minus'></i>
+  <button
+    on:click="{() => {
+      if (scale > 1) scale--;
+    }}"
+  >
+    <i class="fas fa-search-minus"></i>
   </button>
-  <button on:click={() => onDeleteClick()}>
-    <i class='far fa-trash-alt'></i>
+  <button on:click="{() => onDeleteClick()}">
+    <i class="far fa-trash-alt"></i>
   </button>
   <div>
     {getFormatted(currentTime, true)}
@@ -308,17 +361,20 @@
 </div>
 
 {#each $Voices as voice}
-  <div class='track-outer' bind:this={outer} style={`height: ${fullHeight}px`}>
-    <canvas bind:this={canvasElement} on:mousedown={onCanvasDown} on:mousemove={onCanvasMove}
-            on:mouseup={onCanvasUp}></canvas>
+  <div class="track-outer" bind:this="{outer}" style="{`height: ${fullHeight}px`}">
+    <canvas
+      bind:this="{canvasElement}"
+      on:mousedown="{onCanvasDown}"
+      on:mousemove="{onCanvasMove}"
+      on:mouseup="{onCanvasUp}"></canvas>
   </div>
 {/each}
 
 {#each $CurrentParts as part}
-  <audio id={'part-' + part.id} src='{part.path}'></audio>
+  <audio id="{'part-' + part.id}" src="{part.path}"></audio>
 {/each}
 
-<svelte:window on:keydown={onKeyDown} on:keyup={onKeyUp}></svelte:window>
+<svelte:window on:keydown="{onKeyDown}" on:keyup="{onKeyUp}" />
 
 <style>
   .track-outer {

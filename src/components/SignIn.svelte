@@ -1,4 +1,4 @@
-<script lang='ts'>
+<script lang="ts">
   import { fade } from 'svelte/transition';
   import { currentUser, supabase } from './api/svelte-stores';
   import { getDefaultProjectName } from './api/supabase-app';
@@ -26,47 +26,38 @@
   };
 </script>
 
-<div class='backdrop' transition:fade></div>
+<div class="backdrop" transition:fade></div>
 
-<div class='form' transition:fade>
-  <div class='icon-part'>
-    <i class='fas fa-microphone-alt'></i>
+<div class="form" transition:fade>
+  <div class="icon-part">
+    <i class="fas fa-microphone-alt"></i>
   </div>
 
-  <div class='fields-part'>
-    <button class='cancel-button' on:click={() => onClose()}><i class='fas fa-times'></i></button>
+  <div class="fields-part">
+    <button class="cancel-button" on:click="{() => onClose()}"><i class="fas fa-times"></i></button>
 
-    <div class='form-title'>
-      Welcome!
-    </div>
-    <div class='message'>
-      to alpha version of AltShift
-    </div>
+    <div class="form-title">Welcome!</div>
+    <div class="message">to beta version of AltShift</div>
 
-    <div class='field-group'>
-      <div class='field'>
-        <label>
-          Email
-        </label>
-        <input bind:value={email}>
+    <div class="field-group">
+      <div class="field">
+        <label> Email </label>
+        <input bind:value="{email}" />
       </div>
-      <div class='field'>
-        <label>
-          Password
-        </label>
-        <input bind:value={password} type='password'>
+      <div class="field">
+        <label> Password </label>
+        <input bind:value="{password}" type="password" />
       </div>
     </div>
-    <div class='button-group'>
-      <button class='ok-button' on:click={() => onOkClick()}>
-        <span style='margin-right: 10px; font-size: 18px'>Sign in</span>
-        <i class='fas fa-long-arrow-alt-right'></i>
+    <div class="button-group">
+      <button class="ok-button" on:click="{() => onOkClick()}">
+        <span style="margin-right: 10px; font-size: 18px">Sign in</span>
+        <i class="fas fa-long-arrow-alt-right"></i>
       </button>
 
-      <a href='https://www.altshift.cc/request-login' target='_blank'>submit for alpha test</a>
+      <a href="https://www.altshift.cc/request-login" target="_blank">sign up for beta test</a>
     </div>
   </div>
-
 </div>
 
 <style>
@@ -98,7 +89,7 @@
   }
 
   .icon-part {
-    background: #D1FAE5;
+    background: #d1fae5;
     width: 200px;
     display: flex;
     align-items: center;
@@ -127,7 +118,7 @@
   }
 
   .field label {
-    color: #6B7280;
+    color: #6b7280;
     padding-left: 7px;
     margin-bottom: 5px;
     font-size: 14px;
@@ -135,7 +126,7 @@
   }
 
   .field input {
-    border: #D1D5DB solid 1px;
+    border: #d1d5db solid 1px;
     border-radius: 8px;
     padding: 7px;
   }
@@ -157,7 +148,7 @@
   }
 
   .ok-button {
-    background: #10B981;
+    background: #10b981;
     color: #ffffff;
     border: none;
     padding: 0;
@@ -173,7 +164,7 @@
   }
 
   .form-title {
-    color: #10B981;
+    color: #10b981;
     font-size: 40px;
     text-align: center;
     margin-bottom: 10px;
@@ -191,7 +182,7 @@
   }
 
   .button-group a {
-    color: #10B981;
+    color: #10b981;
     text-decoration: none;
     font-weight: lighter;
   }
