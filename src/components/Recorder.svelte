@@ -133,7 +133,7 @@
   function visualize(stream) {
     if (!stream) return;
     const audioCtx = new AudioContext();
-    mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+    mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm', audioBitsPerSecond: 256000 });
     let canvasCtx = canvasElement.getContext('2d');
     let source = audioCtx.createMediaStreamSource(stream);
 
