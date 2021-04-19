@@ -73,8 +73,12 @@
       // every 100ms
       peakLines = compressPeaks(wavePeaks, (currentEndTime - currentStartTime) * 10);
     }
-    mediaRecorder.stop();
-    mediaRecorder.addEventListener('dataavailable', onDataAvailable);
+    // avoid cutoffs in the end
+    setTimeout(() => {
+      mediaRecorder.stop();
+      mediaRecorder.addEventListener('dataavailable', onDataAvailable);
+    }, 100);
+
   };
 
   onDestroy(() => {
