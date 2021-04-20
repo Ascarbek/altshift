@@ -26,3 +26,4 @@ yarn.lock
 /backend/credentials
 /backend/file
 /firebase.config.js
+/src/config.json

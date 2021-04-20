@@ -4,7 +4,7 @@
   "scripts": {
     "build:webpack": "cross-env NODE_ENV=build webpack",
     "dev:webpack": "cross-env NODE_ENV=dev webpack-dev-server --content-base dist",
-    "serve-static": "npx serve -s downloaded -l 8081",
+    "serve-static": "serve -s downloaded -l 8081",
     "build:rollup": "rollup -c rollup.dev.config.js",
     "dev:rollup": "rollup -c rollup.dev.config.js -w",
     "dev:snowpack": "snowpack dev",
@@ -23,7 +23,6 @@
     "css-loader": "^2.1.1",
     "dotenv": "^8.2.0",
     "file-loader": "^6.1.0",
-    "firebase": "^7.21.1",
     "html-webpack-plugin": "^4.5.0",
     "jest": "^26.1.0",
     "mini-css-extract-plugin": "^0.6.0",
@@ -46,7 +45,6 @@
   },
   "dependencies": {
     "@snowpack/plugin-svelte": "^3.6.1",
-    "@supabase/supabase-js": "^1.11.3",
     "@types/uuid": "^8.3.0",
     "axios": "^0.21.1",
     "prettier": "^2.2.1",

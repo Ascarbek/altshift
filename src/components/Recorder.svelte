@@ -1,12 +1,13 @@
 <script lang="ts">
   import { onDestroy, onMount } from 'svelte';
-  import { CurrentParts, currentUser, ProjectId, RecordingStart, supabase, Voices } from './api/svelte-stores';
+  import { CurrentParts, currentUser, ProjectId, RecordingStart, Voices } from './api/svelte-stores';
   import { v4 } from 'uuid';
 
   import type { IProject } from './api/types';
   import { RecordingStates } from './api/types';
   import { compressPeaks } from './api/waveHelpers';
-  import { getOrCreateProject, getRecordings, newRecording } from './api/supabase-app';
+  import { getOrCreateProject, uploadPart } from './api/backend';
+  import axios from 'axios';
 
   let canvasElement: HTMLCanvasElement;
 
@@ -78,7 +79,6 @@
       mediaRecorder.stop();
       mediaRecorder.addEventListener('dataavailable', onDataAvailable);
     }, 100);
-
   };
 
   onDestroy(() => {
@@ -92,29 +92,24 @@
     mediaRecorder.removeEventListener('dataavailable', onDataAvailable);
 
     saveProgress = 0;
-    const id = v4();
 
     const blob = new Blob([e.data], { type: 'audio/ogg; codecs=opus' });
-    const file: File = new File([blob], `${id}.webm`);
+    const file: File = new File([blob], `myPart.webm`);
 
-    await $supabase.storage.from('recording-parts').upload(`${id}.webm`, file);
-    // const resp = await $supabase.storage.from('recording-parts').createSignedUrl(`${id}.webm`, 24 * 60 * 60);
+    const data = await uploadPart(file, $ProjectId, currentStartTime, currentEndTime, peakLines);
 
-    const path = URL.createObjectURL(blob);
-
-    let recording = await newRecording({
-      id,
-      projectId: $ProjectId,
-      authorId: $currentUser.uid,
-      voiceName: voiceName,
-      start: currentStartTime,
-      end: currentEndTime,
-      peaks: peakLines,
-      created: Math.trunc(new Date().getTime() / 1000),
-      path,
-    });
-
-    $CurrentParts = [...$CurrentParts, recording];
+    $CurrentParts = [
+      ...$CurrentParts,
+      {
+        id: data.id,
+        start: data.start,
+        end: data.end,
+        path: data.path,
+        peaks: data.peaks,
+        voiceName: voiceName,
+        created: data.created_at,
+      },
+    ];
   };
 
   $: onRecordingStateChange(currentState);
@@ -125,8 +120,9 @@
     }
 
     if (state === RecordingStates.LOADING) {
-      currentProject = await getOrCreateProject($currentUser.uid, videoType, videoId);
-      $CurrentParts = await getRecordings(currentProject.id);
+      const resp = await getOrCreateProject(videoType, videoId);
+      currentProject = { id: resp.project_id, videoId, videoType, voices: [], authorId: $currentUser.uid };
+      $CurrentParts = resp.parts;
       currentState = RecordingStates.FIRST_MESSAGE;
     }
   }

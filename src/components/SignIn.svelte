@@ -1,28 +1,14 @@
 <script lang="ts">
   import { fade } from 'svelte/transition';
-  import { currentUser, supabase } from './api/svelte-stores';
-  import { getDefaultProjectName } from './api/supabase-app';
+  import { currentUser } from './api/svelte-stores';
+  import { signIn } from './api/backend';
 
   export let onClose: () => void;
   let email;
   let password;
   const onOkClick = async () => {
-    const { user, session, error } = await $supabase.auth.signIn({
-      email,
-      password,
-    });
-
-    if (error) {
-      console.error(error);
-    } else {
-      $currentUser = {
-        email,
-        uid: user.id,
-        defaultProjectName: await getDefaultProjectName(user.id),
-      };
-
-      onClose();
-    }
+    $currentUser = await signIn(email, password);
+    onClose();
   };
 </script>
 

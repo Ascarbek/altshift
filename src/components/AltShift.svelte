@@ -1,27 +1,37 @@
 <script lang="ts">
   import Player from './Player.svelte';
-  import { getDefaultProjectName, initialize, updateList } from './api/supabase-app';
-  import { currentUser, supabase } from './api/svelte-stores';
+  // import { getDefaultProjectName, initialize, updateList } from './api/supabase-app';
+  import { AudioFiles, currentUser, showLogo } from './api/svelte-stores';
   import SignIn from './SignIn.svelte';
   import { onMount } from 'svelte';
+  import { getAudioFiles, init } from './api/backend';
+  import type { IAudioFile } from './api/types';
 
   onMount(async () => {
-    $supabase = initialize();
-    const user = $supabase.auth.user();
-    if (user?.id?.length) {
-      $currentUser = {
-        email: user.email,
-        uid: user.id,
-        defaultProjectName: await getDefaultProjectName(user.id),
-      };
-    }
-    $: await updateList(videoType, videoId);
+    await init();
   });
+
+  const updateAudioFiles = async (videoType: string, videoId: string, showPlayer: boolean) => {
+    $showLogo = true;
+    if (showPlayer && videoType?.length && videoId?.length) {
+      const files = await getAudioFiles(videoType, videoId);
+      $AudioFiles = files.map<IAudioFile>((item) => ({
+        name: item.name,
+        path: item.path,
+        tags: item.tags,
+        lang: item.lang,
+      }));
+    } else {
+      $AudioFiles = [];
+    }
+    $showLogo = false;
+  };
 
   export let videoId: string = '';
   export let videoType: string = '';
-
   export let showPlayer: boolean = true;
+
+  $: updateAudioFiles(videoType, videoId, showPlayer);
 
   let showSignIn = false;
 </script>
