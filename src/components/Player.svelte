@@ -10,7 +10,7 @@
   import Display from './Display.svelte';
   import Recorder from './Recorder.svelte';
   import RecordingTracks from './RecordingTracks.svelte';
-  import { processProject } from './api/mixer-app';
+  import { getAudioFiles, mixProject } from './api/backend';
 
   let AudioInputStreamPromise: Promise<MediaStream> = null;
 
@@ -266,12 +266,18 @@
             clearInterval(int);
           }
         }, 1000);
-        // TODO: replace correctly
-        // await processProject($ProjectId, $currentUser.defaultProjectName);
-        // await addAudioFile($ProjectId, $currentUser.defaultProjectName, videoType, videoId);
+
+        await mixProject($ProjectId);
+
         clearInterval(int);
         currentState = DisplayStates.MENU;
-        // await updateList(videoType, videoId);
+        const files = await getAudioFiles(videoType, videoId);
+        $AudioFiles = files.map<IAudioFile>((item) => ({
+          name: item.name,
+          path: item.path,
+          tags: item.tags,
+          lang: item.lang,
+        }));
       }
     }
   };

@@ -78,7 +78,7 @@
     setTimeout(() => {
       mediaRecorder.stop();
       mediaRecorder.addEventListener('dataavailable', onDataAvailable);
-    }, 100);
+    }, 150);
   };
 
   onDestroy(() => {

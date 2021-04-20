@@ -113,3 +113,18 @@ export const deleteRecordingPart = async (recording_part_id: string) => {
     },
   });
 };
+
+export const mixProject = async (project_id: string) => {
+  const authorization = localStorage.getItem(authStorageKey) as string;
+  await axios.post(
+    `${backend}/mix-project`,
+    {
+      project_id,
+    },
+    {
+      headers: {
+        authorization,
+      },
+    }
+  );
+};
