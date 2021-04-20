@@ -3,6 +3,7 @@
   import { currentUser, Voices, CurrentParts, ProjectId, RecordingStart } from './api/svelte-stores';
   // import { deleteRecording, getRecordings } from './api/supabase-app';
   import { compressPeaks, getFormatted } from './api/waveHelpers';
+  import { deleteRecordingPart } from './api/backend';
 
   const dispatch = createEventDispatcher();
 
@@ -36,7 +37,7 @@
 
   const onDeleteClick = async () => {
     for (const id of selectedParts) {
-      // await deleteRecording(id);
+      await deleteRecordingPart(id);
       $CurrentParts = $CurrentParts.filter((item) => item.id !== id);
     }
     selectedParts = [];

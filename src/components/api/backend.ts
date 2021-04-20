@@ -101,3 +101,15 @@ export const uploadPart = async (
 
   return resp.data;
 };
+
+export const deleteRecordingPart = async (recording_part_id: string) => {
+  const authorization = localStorage.getItem(authStorageKey) as string;
+  await axios.delete(`${backend}/recording-part`, {
+    headers: {
+      authorization,
+    },
+    data: {
+      recording_part_id,
+    },
+  });
+};
