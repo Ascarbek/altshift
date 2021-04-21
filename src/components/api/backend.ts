@@ -6,7 +6,19 @@ import { currentUser } from './svelte-stores';
 const authStorageKey = 'altshift_authorization';
 
 export const init = async () => {
-  const authorization = localStorage.getItem(authStorageKey) as string;
+  let authorization = localStorage.getItem(authStorageKey) as string;
+  if(authorization?.length) {
+    const resp = await axios.get(`${backend}/check-token`, {
+      params: {
+        token: authorization
+      }
+    });
+    if(!resp.data.is_valid) {
+      localStorage.removeItem(authStorageKey);
+      authorization = null;
+    }
+  }
+
   if (!authorization) {
     const resp = await axios.post(`${backend}/new-anon`, {});
     localStorage.setItem(authStorageKey, resp.data.token);

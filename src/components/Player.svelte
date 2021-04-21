@@ -75,6 +75,7 @@
   };
 
   const pauseHandler = () => {
+    wakeUp();
     canPlay = false;
     audioHtml?.pause();
   };
@@ -97,6 +98,7 @@
   };
 
   const timeHandler = async (e: any) => {
+    hideAfterTimeout();
     const video = e.target;
     currentTime = video.currentTime;
     if (busy) return;
@@ -172,6 +174,7 @@
   };
 
   const onMouseMove = (e: MouseEvent) => {
+    wakeUp();
     left += e.movementX;
     top += e.movementY;
   };
@@ -330,79 +333,101 @@
   };
 
   export let onShowSignIn: () => void;
+
+  let showUI = true;
+  let hideTimeoutHandler;
+  let hiding = false;
+
+  const hideAfterTimeout = () => {
+    if (hiding) return;
+    hiding = true;
+    hideTimeoutHandler = setTimeout(() => {
+      showUI = false;
+    }, 3000);
+  };
+
+  const wakeUp = () => {
+    clearTimeout(hideTimeoutHandler);
+    showUI = true;
+    hiding = false;
+  };
 </script>
 
-<div
-  class="player"
-  bind:this="{playerHtml}"
-  transition:fade="{{ delay: 0, duration: 200, easing: cubicInOut }}"
-  style="{`left: ${left}px; top: ${top}px`}"
-  on:mousedown="{onMouseDown}"
->
-  <div class="content">
-    <Display
-      state="{currentState}"
-      data="{currentFile}"
-      on:uploadClick="{uploadClick}"
-      bind:progress="{uploadProgress}"
-      bind:menuItemIndex
-    >
-      <div slot="recorder">
-        <Recorder
-          streamPromise="{AudioInputStreamPromise}"
-          videoType="{videoType}"
-          videoId="{videoId}"
-          duration="{duration}"
-          projectName="{$currentUser.defaultProjectName}"
-          voiceName="male 1"
-          bind:currentState="{recordingState}"
-        />
+{#if showUI}
+  <div
+    class="player"
+    bind:this="{playerHtml}"
+    in:fade="{{ delay: 0, duration: 300, easing: cubicInOut }}"
+    out:fade="{{ delay: 0, duration: 1500, easing: cubicInOut }}"
+    style="{`left: ${left}px; top: ${top}px`}"
+    on:mousedown="{onMouseDown}"
+  >
+    <div class="content">
+      <Display
+        state="{currentState}"
+        data="{currentFile}"
+        on:uploadClick="{uploadClick}"
+        bind:progress="{uploadProgress}"
+        bind:menuItemIndex
+      >
+        <div slot="recorder">
+          <Recorder
+            streamPromise="{AudioInputStreamPromise}"
+            videoType="{videoType}"
+            videoId="{videoId}"
+            duration="{duration}"
+            projectName="{$currentUser.defaultProjectName}"
+            voiceName="male 1"
+            bind:currentState="{recordingState}"
+          />
+        </div>
+      </Display>
+
+      <div class="arrow-buttons">
+        <div class="arrow-left" on:click="{onLeftClick}">
+          <i class="fas fa-angle-left"></i>
+        </div>
+
+        <div class="arrow-up" on:click="{onUpClick}">
+          <i class="fas fa-angle-up"></i>
+        </div>
+
+        <div class="arrow-right" on:click="{onRightClick}">
+          <i class="fas fa-angle-right"></i>
+        </div>
+
+        <div class="arrow-down" on:click="{onDownClick}">
+          <i class="fas fa-angle-down"></i>
+        </div>
+
+        <div class="ok-button" on:click="{onOkClick}">
+          <span>OK</span>
+        </div>
       </div>
-    </Display>
 
-    <div class="arrow-buttons">
-      <div class="arrow-left" on:click="{onLeftClick}">
-        <i class="fas fa-angle-left"></i>
+      <div class="settings-button">
+        <span>menu</span>
       </div>
 
-      <div class="arrow-up" on:click="{onUpClick}">
-        <i class="fas fa-angle-up"></i>
+      <div class="back-button" on:click="{onBackClick}">
+        <span>back</span>
       </div>
 
-      <div class="arrow-right" on:click="{onRightClick}">
-        <i class="fas fa-angle-right"></i>
+      <div class="power-button">
+        <i class="fas fa-power-off"></i>
       </div>
-
-      <div class="arrow-down" on:click="{onDownClick}">
-        <i class="fas fa-angle-down"></i>
-      </div>
-
-      <div class="ok-button" on:click="{onOkClick}">
-        <span>OK</span>
-      </div>
-    </div>
-
-    <div class="settings-button">
-      <span>menu</span>
-    </div>
-
-    <div class="back-button" on:click="{onBackClick}">
-      <span>back</span>
-    </div>
-
-    <div class="power-button">
-      <i class="fas fa-power-off"></i>
     </div>
   </div>
+{/if}
 
-  {#if renderPlayer}
-    <audio src="{currentFile.path}" bind:this="{audioHtml}"></audio>
-  {/if}
-</div>
-
+{#if renderPlayer}
+  <audio src="{currentFile.path}" bind:this="{audioHtml}"></audio>
+{/if}
 {#if currentState === DisplayStates.RECORDER && recordingState !== RecordingStates.LOADING}
   <RecordingTracks currentTime="{currentTime}" duration="{duration}" on:seek="{onRecordingTrackSeek}" />
 {/if}
+
+<svelte:window on:mousemove="{wakeUp}" />
 
 <style>
   audio {

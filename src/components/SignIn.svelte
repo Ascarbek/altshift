@@ -7,7 +7,12 @@
   let email;
   let password;
   const onOkClick = async () => {
-    $currentUser = await signIn(email, password);
+    try {
+      $currentUser = await signIn(email, password);
+    } catch (e) {
+      console.error(e);
+      alert('user not found');
+    }
     onClose();
   };
 </script>

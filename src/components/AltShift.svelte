@@ -9,6 +9,8 @@
 
   onMount(async () => {
     await init();
+
+    $: updateAudioFiles(videoType, videoId, showPlayer);
   });
 
   const updateAudioFiles = async (videoType: string, videoId: string, showPlayer: boolean) => {
@@ -30,8 +32,6 @@
   export let videoId: string = '';
   export let videoType: string = '';
   export let showPlayer: boolean = true;
-
-  $: updateAudioFiles(videoType, videoId, showPlayer);
 
   let showSignIn = false;
 </script>
