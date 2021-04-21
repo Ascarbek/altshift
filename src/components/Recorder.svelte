@@ -76,9 +76,9 @@
     }
     // avoid cutoffs in the end
     setTimeout(() => {
-      mediaRecorder.stop();
       mediaRecorder.addEventListener('dataavailable', onDataAvailable);
-    }, 150);
+      mediaRecorder.stop();
+    }, 100);
   };
 
   onDestroy(() => {
