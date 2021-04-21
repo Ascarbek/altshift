@@ -340,6 +340,7 @@
 
   const hideAfterTimeout = () => {
     if (hiding) return;
+    if (currentState === DisplayStates.RECORDER) return;
     hiding = true;
     hideTimeoutHandler = setTimeout(() => {
       showUI = false;
