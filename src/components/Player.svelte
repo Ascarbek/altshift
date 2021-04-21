@@ -45,6 +45,7 @@
    * */
   let initTimeoutHandler1: any;
   let initTimeoutHandler2: any;
+  let isPlaying = false;
 
   const attachVideoEvents = () => {
     const video = document.querySelector('video');
@@ -76,6 +77,7 @@
 
   const pauseHandler = () => {
     wakeUp();
+    isPlaying = false;
     canPlay = false;
     audioHtml?.pause();
   };
@@ -101,13 +103,14 @@
     hideAfterTimeout();
     const video = e.target;
     currentTime = video.currentTime;
+    isPlaying = true;
+    duration = video.duration;
     if (busy) return;
     if (audioHtml) {
       if (Math.abs(audioHtml.currentTime - video.currentTime) < 0.1) return;
       audioHtml.currentTime = video.currentTime;
       if (!video.paused) {
         await audioHtml.play();
-        const video = document.querySelector('video');
         video.volume = 0.3;
       }
     }
@@ -414,7 +417,7 @@
         <span>back</span>
       </div>
 
-      <div class="power-button">
+      <div class="power-button" class:playing="{isPlaying}" class:recording="{currentState === DisplayStates.RECORDER}">
         <i class="fas fa-power-off"></i>
       </div>
     </div>
@@ -544,16 +547,18 @@
     font-size: 16px;
   }
 
-  /*
-  .power-button.active i {
-    color: #248dc1;
-  }
-  */
-
   .settings-button,
   .back-button,
   .arrow-buttons,
   .power-button {
     cursor: pointer;
+  }
+
+  .power-button.playing {
+    color: #3b82f6;
+  }
+
+  .power-button.recording {
+    color: #ef4444;
   }
 </style>
