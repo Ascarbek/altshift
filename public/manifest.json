@@ -3,7 +3,7 @@
   "manifest_version": 3,
   "description": "Record and play voice overs for YouTube and Netflix videos",
   "short_name": "AltShift",
-  "version": "1.1.3",
+  "version": "1.1.4",
   "background": {
     "service_worker": "background.js"
   },
