@@ -111,7 +111,9 @@
       audioHtml.currentTime = video.currentTime;
       if (!video.paused) {
         await audioHtml.play();
-        video.volume = 0.3;
+        if (renderPlayer) {
+          video.volume = 0.3;
+        }
       }
     }
     busy = true;
