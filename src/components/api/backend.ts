@@ -7,13 +7,13 @@ const authStorageKey = 'altshift_authorization';
 
 export const init = async () => {
   let authorization = localStorage.getItem(authStorageKey) as string;
-  if(authorization?.length) {
+  if (authorization?.length) {
     const resp = await axios.get(`${backend}/check-token`, {
       params: {
-        token: authorization
-      }
+        token: authorization,
+      },
     });
-    if(!resp.data.is_valid) {
+    if (!resp.data.is_valid) {
       localStorage.removeItem(authStorageKey);
       authorization = null;
     }
@@ -21,20 +21,23 @@ export const init = async () => {
 
   if (!authorization) {
     const resp = await axios.post(`${backend}/new-anon`, {});
-    localStorage.setItem(authStorageKey, resp.data.token);
-  } else {
-    const resp = await axios.get(`${backend}/author`, {
-      headers: {
-        authorization,
-      },
-    });
-    const { id, email, project_name } = resp.data;
-    currentUser.set({
-      uid: id,
-      email: email,
-      defaultProjectName: project_name,
-    });
+    authorization = resp.data.token;
+    localStorage.setItem(authStorageKey, authorization);
   }
+
+  const resp = await axios.get(`${backend}/author`, {
+    headers: {
+      authorization,
+    },
+  });
+  const { id, email, project_name } = resp.data;
+
+  currentUser.set({
+    token: authorization,
+    uid: id,
+    email: email,
+    defaultProjectName: project_name,
+  });
 };
 
 export const getAudioFiles = async (video_type: string, video_id: string): Promise<any> => {
@@ -61,6 +64,7 @@ export const signIn = async (email: string, password: string): Promise<IAuthor> 
   localStorage.setItem(authStorageKey, token);
 
   return {
+    token,
     uid: author_id,
     email,
     defaultProjectName: project_name,

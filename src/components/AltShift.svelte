@@ -1,20 +1,22 @@
 <script lang="ts">
   import Player from './Player.svelte';
-  // import { getDefaultProjectName, initialize, updateList } from './api/supabase-app';
   import { AudioFiles, currentUser, showLogo } from './api/svelte-stores';
   import SignIn from './SignIn.svelte';
   import { onMount } from 'svelte';
   import { getAudioFiles, init } from './api/backend';
-  import type { IAudioFile } from './api/types';
+  import type { IAudioFile, IAuthor } from './api/types';
+
+  export let videoId: string = '';
+  export let videoType: string = '';
+  export let showPlayer: boolean = true;
 
   onMount(async () => {
     await init();
-
-    $: updateAudioFiles(videoType, videoId, showPlayer);
   });
 
-  const updateAudioFiles = async (videoType: string, videoId: string, showPlayer: boolean) => {
+  const updateAudioFiles = async (videoType: string, videoId: string, user: IAuthor) => {
     $showLogo = true;
+    if (!user?.token?.length) return;
     if (showPlayer && videoType?.length && videoId?.length) {
       const files = await getAudioFiles(videoType, videoId);
       $AudioFiles = files.map<IAudioFile>((item) => ({
@@ -29,9 +31,7 @@
     $showLogo = false;
   };
 
-  export let videoId: string = '';
-  export let videoType: string = '';
-  export let showPlayer: boolean = true;
+  $: updateAudioFiles(videoType, videoId, $currentUser);
 
   let showSignIn = false;
 </script>

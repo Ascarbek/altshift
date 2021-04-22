@@ -68,6 +68,7 @@ export interface IProject {
 }
 
 export interface IAuthor {
+  token?: string;
   uid?: string;
   email?: string;
   defaultProjectName?: string;
