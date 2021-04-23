@@ -67,7 +67,7 @@
   const barCenter = paddingTop + trackHeight + paddingTop + timeMainNotchHeight + 25 + barHeight / 2;
   const barTop = paddingTop + trackHeight + paddingTop + timeMainNotchHeight + 25;
 
-  let scale = 2;
+  let scale = 10;
 
   let selectedParts: string[] = [];
 
@@ -207,6 +207,7 @@
       }
 
       const peakLines = compressPeaks(part.peaks, ((part.end - part.start) * scale) / 2);
+      const peakCorrection = 2.5;
 
       for (let i = 0; i < peakLines.length; i++) {
         ctx.fillStyle = '#e5e5e5';
@@ -214,9 +215,9 @@
         if (part.start + (i * 2) / scale - scrollSeconds >= 0) {
           ctx.fillRect(
             paddingLeft + (part.start - scrollSeconds) * scale + i * 2,
-            paddingTop + trackHeight / 2 - ((peak - 1) * trackHeight) / 2,
+            paddingTop + trackHeight / 2 - ((peak - 1) * trackHeight * peakCorrection) / 2,
             1,
-            (peak - 1) * trackHeight + 1
+            (peak - 1) * trackHeight * peakCorrection + 1
           );
         }
       }

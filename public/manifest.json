@@ -1,9 +1,9 @@
 {
   "name": "AltShift",
   "manifest_version": 3,
-  "description": "Record and play voice overs for YouTube and Netflix videos",
+  "description": "Record and play voice overs for YouTube videos",
   "short_name": "AltShift",
-  "version": "1.1.4",
+  "version": "1.1.5",
   "background": {
     "service_worker": "background.js"
   },
@@ -29,7 +29,6 @@
     "tabs"
   ],
   "host_permissions": [
-    "https://*.altshift.cc/*",
-    "https://*.supabase.co/*"
+    "https://*.altshift.cc/*"
   ]
 }
