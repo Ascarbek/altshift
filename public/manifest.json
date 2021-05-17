@@ -3,7 +3,7 @@
   "manifest_version": 2,
   "description": "Record and play voice overs for YouTube videos",
   "short_name": "AltShift",
-  "version": "1.1.5",
+  "version": "1.1.7",
   "background": {
     "scripts": [
       "background.js"

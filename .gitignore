@@ -15,6 +15,7 @@ yarn.lock
 /temp
 .DS_STORE
 /downloaded
+*.zip
 
 # build
 /dist
