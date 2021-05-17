@@ -1,5 +1,5 @@
 import AltShift from './components/AltShift.svelte';
-
+const browser = chrome ? chrome : firefox;
 function loadCSS(filename) {
   let file = document.createElement('link');
   file.setAttribute('rel', 'stylesheet');
@@ -15,12 +15,12 @@ function loadJS(filename) {
   document.head.appendChild(file);
 }
 
-const getUrl = (path) => chrome.runtime.getURL(path);
+const getUrl = (path) => browser.runtime.getURL(path);
 
 let cssLoaded = false;
 let component;
 
-chrome.runtime.onMessage.addListener(function (request, sender, callback) {
+browser.runtime.onMessage.addListener(function (request, sender, callback) {
   switch (request.action) {
     case 'NETFLIX_BROWSE_PAGE':
     case 'YOUTUBE_BROWSE_PAGE':
