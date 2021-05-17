@@ -3,7 +3,7 @@
 
 1. Install dependencies `npm install` or `yarn`
 
-2. create file in `src/config.json`
+2. Create a file: `src/config.json` and put this content:
 ```json
 {
 "backend": "https://backend.altshift.cc"
@@ -19,6 +19,15 @@
 6. Run `npm run dev:rollup` or `yarn run dev:rollup`
 
 ## Build
+1. Install dependencies `npm install` or `yarn`
 
-Run `npm run build:rollup` or `yarn run build:rollup`
-All required files will be in `public` folder
+2. Create a file: `src/config.json` and put this content:
+```json
+{
+"backend": "https://backend.altshift.cc"
+}
+```
+
+3. Run `npm run build:rollup` or `yarn run build:rollup`
+
+Now all required files will be in `public` folder.
