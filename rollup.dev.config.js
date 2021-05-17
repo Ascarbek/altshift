@@ -12,7 +12,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const production = !process.env.ROLLUP_WATCH;
-const port = process.env.PORT;
+const port = process.env.PORT || 8080;
 
 function serve() {
   let server;

@@ -2,14 +2,10 @@
   "name": "svelte-app",
   "version": "1.0.0",
   "scripts": {
-    "build:webpack": "cross-env NODE_ENV=build webpack",
-    "dev:webpack": "cross-env NODE_ENV=dev webpack-dev-server --content-base dist",
     "serve-static": "serve -s downloaded -l 8081",
     "build:rollup": "rollup -c rollup.dev.config.js",
     "dev:rollup": "rollup -c rollup.dev.config.js -w",
-    "dev:snowpack": "snowpack dev",
-    "start": "sirv public --no-clear",
-    "validate": "svelte-check"
+    "start": "sirv public --no-clear"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^17.0.0",
@@ -17,40 +13,26 @@
     "@rollup/plugin-node-resolve": "^11.0.0",
     "@rollup/plugin-typescript": "^8.0.0",
     "@tsconfig/svelte": "^1.0.10",
-    "@types/dom-mediacapture-record": "^1.0.7",
-    "clean-webpack-plugin": "^3.0.0",
-    "cross-env": "^5.2.0",
-    "css-loader": "^2.1.1",
     "dotenv": "^8.2.0",
-    "file-loader": "^6.1.0",
-    "html-webpack-plugin": "^4.5.0",
-    "jest": "^26.1.0",
-    "mini-css-extract-plugin": "^0.6.0",
+    "prettier": "^2.2.1",
+    "prettier-plugin-svelte": "^2.2.0",
     "rollup": "^2.3.4",
     "rollup-plugin-css-only": "^3.1.0",
     "rollup-plugin-livereload": "^2.0.0",
     "rollup-plugin-svelte": "^7.0.0",
     "rollup-plugin-terser": "^7.0.0",
+    "serve": "^11.3.2",
     "sirv-cli": "^1.0.0",
-    "style-loader": "^0.23.1",
     "svelte": "^3.0.0",
     "svelte-check": "^1.0.55",
     "svelte-loader": "2.13.3",
     "svelte-preprocess": "^4.3.2",
-    "ts-loader": "^8.0.4",
-    "typescript": "^4.0.3",
-    "webpack": "^4.30.0",
-    "webpack-cli": "^3.3.0",
-    "webpack-dev-server": "^3.3.1"
+    "tslib": "^2.2.0",
+    "typescript": "^4.0.3"
   },
   "dependencies": {
-    "@snowpack/plugin-svelte": "^3.6.1",
     "@types/uuid": "^8.3.0",
     "axios": "^0.21.1",
-    "prettier": "^2.2.1",
-    "prettier-plugin-svelte": "^2.2.0",
-    "serve": "^11.3.2",
-    "snowpack": "^3.3.3",
     "uuid": "^8.3.2"
   }
 }
